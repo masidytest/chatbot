@@ -195,27 +195,22 @@ export async function POST(request: Request) {
 
       const answer = await runMasidyPipeline(masidyMessages);
 
-      // Wrap in AI SDK UIMessageStream format so the chat UI renders it
-      const stream = createUIMessageStream({
-        execute: async ({ writer }) => {
-          writer.write({ type: "text-delta", delta: answer, id: generateUUID() });
-        },
-        generateId: generateUUID,
-        onFinish: async ({ messages: finishedMessages }) => {
-          await saveMessages({
-            messages: finishedMessages.map((m) => ({
-              id: m.id,
-              role: m.role,
-              parts: m.parts,
-              createdAt: new Date(),
-              attachments: [],
-              chatId: id,
-            })),
-          });
+      // Stream the answer back using the AI SDK format the UI expects
+      const encoder = new TextEncoder();
+      const readable = new ReadableStream({
+        start(controller) {
+          // AI SDK data stream protocol: text part
+          controller.enqueue(encoder.encode(`0:${JSON.stringify(answer)}\n`));
+          controller.close();
         },
       });
 
-      return createUIMessageStreamResponse({ stream });
+      return new Response(readable, {
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "x-vercel-ai-data-stream": "v1",
+        },
+      });
     }
     // ── End Masidy branch ───────────────────────────────────────────────────
 
