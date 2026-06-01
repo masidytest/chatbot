@@ -53,6 +53,7 @@ import {
 } from "../ai-elements/prompt-input";
 import { Button } from "../ui/button";
 import { PaperclipIcon, StopIcon } from "./icons";
+import { useVoice } from "@/hooks/use-voice";
 import { PreviewAttachment } from "./preview-attachment";
 import {
   type SlashCommand,
@@ -208,6 +209,10 @@ function PureMultimodalInput({
         break;
     }
   };
+
+  const { toggle: toggleVoice, isListening, supported: voiceSupported } = useVoice({
+    onTranscript: (text) => setInput((prev) => prev ? `${prev} ${text}` : text),
+  });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadQueue, setUploadQueue] = useState<string[]>([]);
@@ -523,6 +528,39 @@ function PureMultimodalInput({
               selectedModelId={selectedModelId}
               status={status}
             />
+            {voiceSupported && (
+              <Button
+                className={cn(
+                  "h-7 w-7 rounded-lg border border-border/40 p-1 transition-colors",
+                  isListening
+                    ? "border-red-400 bg-red-50 text-red-500 dark:bg-red-950"
+                    : "text-foreground hover:border-border hover:text-foreground"
+                )}
+                disabled={status !== "ready"}
+                onClick={(e) => { e.preventDefault(); toggleVoice(); }}
+                title={isListening ? "Stop listening" : "Speak your message"}
+                variant="ghost"
+              >
+                <svg
+                  className="size-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Button>
+            )}
             <ModelSelectorCompact
               onModelChange={onModelChange}
               selectedModelId={selectedModelId}
