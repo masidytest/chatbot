@@ -43,10 +43,44 @@ function understand(question: string): {
   return { intent, depth, length };
 }
 
-// Wikipedia API — free, no key needed
+// ── Source 1: LangSearch (free, AI-optimized web search) ────────────────────
+async function searchLangSearch(query: string): Promise<string[]> {
+  const apiKey = process.env.LANGSEARCH_API_KEY;
+  if (!apiKey) return [];
+
+  try {
+    const res = await fetch("https://api.langsearch.com/v1/web-search", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query,
+        freshness: "noLimit",
+        summary: true,
+        count: 5,
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
+
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    const results = data?.data?.webPages?.value ?? [];
+
+    return results
+      .filter((r: { name?: string; summary?: string; snippet?: string }) => r.summary || r.snippet)
+      .slice(0, 3)
+      .map((r: { name?: string; summary?: string; snippet?: string }) =>
+        `[${r.name || "Web"}]\n${r.summary || r.snippet}`
+      );
+  } catch {
+    return [];
+  }
+}
 async function searchWikipedia(query: string): Promise<string[]> {
   try {
-    // Search for the most relevant article
     const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&srlimit=2&origin=*`;
     const searchRes = await fetch(searchUrl, { signal: AbortSignal.timeout(5000) });
     if (!searchRes.ok) return [];
@@ -55,7 +89,6 @@ async function searchWikipedia(query: string): Promise<string[]> {
     const results = searchData?.query?.search ?? [];
     if (results.length === 0) return [];
 
-    // Fetch summary for top result
     const snippets: string[] = [];
     for (const result of results.slice(0, 2)) {
       const title = encodeURIComponent(result.title);
@@ -73,17 +106,93 @@ async function searchWikipedia(query: string): Promise<string[]> {
   }
 }
 
+// ── Source 2: DuckDuckGo Instant Answer (free, no key) ──────────────────────
+async function searchDuckDuckGo(query: string): Promise<string[]> {
+  try {
+    const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    const snippets: string[] = [];
+
+    // Abstract (main answer)
+    if (data.AbstractText) {
+      snippets.push(`[${data.AbstractSource || "DuckDuckGo"}]\n${data.AbstractText}`);
+    }
+
+    // Answer (instant fact)
+    if (data.Answer) {
+      snippets.push(`[Instant Answer]\n${data.Answer}`);
+    }
+
+    // Definition
+    if (data.Definition) {
+      snippets.push(`[Definition: ${data.DefinitionSource || ""}]\n${data.Definition}`);
+    }
+
+    // Related topics (top 2)
+    if (data.RelatedTopics?.length > 0) {
+      const topics = data.RelatedTopics
+        .filter((t: { Text?: string }) => t.Text)
+        .slice(0, 2)
+        .map((t: { Text: string }) => t.Text);
+      if (topics.length > 0) {
+        snippets.push(`[Related]\n${topics.join("\n")}`);
+      }
+    }
+
+    return snippets;
+  } catch {
+    return [];
+  }
+}
+
+// ── Source 3: Wikidata (free, structured facts) ──────────────────────────────
+async function searchWikidata(query: string): Promise<string[]> {
+  try {
+    const url = `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=en&format=json&limit=1&origin=*`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    const results = data?.search ?? [];
+    if (results.length === 0) return [];
+
+    const top = results[0];
+    const snippets: string[] = [];
+
+    if (top.label && top.description) {
+      snippets.push(`[Wikidata: ${top.label}]\n${top.description}`);
+    }
+
+    return snippets;
+  } catch {
+    return [];
+  }
+}
+
+// ── Main retrieval: LangSearch first, Wikipedia + DDG as fallback ────────────
 async function retrieve(question: string, intent: Intent): Promise<string[]> {
-  // Skip retrieval for greetings and conversational messages
   if (intent === "greeting") return [];
 
-  // Try RAG first (user documents)
+  // RAG first (user documents)
   const ragSnippets = await getRelevantSnippetsForQuestion(question);
   if (ragSnippets.length > 0) return ragSnippets;
 
-  // Fall back to Wikipedia for factual questions
-  const wikiSnippets = await searchWikipedia(question);
-  return wikiSnippets;
+  // LangSearch — best quality, AI-optimized
+  const langResults = await searchLangSearch(question);
+  if (langResults.length > 0) return langResults;
+
+  // Fallback: Wikipedia + DuckDuckGo + Wikidata in parallel
+  const [wikiSnippets, ddgSnippets, wikidataSnippets] = await Promise.all([
+    searchWikipedia(question),
+    searchDuckDuckGo(question),
+    searchWikidata(question),
+  ]);
+
+  const combined = [...ddgSnippets, ...wikiSnippets, ...wikidataSnippets];
+  return combined.slice(0, 4);
 }
 
 export async function runMasidyPipeline(
@@ -97,7 +206,6 @@ export async function runMasidyPipeline(
 
   if (sources.length === 0) return "";
 
-  // Return sources as context for the LLM — it will synthesize the final answer
   const depthNote = depth === "shallow" ? "Keep the answer brief." : depth === "deep" ? "Give a detailed explanation." : "";
   const lengthNote = length === "short" ? "Be concise." : length === "long" ? "Be comprehensive." : "";
 
