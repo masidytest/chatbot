@@ -238,17 +238,30 @@ export async function POST(request: Request) {
           const hfSpaceUrl = process.env.HF_SPACE_URL;
           if (hfSpaceUrl) {
             try {
-              const hfRes = await fetch(`${hfSpaceUrl}/run/predict`, {
+              // Gradio 5 API: POST /call/{fn_name} → get event_id → GET result
+              const lastMsg = masidyMessages.filter(m => m.role === "user").at(-1)?.content ?? "";
+              const postRes = await fetch(`${hfSpaceUrl}/call/chat_api`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  data: [JSON.stringify({ messages: masidyMessages, context: pipelineResult.context })]
-                }),
-                signal: AbortSignal.timeout(20000),
+                body: JSON.stringify({ data: [lastMsg, contextTruncated] }),
+                signal: AbortSignal.timeout(5000),
               });
-              if (hfRes.ok) {
-                const hfData = await hfRes.json();
-                hfAnswer = JSON.parse(hfData?.data?.[0] ?? "{}").response ?? "";
+              if (postRes.ok) {
+                const { event_id } = await postRes.json();
+                if (event_id) {
+                  const getRes = await fetch(`${hfSpaceUrl}/call/chat_api/${event_id}`, {
+                    signal: AbortSignal.timeout(55000),
+                  });
+                  if (getRes.ok) {
+                    const text = await getRes.text();
+                    const dataLine = text.split("\n").find(l => l.startsWith("data:"));
+                    if (dataLine) {
+                      const parsed = JSON.parse(dataLine.replace("data: ", ""));
+                      const raw = JSON.parse(parsed?.[0] ?? "{}");
+                      hfAnswer = raw.response ?? "";
+                    }
+                  }
+                }
               }
             } catch (_) { /* fall through to Groq */ }
           }
