@@ -195,9 +195,27 @@ export async function POST(request: Request) {
 
       const answer = await runMasidyPipeline(masidyMessages);
 
-      return new Response(answer, {
-        headers: { "Content-Type": "text/plain; charset=utf-8" },
+      // Wrap in AI SDK UIMessageStream format so the chat UI renders it
+      const stream = createUIMessageStream({
+        execute: async ({ writer }) => {
+          writer.write({ type: "text-delta", delta: answer, id: generateUUID() });
+        },
+        generateId: generateUUID,
+        onFinish: async ({ messages: finishedMessages }) => {
+          await saveMessages({
+            messages: finishedMessages.map((m) => ({
+              id: m.id,
+              role: m.role,
+              parts: m.parts,
+              createdAt: new Date(),
+              attachments: [],
+              chatId: id,
+            })),
+          });
+        },
       });
+
+      return createUIMessageStreamResponse({ stream });
     }
     // ── End Masidy branch ───────────────────────────────────────────────────
 
