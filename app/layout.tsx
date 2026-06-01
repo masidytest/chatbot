@@ -7,9 +7,13 @@ import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://chat.vercel.ai"),
+  metadataBase: new URL("https://chatbot-masidytests-projects.vercel.app"),
   title: "Masidy",
-  description: "Masidy — your personal AI system with reasoning, tools, and documents.",
+  description: "Masidy — your personal AI system. Search the web, analyze documents, write, code, and remember.",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
 };
 
 export const viewport = {

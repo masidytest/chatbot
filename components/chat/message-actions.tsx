@@ -1,5 +1,5 @@
 import equal from "fast-deep-equal";
-import { memo } from "react";
+import { memo, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { useCopyToClipboard } from "usehooks-ts";
@@ -10,6 +10,28 @@ import {
   MessageActions as Actions,
 } from "../ai-elements/message";
 import { CopyIcon, PencilEditIcon, ThumbDownIcon, ThumbUpIcon } from "./icons";
+
+// Simple TTS hook inline
+function useTTS() {
+  const [speaking, setSpeaking] = useState(false);
+
+  const speak = useCallback((text: string) => {
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.onstart = () => setSpeaking(true);
+    utterance.onend = () => setSpeaking(false);
+    utterance.onerror = () => setSpeaking(false);
+    window.speechSynthesis.speak(utterance);
+  }, []);
+
+  const stop = useCallback(() => {
+    window.speechSynthesis?.cancel();
+    setSpeaking(false);
+  }, []);
+
+  return { speak, stop, speaking };
+}
 
 export function PureMessageActions({
   chatId,
@@ -26,6 +48,8 @@ export function PureMessageActions({
 }) {
   const { mutate } = useSWRConfig();
   const [_, copyToClipboard] = useCopyToClipboard();
+
+  const { speak, stop, speaking } = useTTS();
 
   if (isLoading) {
     return null;
@@ -82,6 +106,27 @@ export function PureMessageActions({
       >
         <CopyIcon />
       </Action>
+
+      {/* Voice output button */}
+      {"speechSynthesis" in (typeof window !== "undefined" ? window : {}) && textFromParts && (
+        <Action
+          className={speaking ? "text-foreground" : "text-muted-foreground/50 hover:text-foreground"}
+          onClick={() => speaking ? stop() : speak(textFromParts)}
+          tooltip={speaking ? "Stop speaking" : "Read aloud"}
+        >
+          <svg className="size-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            {speaking ? (
+              <path d="M6 6h12v12H6z" strokeLinecap="round" strokeLinejoin="round" />
+            ) : (
+              <>
+                <path d="M11 5 6 9H2v6h4l5 4V5z" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14" strokeLinecap="round" strokeLinejoin="round" />
+              </>
+            )}
+          </svg>
+        </Action>
+      )}
 
       <Action
         className="text-muted-foreground/50 hover:text-foreground"
