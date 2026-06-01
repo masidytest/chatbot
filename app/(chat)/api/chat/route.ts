@@ -231,10 +231,33 @@ export async function POST(request: Request) {
             ? groqClient("llama-3.1-8b-instant")
             : getLanguageModel("meta/llama-3.1-8b");
 
+          // Try HF Space (native Masidy model) first
+          let hfAnswer = "";
+          const hfSpaceUrl = process.env.HF_SPACE_URL;
+          if (hfSpaceUrl) {
+            try {
+              const hfRes = await fetch(`${hfSpaceUrl}/run/predict`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  data: [JSON.stringify({ messages: masidyMessages, context: pipelineResult.context })]
+                }),
+                signal: AbortSignal.timeout(20000),
+              });
+              if (hfRes.ok) {
+                const hfData = await hfRes.json();
+                hfAnswer = JSON.parse(hfData?.data?.[0] ?? "{}").response ?? "";
+              }
+            } catch (_) { /* fall through to Groq */ }
+          }
+
+          const finalSystemPrompt = hfAnswer
+            ? `You are Masidy. Deliver this answer to the user exactly as written, naturally:\n\n${hfAnswer}`
+            : `You are Masidy, a helpful AI assistant. Answer the user's question directly and naturally.${memorySection}${contextSection}${imageInstruction}`;
+
           const result = streamText({
-            // Use Groq directly if key available, else fall back to gateway
             model: masidyModel,
-            system: `You are Masidy, a helpful AI assistant. Answer the user's question directly and naturally.${memorySection}${contextSection}${imageInstruction}`,
+            system: finalSystemPrompt,
             messages: modelMessages,
             ...(process.env.GROQ_API_KEY ? {} : {
               providerOptions: {
