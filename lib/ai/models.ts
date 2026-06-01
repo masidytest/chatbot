@@ -1,4 +1,4 @@
-export const DEFAULT_CHAT_MODEL = "moonshotai/kimi-k2.5";
+export const DEFAULT_CHAT_MODEL = "masidy";
 
 export const titleModel = {
   id: "moonshotai/kimi-k2.5",
@@ -61,13 +61,29 @@ export const chatModels: ChatModel[] = [
     description: "Fast non-reasoning model with tool use",
     gatewayOrder: ["xai"],
   },
+  {
+    id: "masidy",
+    name: "Masidy Engine",
+    provider: "custom",
+    description: "Custom Masidy pipeline: understanding → retrieval → summarization → fusion → generation",
+  },
 ];
+
+// Static capabilities for models that don't go through the AI Gateway.
+const staticCapabilities: Record<string, ModelCapabilities> = {
+  masidy: { tools: true, vision: false, reasoning: true },
+};
 
 export async function getCapabilities(): Promise<
   Record<string, ModelCapabilities>
 > {
   const results = await Promise.all(
     chatModels.map(async (model) => {
+      // Return static capabilities for custom/local models.
+      if (staticCapabilities[model.id]) {
+        return [model.id, staticCapabilities[model.id]];
+      }
+
       try {
         const res = await fetch(
           `https://ai-gateway.vercel.sh/v1/models/${model.id}/endpoints`,

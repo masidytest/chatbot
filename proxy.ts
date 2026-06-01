@@ -13,6 +13,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Internal Masidy engine route — called server-side from /api/chat (already authenticated).
+  if (pathname.startsWith("/api/masidy")) {
+    return NextResponse.next();
+  }
+
   const token = await getToken({
     req: request,
     secret: process.env.AUTH_SECRET,
