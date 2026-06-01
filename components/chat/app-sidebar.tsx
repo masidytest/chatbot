@@ -1,11 +1,11 @@
 "use client";
 
 import {
-  MessageSquareIcon,
   PanelLeftIcon,
   PenSquareIcon,
   TrashIcon,
 } from "lucide-react";
+import { MasidyBrand, MasidyIcon } from "@/components/chat/masidy-logo";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { User } from "next-auth";
@@ -77,7 +77,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                   tooltip="Masidy"
                 >
                   <Link href="/" onClick={() => setOpenMobile(false)}>
-                    <span className="flex size-6 items-center justify-center rounded-md bg-foreground text-[11px] font-bold text-background">M</span>
+                    <MasidyIcon size={22} />
                   </Link>
                 </SidebarMenuButton>
                 <Tooltip>
@@ -138,8 +138,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
           {user && <SidebarUserNav user={user} />}
           <div className="group-data-[collapsible=icon]:hidden px-2 pt-1">
             <p className="text-[10px] text-sidebar-foreground/30 text-center">Masidy AI</p>
-          </div>
-        </SidebarFooter>
+          </div>        </SidebarFooter>
         <SidebarRail />
       </Sidebar>
 
