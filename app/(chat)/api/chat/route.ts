@@ -43,8 +43,7 @@ import { checkIpRateLimit } from "@/lib/ratelimit";
 import type { ChatMessage } from "@/lib/types";
 import { convertToUIMessages, generateUUID } from "@/lib/utils";
 import { generateTitleFromUserMessage } from "../../actions";
-import { runMasidyPipeline } from "@/app/(chat)/api/masidy/pipeline";
-import { type PostRequestBody, postRequestBodySchema } from "./schema";
+import { runMasidyPipeline } from "@/app/(chat)/api/masidy/pipeline";import { type PostRequestBody, postRequestBodySchema } from "./schema";
 
 export const maxDuration = 60;
 
@@ -193,7 +192,7 @@ export async function POST(request: Request) {
           .join(" "),
       }));
 
-      const pipelineContext = await runMasidyPipeline(masidyMessages, session.user.id);
+      const pipelineResult = await runMasidyPipeline(masidyMessages, session.user.id);
       const modelMessages = await convertToModelMessages(uiMessages);
 
       // Load user memory
@@ -208,16 +207,31 @@ export async function POST(request: Request) {
       }
 
       const memorySection = userMemory ? `\n\n${userMemory}` : "";
-      const contextSection = pipelineContext ? `\n\nRetrieved context:\n${pipelineContext}` : "";
+      const contextSection = pipelineResult.context ? `\n\nRetrieved context:\n${pipelineResult.context}` : "";
+
+      // For image/QR results, return the image URL directly in the response
+      const imageInstruction = pipelineResult.imageUrl
+        ? `\n\nAn image has been generated. Tell the user it's ready and describe what was created. Image URL: ${pipelineResult.imageUrl}`
+        : "";
 
       const stream = createUIMessageStream({
         execute: async ({ writer: dataStream }) => {
+          // Stream image URL as data if present
+          if (pipelineResult.imageUrl) {
+            dataStream.write({
+              type: "data-imageDelta",
+              data: pipelineResult.imageUrl,
+              transient: true,
+            });
+          }
+
           const result = streamText({
-            model: getLanguageModel("moonshotai/kimi-k2.5"),
-            system: `You are Masidy, a helpful AI assistant. Answer the user's question directly and naturally.${memorySection}${contextSection}`,
+            // Use Llama 3.1 8B on Groq — free, fast, capable
+            model: getLanguageModel("meta-llama/llama-3.1-8b-instruct"),
+            system: `You are Masidy, a helpful AI assistant. Answer the user's question directly and naturally.${memorySection}${contextSection}${imageInstruction}`,
             messages: modelMessages,
             providerOptions: {
-              gateway: { order: ["fireworks", "bedrock"] },
+              gateway: { order: ["groq", "fireworks", "bedrock"] },
             },
           });
           dataStream.merge(result.toUIMessageStream());

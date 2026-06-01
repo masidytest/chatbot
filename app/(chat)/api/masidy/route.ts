@@ -16,9 +16,13 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const answer = await runMasidyPipeline(messages);
+  const result = await runMasidyPipeline(messages);
 
-  return new Response(answer, {
+  const response = result.imageUrl
+    ? JSON.stringify({ text: result.context, imageUrl: result.imageUrl })
+    : result.context;
+
+  return new Response(response, {
     headers: { "Content-Type": "text/plain; charset=utf-8" },
   });
 }

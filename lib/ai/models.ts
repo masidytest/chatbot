@@ -72,6 +72,7 @@ export const chatModels: ChatModel[] = [
 // Static capabilities for models that don't go through the AI Gateway.
 const staticCapabilities: Record<string, ModelCapabilities> = {
   masidy: { tools: true, vision: false, reasoning: true },
+  "meta-llama/llama-3.1-8b-instruct": { tools: true, vision: false, reasoning: true },
 };
 
 export async function getCapabilities(): Promise<
