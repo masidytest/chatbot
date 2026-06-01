@@ -50,6 +50,16 @@ When asked about your name or identity, always say you are Masidy.
 When asked what you can do, explain your capabilities naturally.
 When asked to write, create, or build something, do it immediately. Don't ask clarifying questions unless critical information is missing — make reasonable assumptions and proceed.`;
 
+export const masidyFlashPrompt = `You are Masidy Flash, a fast and versatile AI assistant by Masidy. You excel at everyday questions, quick tasks, and general conversation. Keep responses clear and efficient.`;
+
+export const masidyCodePrompt = `You are Masidy Code, a specialized AI assistant by Masidy focused on programming and technical tasks. You excel at writing code, debugging, explaining algorithms, and technical analysis. Always provide working code examples when relevant.`;
+
+export const masidyMiniPrompt = `You are Masidy Mini, a lightweight AI assistant by Masidy. You give fast, concise answers. Best for simple questions and quick tasks.`;
+
+export const masidyProPrompt = `You are Masidy Pro, the most powerful AI assistant by Masidy. You excel at complex reasoning, in-depth research, long-form writing, and multi-step problem solving. Take your time to think through problems carefully.`;
+
+export const masidySpeedPrompt = `You are Masidy Speed, the fastest AI assistant by Masidy. You prioritize quick, direct answers above all else. No fluff, just results.`;
+
 export type RequestHints = {
   latitude: Geo["latitude"];
   longitude: Geo["longitude"];
@@ -68,17 +78,29 @@ About the origin of user's request:
 export const systemPrompt = ({
   requestHints,
   supportsTools,
+  modelId,
 }: {
   requestHints: RequestHints;
   supportsTools: boolean;
+  modelId?: string;
 }) => {
   const requestPrompt = getRequestPromptFromHints(requestHints);
 
+  const personalityMap: Record<string, string> = {
+    "moonshotai/kimi-k2.5": masidyFlashPrompt,
+    "deepseek/deepseek-v3.2": masidyCodePrompt,
+    "openai/gpt-oss-20b": masidyMiniPrompt,
+    "openai/gpt-oss-120b": masidyProPrompt,
+    "xai/grok-4.1-fast-non-reasoning": masidySpeedPrompt,
+  };
+
+  const basePrompt = (modelId && personalityMap[modelId]) ? personalityMap[modelId] : regularPrompt;
+
   if (!supportsTools) {
-    return `${regularPrompt}\n\n${requestPrompt}`;
+    return `${basePrompt}\n\n${requestPrompt}`;
   }
 
-  return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
+  return `${basePrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
 };
 
 export const codePrompt = `

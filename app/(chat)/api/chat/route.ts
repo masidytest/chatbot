@@ -242,7 +242,7 @@ ${pipelineContext}`,
       execute: async ({ writer: dataStream }) => {
         const result = streamText({
           model: getLanguageModel(chatModel),
-          system: systemPrompt({ requestHints, supportsTools }),
+          system: systemPrompt({ requestHints, supportsTools, modelId: chatModel }),
           messages: modelMessages,
           stopWhen: stepCountIs(5),
           experimental_activeTools:
