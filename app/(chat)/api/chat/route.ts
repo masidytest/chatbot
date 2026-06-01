@@ -43,7 +43,8 @@ import { checkIpRateLimit } from "@/lib/ratelimit";
 import type { ChatMessage } from "@/lib/types";
 import { convertToUIMessages, generateUUID } from "@/lib/utils";
 import { generateTitleFromUserMessage } from "../../actions";
-import { runMasidyPipeline } from "@/app/(chat)/api/masidy/pipeline";import { type PostRequestBody, postRequestBodySchema } from "./schema";
+import { runMasidyPipeline } from "@/app/(chat)/api/masidy/pipeline";
+import { createGroq } from "@ai-sdk/groq";import { type PostRequestBody, postRequestBodySchema } from "./schema";
 
 export const maxDuration = 60;
 
@@ -225,14 +226,21 @@ export async function POST(request: Request) {
             });
           }
 
+          const groqClient = createGroq({ apiKey: process.env.GROQ_API_KEY });
+          const masidyModel = process.env.GROQ_API_KEY
+            ? groqClient("llama-3.1-8b-instant")
+            : getLanguageModel("meta/llama-3.1-8b");
+
           const result = streamText({
-            // Use Llama 3.1 8B on Groq — free, fast, capable
-            model: getLanguageModel("meta/llama-3.1-8b"),
+            // Use Groq directly if key available, else fall back to gateway
+            model: masidyModel,
             system: `You are Masidy, a helpful AI assistant. Answer the user's question directly and naturally.${memorySection}${contextSection}${imageInstruction}`,
             messages: modelMessages,
-            providerOptions: {
-              gateway: { order: ["groq", "deepinfra", "bedrock"] },
-            },
+            ...(process.env.GROQ_API_KEY ? {} : {
+              providerOptions: {
+                gateway: { order: ["groq", "deepinfra", "bedrock"] },
+              },
+            }),
           });
           dataStream.merge(result.toUIMessageStream());
 
