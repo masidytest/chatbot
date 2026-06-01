@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { SunDim } from "lucide-react";
 import { MasidyBrand } from "@/components/chat/masidy-logo";
 
 export const Greeting = () => {
@@ -9,14 +8,11 @@ export const Greeting = () => {
     <div className="flex flex-col items-center px-4" key="overview">
       <motion.div
         animate={{ opacity: 1, y: 0 }}
-        className="mb-4"
+        className="mb-5"
         initial={{ opacity: 0, y: 10 }}
         transition={{ delay: 0.2, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
-        <span className="flex items-center gap-2.5">
-          <SunDim size={32} strokeWidth={1.5} className="text-foreground" />
-          <span className="text-2xl font-semibold tracking-tight text-foreground">masidy</span>
-        </span>
+        <MasidyBrand size="lg" />
       </motion.div>
       <motion.div
         animate={{ opacity: 1, y: 0 }}

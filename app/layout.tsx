@@ -11,8 +11,8 @@ export const metadata: Metadata = {
   title: "Masidy",
   description: "Masidy — your personal AI system. Search the web, analyze documents, write, code, and remember.",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "/masidy-icon.svg",
+    shortcut: "/masidy-icon.svg",
   },
 };
 

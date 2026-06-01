@@ -78,7 +78,7 @@ function setCookie(name: string, value: string) {
 // Custom icon renderer — Masidy models get Lucide icons, others get provider logos
 function ModelIcon({ modelId, provider }: { modelId: string; provider: string }) {
   const iconClass = "size-4 text-foreground/70";
-  if (modelId === "masidy") return <SunDim className={iconClass} strokeWidth={1.5} />;
+  if (modelId === "masidy") return <img alt="Masidy" src="/masidy-icon.svg" className="size-4" width={16} height={16} />;
   if (modelId.includes("kimi") || modelId.includes("moonshotai")) return <ZapIcon className={iconClass} strokeWidth={1.5} />;
   if (modelId.includes("deepseek")) return <CodeIcon className={iconClass} strokeWidth={1.5} />;
   if (modelId.includes("gpt-oss-20b")) return <BotIcon className={iconClass} strokeWidth={1.5} />;
