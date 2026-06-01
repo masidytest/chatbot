@@ -193,22 +193,36 @@ export async function POST(request: Request) {
           .join(" "),
       }));
 
-      const answer = await runMasidyPipeline(masidyMessages);
+      const pipelineContext = await runMasidyPipeline(masidyMessages);
+      const modelMessages = await convertToModelMessages(uiMessages);
 
-      // Use createUIMessageStream to emit the answer in the exact format useChat expects
       const stream = createUIMessageStream({
         execute: async ({ writer: dataStream }) => {
-          dataStream.write({
-            type: "data-appendMessage",
-            data: JSON.stringify({
-              id: generateUUID(),
-              role: "assistant",
-              parts: [{ type: "text", text: answer }],
-              metadata: { createdAt: new Date().toISOString() },
-            }),
+          const result = streamText({
+            model: getLanguageModel("moonshotai/kimi-k2.5"),
+            system: `You are Masidy, a helpful AI assistant. Answer the user's question directly and naturally.
+Use the following context from the Masidy pipeline if relevant:
+${pipelineContext}`,
+            messages: modelMessages,
+            providerOptions: {
+              gateway: { order: ["fireworks", "bedrock"] },
+            },
           });
+          dataStream.merge(result.toUIMessageStream());
         },
         generateId: generateUUID,
+        onFinish: async ({ messages: finishedMessages }) => {
+          await saveMessages({
+            messages: finishedMessages.map((m) => ({
+              id: m.id,
+              role: m.role,
+              parts: m.parts,
+              createdAt: new Date(),
+              attachments: [],
+              chatId: id,
+            })),
+          });
+        },
       });
 
       return createUIMessageStreamResponse({ stream });
