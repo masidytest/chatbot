@@ -209,5 +209,15 @@ export async function runMasidyPipeline(
   const depthNote = depth === "shallow" ? "Keep the answer brief." : depth === "deep" ? "Give a detailed explanation." : "";
   const lengthNote = length === "short" ? "Be concise." : length === "long" ? "Be comprehensive." : "";
 
-  return `Retrieved context (use this to answer accurately):\n\n${sources.join("\n\n")}${depthNote || lengthNote ? `\n\nInstructions: ${depthNote} ${lengthNote}`.trim() : ""}`;
+  // Detect language hint for the LLM
+  const hasArabic = /[\u0600-\u06FF]/.test(last);
+  const hasChinese = /[\u4E00-\u9FFF]/.test(last);
+  const hasRussian = /[\u0400-\u04FF]/.test(last);
+  const langHint = hasArabic ? "Respond in Arabic." :
+    hasChinese ? "Respond in Chinese." :
+    hasRussian ? "Respond in Russian." : "";
+
+  const instructions = [depthNote, lengthNote, langHint].filter(Boolean).join(" ");
+
+  return `Retrieved context (use this to answer accurately):\n\n${sources.join("\n\n")}${instructions ? `\n\nInstructions: ${instructions}` : ""}`;
 }
