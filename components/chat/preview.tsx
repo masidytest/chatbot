@@ -14,11 +14,6 @@ export function Preview() {
 
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-tl-2xl bg-background">
-      <div className="flex h-14 shrink-0 items-center gap-3 border-b border-border/20 px-5">
-        <MasidyAnimatedIcon size={20} animate={false} />
-        <span className="text-[13px] font-semibold text-foreground">Masidy</span>
-      </div>
-
       <div className="flex flex-1 flex-col items-center justify-center gap-8 px-8">
         <div className="text-center">
           <h2 className="text-xl font-semibold tracking-tight">
