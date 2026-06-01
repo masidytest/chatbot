@@ -16,7 +16,6 @@ function understand(question: string): {
 } {
   const q = question.toLowerCase().trim();
 
-  // Greetings — handle first so they get a clean reply
   const greetings = ["hi", "hello", "hey", "مرحبا", "السلام", "هلا", "أهلا", "سلام"];
   if (greetings.some((g) => q === g || q.startsWith(g + " ") || q.startsWith(g + "!"))) {
     return { intent: "greeting", depth: "shallow", length: "short" };
@@ -44,60 +43,63 @@ function understand(question: string): {
   return { intent, depth, length };
 }
 
-async function retrieve(question: string): Promise<string[]> {
-  // RAG hook — returns real snippets when implemented
-  const ragSnippets = await getRelevantSnippetsForQuestion(question);
-  return ragSnippets;
+// Wikipedia API — free, no key needed
+async function searchWikipedia(query: string): Promise<string[]> {
+  try {
+    // Search for the most relevant article
+    const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&srlimit=2&origin=*`;
+    const searchRes = await fetch(searchUrl, { signal: AbortSignal.timeout(5000) });
+    if (!searchRes.ok) return [];
+
+    const searchData = await searchRes.json();
+    const results = searchData?.query?.search ?? [];
+    if (results.length === 0) return [];
+
+    // Fetch summary for top result
+    const snippets: string[] = [];
+    for (const result of results.slice(0, 2)) {
+      const title = encodeURIComponent(result.title);
+      const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${title}`;
+      const summaryRes = await fetch(summaryUrl, { signal: AbortSignal.timeout(5000) });
+      if (!summaryRes.ok) continue;
+      const summaryData = await summaryRes.json();
+      if (summaryData.extract) {
+        snippets.push(`[Wikipedia: ${result.title}]\n${summaryData.extract}`);
+      }
+    }
+    return snippets;
+  } catch {
+    return [];
+  }
 }
 
-function generateAnswer(
-  question: string,
-  intent: Intent,
-  _depth: Depth,
-  _length: Length,
-  ragSnippets: string[]
-): string {
-  // Greeting — clean natural response
-  if (intent === "greeting") {
-    return "Hello! I'm Masidy, your AI assistant. How can I help you today?";
-  }
+async function retrieve(question: string, intent: Intent): Promise<string[]> {
+  // Skip retrieval for greetings and conversational messages
+  if (intent === "greeting") return [];
 
-  // If we have real RAG snippets, use them
-  if (ragSnippets.length > 0) {
-    return ragSnippets.join("\n\n");
-  }
+  // Try RAG first (user documents)
+  const ragSnippets = await getRelevantSnippetsForQuestion(question);
+  if (ragSnippets.length > 0) return ragSnippets;
 
-  // No real data yet — give a helpful honest response based on intent
-  const topic = question.trim();
-
-  if (intent === "definition") {
-    return `I don't have real-time data yet to give you a precise definition of "${topic}". Once web search is connected to Masidy, I'll be able to retrieve accurate, up-to-date information. For now, try asking me something I can reason about directly.`;
-  }
-
-  if (intent === "comparison") {
-    return `Comparing "${topic}" requires real-time data which Masidy's retrieval layer doesn't have yet. Once connected to live sources, I'll give you a detailed comparison. Stay tuned!`;
-  }
-
-  if (intent === "steps") {
-    return `To explain how to "${topic}", I need access to real-time sources. Masidy's web retrieval is coming soon. For now, I can help you think through problems or answer questions based on reasoning.`;
-  }
-
-  if (intent === "analysis") {
-    return `Analyzing "${topic}" deeply requires current data. Masidy's retrieval pipeline is a stub for now — real web search integration is the next step. I can still help you reason through ideas!`;
-  }
-
-  // General fallback — honest and clean
-  return `You asked: "${topic}"\n\nMasidy is running but the retrieval layer is still a stub — real web search hasn't been connected yet. I understood your question and processed it through the pipeline (understanding → retrieval → summarization → fusion → generation), but I don't have live data to give you a real answer yet.\n\nOnce web search is integrated, I'll be able to answer any question with real, up-to-date information.`;
+  // Fall back to Wikipedia for factual questions
+  const wikiSnippets = await searchWikipedia(question);
+  return wikiSnippets;
 }
 
 export async function runMasidyPipeline(
   messages: MasidyMessage[]
 ): Promise<string> {
   const last = messages[messages.length - 1]?.content ?? "";
-  if (!last) return "No message provided.";
+  if (!last) return "";
 
   const { intent, depth, length } = understand(last);
-  const ragSnippets = await retrieve(last);
+  const sources = await retrieve(last, intent);
 
-  return generateAnswer(last, intent, depth, length, ragSnippets);
+  if (sources.length === 0) return "";
+
+  // Return sources as context for the LLM — it will synthesize the final answer
+  const depthNote = depth === "shallow" ? "Keep the answer brief." : depth === "deep" ? "Give a detailed explanation." : "";
+  const lengthNote = length === "short" ? "Be concise." : length === "long" ? "Be comprehensive." : "";
+
+  return `Retrieved context (use this to answer accurately):\n\n${sources.join("\n\n")}${depthNote || lengthNote ? `\n\nInstructions: ${depthNote} ${lengthNote}`.trim() : ""}`;
 }

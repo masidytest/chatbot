@@ -74,10 +74,10 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                 <SidebarMenuButton
                   asChild
                   className="size-8 !px-0 items-center justify-center group-data-[collapsible=icon]:group-hover/logo:opacity-0"
-                  tooltip="Chatbot"
+                  tooltip="Masidy"
                 >
                   <Link href="/" onClick={() => setOpenMobile(false)}>
-                    <MessageSquareIcon className="size-4 text-sidebar-foreground/50" />
+                    <span className="flex size-6 items-center justify-center rounded-md bg-foreground text-[11px] font-bold text-background">M</span>
                   </Link>
                 </SidebarMenuButton>
                 <Tooltip>
@@ -136,6 +136,9 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         </SidebarContent>
         <SidebarFooter className="border-t border-sidebar-border pt-2 pb-3">
           {user && <SidebarUserNav user={user} />}
+          <div className="group-data-[collapsible=icon]:hidden px-2 pt-1">
+            <p className="text-[10px] text-sidebar-foreground/30 text-center">Masidy AI</p>
+          </div>
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>

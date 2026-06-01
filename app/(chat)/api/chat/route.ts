@@ -209,6 +209,16 @@ ${pipelineContext}`,
             },
           });
           dataStream.merge(result.toUIMessageStream());
+
+          if (titlePromise) {
+            try {
+              const title = await titlePromise;
+              dataStream.write({ type: "data-chat-title", data: title });
+              updateChatTitleById({ chatId: id, title });
+            } catch (_) {
+              /* non-fatal */
+            }
+          }
         },
         generateId: generateUUID,
         onFinish: async ({ messages: finishedMessages }) => {
