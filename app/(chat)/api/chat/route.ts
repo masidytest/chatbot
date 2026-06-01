@@ -227,11 +227,11 @@ export async function POST(request: Request) {
 
           const result = streamText({
             // Use Llama 3.1 8B on Groq — free, fast, capable
-            model: getLanguageModel("meta-llama/llama-3.1-8b-instruct"),
+            model: getLanguageModel("meta/llama-3.1-8b"),
             system: `You are Masidy, a helpful AI assistant. Answer the user's question directly and naturally.${memorySection}${contextSection}${imageInstruction}`,
             messages: modelMessages,
             providerOptions: {
-              gateway: { order: ["groq", "fireworks", "bedrock"] },
+              gateway: { order: ["groq", "deepinfra", "bedrock"] },
             },
           });
           dataStream.merge(result.toUIMessageStream());
