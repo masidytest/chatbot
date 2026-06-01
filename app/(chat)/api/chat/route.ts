@@ -208,12 +208,14 @@ export async function POST(request: Request) {
       }
 
       const memorySection = userMemory ? `\n\n${userMemory}` : "";
-      const contextSection = pipelineResult.context ? `\n\nRetrieved context:\n${pipelineResult.context}` : "";
-
-      // For image/QR results, return the image URL directly in the response
+      // Truncate context to max 800 chars to stay within Groq free tier token limits
+      const contextTruncated = pipelineResult.context.slice(0, 800);
+      const contextSection = contextTruncated ? `\n\nContext:\n${contextTruncated}` : "";
       const imageInstruction = pipelineResult.imageUrl
-        ? `\n\nAn image has been generated. Tell the user it's ready and describe what was created. Image URL: ${pipelineResult.imageUrl}`
+        ? `\n\nAn image has been generated. Tell the user it's ready. Image URL: ${pipelineResult.imageUrl}`
         : "";
+      // Keep only last 3 messages to reduce token usage
+      const trimmedModelMessages = modelMessages.slice(-3);
 
       const stream = createUIMessageStream({
         execute: async ({ writer: dataStream }) => {
@@ -258,7 +260,7 @@ export async function POST(request: Request) {
           const result = streamText({
             model: masidyModel,
             system: finalSystemPrompt,
-            messages: modelMessages,
+            messages: trimmedModelMessages,
             ...(process.env.GROQ_API_KEY ? {} : {
               providerOptions: {
                 gateway: { order: ["groq", "deepinfra", "bedrock"] },
