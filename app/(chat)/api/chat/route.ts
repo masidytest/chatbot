@@ -43,6 +43,7 @@ import { checkIpRateLimit } from "@/lib/ratelimit";
 import type { ChatMessage } from "@/lib/types";
 import { convertToUIMessages, generateUUID } from "@/lib/utils";
 import { generateTitleFromUserMessage } from "../../actions";
+import { runMasidyPipeline } from "@/app/(chat)/api/masidy/pipeline";
 import { type PostRequestBody, postRequestBodySchema } from "./schema";
 
 export const maxDuration = 60;
@@ -182,13 +183,6 @@ export async function POST(request: Request) {
 
     // ── Masidy custom pipeline ──────────────────────────────────────────────
     if (chatModel === "masidy") {
-      // Extract plain-text content from the last user message parts.
-      const lastMessage = uiMessages[uiMessages.length - 1];
-      const lastText = lastMessage?.parts
-        .filter((p): p is { type: "text"; text: string } => p.type === "text")
-        .map((p) => p.text)
-        .join(" ") ?? "";
-
       const masidyMessages = uiMessages.map((m) => ({
         role: m.role as "user" | "assistant" | "system",
         content: m.parts
@@ -199,15 +193,9 @@ export async function POST(request: Request) {
           .join(" "),
       }));
 
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "";
-      const masidyRes = await fetch(`${baseUrl}/api/masidy`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: masidyMessages }),
-      });
+      const answer = await runMasidyPipeline(masidyMessages);
 
-      const text = await masidyRes.text();
-      return new Response(text, {
+      return new Response(answer, {
         headers: { "Content-Type": "text/plain; charset=utf-8" },
       });
     }
