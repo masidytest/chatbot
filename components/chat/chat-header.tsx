@@ -4,7 +4,7 @@ import { PanelLeftIcon } from "lucide-react";
 import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
-import { MasidyBrand, MasidyIcon } from "@/components/chat/masidy-logo";
+import { MasidyIcon } from "@/components/chat/masidy-logo";
 import { VisibilitySelector, type VisibilityType } from "./visibility-selector";
 
 function PureChatHeader({
@@ -33,6 +33,7 @@ function PureChatHeader({
         <PanelLeftIcon className="size-4" />
       </Button>
 
+      {/* Icon only on mobile when sidebar is closed */}
       <span className="flex size-8 items-center justify-center rounded-lg md:hidden">
         <MasidyIcon size={20} />
       </span>
@@ -43,10 +44,6 @@ function PureChatHeader({
           selectedVisibilityType={selectedVisibilityType}
         />
       )}
-
-      <span className="ml-auto hidden md:flex">
-        <MasidyBrand size="sm" />
-      </span>
     </header>
   );
 }

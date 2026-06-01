@@ -12,15 +12,15 @@ export function MasidyWordmark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
 }
 
 export function MasidyBrand({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
-  const iconSizes = { sm: 14, md: 16, lg: 26 };
+  const iconSizes = { sm: 16, md: 18, lg: 28 };
   return (
-    <span className="flex items-center gap-1.5">
-      <SunDim size={iconSizes[size]} className="text-foreground" />
+    <span className="flex items-center gap-2">
+      <SunDim size={iconSizes[size]} strokeWidth={1.5} className="text-foreground" />
       <MasidyWordmark size={size} />
     </span>
   );
 }
 
 export function MasidyIcon({ size = 20 }: { size?: number }) {
-  return <SunDim size={size} className="text-foreground" />;
+  return <SunDim size={size} strokeWidth={1.5} className="text-foreground" />;
 }
