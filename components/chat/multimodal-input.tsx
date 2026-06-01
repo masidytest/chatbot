@@ -9,6 +9,12 @@ import {
   EyeIcon,
   LockIcon,
   WrenchIcon,
+  SunDim,
+  ZapIcon,
+  CodeIcon,
+  GaugeIcon,
+  BotIcon,
+  CpuIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -67,6 +73,27 @@ function setCookie(name: string, value: string) {
   const maxAge = 60 * 60 * 24 * 365;
   // biome-ignore lint/suspicious/noDocumentCookie: needed for client-side cookie setting
   document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}`;
+}
+
+// Custom icon renderer — Masidy models get Lucide icons, others get provider logos
+function ModelIcon({ modelId, provider }: { modelId: string; provider: string }) {
+  const iconClass = "size-4 text-foreground/70";
+  if (modelId === "masidy") return <SunDim className={iconClass} strokeWidth={1.5} />;
+  if (modelId.includes("kimi") || modelId.includes("moonshotai")) return <ZapIcon className={iconClass} strokeWidth={1.5} />;
+  if (modelId.includes("deepseek")) return <CodeIcon className={iconClass} strokeWidth={1.5} />;
+  if (modelId.includes("gpt-oss-20b")) return <BotIcon className={iconClass} strokeWidth={1.5} />;
+  if (modelId.includes("gpt-oss-120b")) return <BrainIcon className={iconClass} strokeWidth={1.5} />;
+  if (modelId.includes("grok")) return <GaugeIcon className={iconClass} strokeWidth={1.5} />;
+  // fallback: provider logo from models.dev
+  return (
+    <img
+      alt={provider}
+      className="size-4 dark:invert"
+      height={16}
+      src={`https://models.dev/logos/${provider}.svg`}
+      width={16}
+    />
+  );
 }
 
 function PureMultimodalInput({
@@ -696,7 +723,7 @@ function PureModelSelectorCompact({
           data-testid="model-selector"
           variant="ghost"
         >
-          {provider && <ModelSelectorLogo provider={provider} />}
+          {provider && <ModelIcon modelId={selectedModel.id} provider={provider} />}
           <ModelSelectorName>{selectedModel.name}</ModelSelectorName>
         </Button>
       </ModelSelectorTrigger>
@@ -798,7 +825,7 @@ function PureModelSelectorCompact({
                       }}
                       value={model.id}
                     >
-                      <ModelSelectorLogo provider={logoProvider} />
+                      <ModelIcon modelId={model.id} provider={logoProvider} />
                       <ModelSelectorName>{model.name}</ModelSelectorName>
                       <div className="ml-auto flex items-center gap-2 text-foreground/70">
                         {capabilities?.[model.id]?.tools && (
