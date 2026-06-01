@@ -196,13 +196,25 @@ export async function POST(request: Request) {
       const pipelineContext = await runMasidyPipeline(masidyMessages, session.user.id);
       const modelMessages = await convertToModelMessages(uiMessages);
 
+      // Load user memory
+      const { getUserMemory, extractMemoryFacts, saveMemoryFact } = await import("@/lib/memory");
+      const userMemory = await getUserMemory(session.user.id);
+
+      // Extract and save any new facts from the user's message
+      const lastUserText = masidyMessages.filter(m => m.role === "user").at(-1)?.content ?? "";
+      const newFacts = extractMemoryFacts(lastUserText);
+      for (const fact of newFacts) {
+        saveMemoryFact(session.user.id, fact.key, fact.value).catch(() => {});
+      }
+
+      const memorySection = userMemory ? `\n\n${userMemory}` : "";
+      const contextSection = pipelineContext ? `\n\nRetrieved context:\n${pipelineContext}` : "";
+
       const stream = createUIMessageStream({
         execute: async ({ writer: dataStream }) => {
           const result = streamText({
             model: getLanguageModel("moonshotai/kimi-k2.5"),
-            system: `You are Masidy, a helpful AI assistant. Answer the user's question directly and naturally.
-Use the following context from the Masidy pipeline if relevant:
-${pipelineContext}`,
+            system: `You are Masidy, a helpful AI assistant. Answer the user's question directly and naturally.${memorySection}${contextSection}`,
             messages: modelMessages,
             providerOptions: {
               gateway: { order: ["fireworks", "bedrock"] },
