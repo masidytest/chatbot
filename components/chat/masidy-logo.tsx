@@ -8,7 +8,6 @@ export function MasidyBrand({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   return (
     <img
       alt="Masidy"
-      className="dark:invert"
       height={h}
       src="/masidy-logo.svg"
       style={{ height: h, width: w }}

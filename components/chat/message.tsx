@@ -16,6 +16,7 @@ import { useDataStream } from "./data-stream-provider";
 import { DocumentToolResult } from "./document";
 import { DocumentPreview } from "./document-preview";
 import { SparklesIcon } from "./icons";
+import { MasidyAnimatedIcon } from "./masidy-animated-icon";
 import { MessageActions } from "./message-actions";
 import { MessageReasoning } from "./message-reasoning";
 import { PreviewAttachment } from "./preview-attachment";
@@ -345,9 +346,7 @@ const PurePreviewMessage = ({
       >
         {isAssistant && (
           <div className="flex h-[calc(13px*1.65)] shrink-0 items-center">
-            <div className="flex size-7 items-center justify-center rounded-lg bg-muted/60 text-muted-foreground ring-1 ring-border/50">
-              <SparklesIcon size={13} />
-            </div>
+            <MasidyAnimatedIcon size={28} animate={false} />
           </div>
         )}
         {isAssistant ? (
@@ -371,9 +370,7 @@ export const ThinkingMessage = () => {
     >
       <div className="flex items-start gap-3">
         <div className="flex h-[calc(13px*1.65)] shrink-0 items-center">
-          <div className="flex size-7 items-center justify-center rounded-lg bg-muted/60 text-muted-foreground ring-1 ring-border/50">
-            <SparklesIcon size={13} />
-          </div>
+          <MasidyAnimatedIcon size={28} animate={true} />
         </div>
 
         <div className="flex h-[calc(13px*1.65)] items-center text-[13px] leading-[1.65]">
