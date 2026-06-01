@@ -193,7 +193,7 @@ export async function POST(request: Request) {
           .join(" "),
       }));
 
-      const pipelineContext = await runMasidyPipeline(masidyMessages);
+      const pipelineContext = await runMasidyPipeline(masidyMessages, session.user.id);
       const modelMessages = await convertToModelMessages(uiMessages);
 
       const stream = createUIMessageStream({

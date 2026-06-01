@@ -173,11 +173,11 @@ async function searchWikidata(query: string): Promise<string[]> {
 }
 
 // ── Main retrieval: LangSearch first, Wikipedia + DDG as fallback ────────────
-async function retrieve(question: string, intent: Intent): Promise<string[]> {
+async function retrieve(question: string, intent: Intent, userId?: string): Promise<string[]> {
   if (intent === "greeting") return [];
 
   // RAG first (user documents)
-  const ragSnippets = await getRelevantSnippetsForQuestion(question);
+  const ragSnippets = await getRelevantSnippetsForQuestion(question, userId);
   if (ragSnippets.length > 0) return ragSnippets;
 
   // LangSearch — best quality, AI-optimized
@@ -196,13 +196,14 @@ async function retrieve(question: string, intent: Intent): Promise<string[]> {
 }
 
 export async function runMasidyPipeline(
-  messages: MasidyMessage[]
+  messages: MasidyMessage[],
+  userId?: string
 ): Promise<string> {
   const last = messages[messages.length - 1]?.content ?? "";
   if (!last) return "";
 
   const { intent, depth, length } = understand(last);
-  const sources = await retrieve(last, intent);
+  const sources = await retrieve(last, intent, userId);
 
   if (sources.length === 0) return "";
 
