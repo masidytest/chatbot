@@ -14,8 +14,8 @@ export type WebLLMStatus =
 
 // Phi-3.5 Mini — fast, smart, 3.8B, perfect for browser
 export const WEB_LLM_MODEL_ID = "Phi-3.5-mini-instruct-q4f16_1-MLC";
-export const WEB_LLM_DISPLAY_NAME = "Masidy Local (Phi-3.5)";
-export const WEB_LLM_SIZE_MB = 2100; // ~2.1GB
+export const WEB_LLM_DISPLAY_NAME = "Masidy Local";
+export const WEB_LLM_SIZE_MB = 2100;
 
 type MLCEngine = {
   reload: (modelId: string) => Promise<void>;
@@ -75,7 +75,8 @@ export function useWebLLM() {
         },
       });
 
-      await engine.reload(WEB_LLM_MODEL_ID);
+      await engine.reload("Phi-3.5-mini-instruct-q4f16_1-MLC");
+      console.log("WebLLM: model loaded successfully");
       engineRef.current = engine as unknown as MLCEngine;
       setStatus("ready");
       setProgress(100);
