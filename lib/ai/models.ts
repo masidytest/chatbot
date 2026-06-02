@@ -67,12 +67,19 @@ export const chatModels: ChatModel[] = [
     description: "Fastest responses — best for quick answers and real-time tasks",
     gatewayOrder: ["xai"],
   },
+  {
+    id: "masidy-local",
+    name: "Masidy Local",
+    provider: "local",
+    description: "Runs privately in your browser — no data sent to any server. Requires WebGPU.",
+  },
 ];
 
 // Static capabilities for models that don't go through the AI Gateway.
 const staticCapabilities: Record<string, ModelCapabilities> = {
   masidy: { tools: true, vision: false, reasoning: true },
   "meta/llama-3.1-8b": { tools: true, vision: false, reasoning: true },
+  "masidy-local": { tools: false, vision: false, reasoning: true },
 };
 
 export async function getCapabilities(): Promise<
