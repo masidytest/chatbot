@@ -142,7 +142,7 @@ print(f"Model saved to {OUTPUT_DIR}")
 # ── Cell 4: Upload to HuggingFace ─────────────────────────────────────────────
 from huggingface_hub import HfApi
 
-HF_TOKEN = "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"
+HF_TOKEN = "YOUR_HF_TOKEN_HERE"
 REPO_ID = "masidy/masidy-model"
 
 api = HfApi()
