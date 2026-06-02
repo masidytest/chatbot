@@ -22,6 +22,7 @@ type MLCEngine = {
   chat: {
     completions: {
       create: (params: {
+        model?: string;
         messages: Array<{ role: string; content: string }>;
         stream: true;
         max_tokens?: number;
@@ -104,12 +105,12 @@ export function useWebLLM() {
 
       try {
         const chunks = await engineRef.current.chat.completions.create({
+          model: WEB_LLM_MODEL_ID,
           messages,
           stream: true,
           max_tokens: 512,
           temperature: 0.7,
         });
-
         let full = "";
         for await (const chunk of chunks) {
           const token = chunk.choices[0]?.delta?.content ?? "";
