@@ -36,13 +36,20 @@ export function useWebLLM() {
   const [progressText, setProgressText] = useState("");
   const engineRef = useRef<MLCEngine | null>(null);
 
-  const isSupported = useCallback((): boolean => {
+  const isSupported = useCallback(async (): Promise<boolean> => {
     if (typeof window === "undefined") return false;
-    return "gpu" in navigator;
+    if (!("gpu" in navigator)) return false;
+    try {
+      const adapter = await (navigator as Navigator & { gpu: { requestAdapter: () => Promise<unknown> } }).gpu.requestAdapter();
+      return adapter !== null;
+    } catch {
+      return false;
+    }
   }, []);
 
   const initialize = useCallback(async (): Promise<boolean> => {
-    if (!isSupported()) {
+    const supported = await isSupported();
+    if (!supported) {
       setStatus("unsupported");
       return false;
     }
@@ -66,7 +73,6 @@ export function useWebLLM() {
           else setStatus("loading");
         },
       });
-
       engineRef.current = engine as unknown as MLCEngine;
       setStatus("ready");
       setProgress(100);

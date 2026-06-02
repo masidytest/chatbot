@@ -62,11 +62,13 @@ export function ChatShell() {
   // Initialize WebLLM when local model is selected
   useEffect(() => {
     if (isLocalModel && webLLM.status === "idle") {
-      if (!webLLM.isSupported()) {
-        setCurrentModelId("masidy"); // fallback to server model
-        return;
-      }
-      webLLM.initialize();
+      webLLM.isSupported().then((supported) => {
+        if (!supported) {
+          setCurrentModelId("masidy");
+          return;
+        }
+        webLLM.initialize();
+      });
     }
   }, [isLocalModel, webLLM, setCurrentModelId]);
 
