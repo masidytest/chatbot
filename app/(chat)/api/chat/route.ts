@@ -233,42 +233,7 @@ export async function POST(request: Request) {
             ? groqClient("llama-3.1-8b-instant")
             : getLanguageModel("meta/llama-3.1-8b");
 
-          // Try HF Space (native Masidy model) first
-          let hfAnswer = "";
-          const hfSpaceUrl = process.env.HF_SPACE_URL;
-          if (hfSpaceUrl) {
-            try {
-              // Gradio 5 API: POST /call/{fn_name} → get event_id → GET result
-              const lastMsg = masidyMessages.filter(m => m.role === "user").at(-1)?.content ?? "";
-              const postRes = await fetch(`${hfSpaceUrl}/call/chat_api`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ data: [lastMsg, contextTruncated] }),
-                signal: AbortSignal.timeout(5000),
-              });
-              if (postRes.ok) {
-                const { event_id } = await postRes.json();
-                if (event_id) {
-                  const getRes = await fetch(`${hfSpaceUrl}/call/chat_api/${event_id}`, {
-                    signal: AbortSignal.timeout(55000),
-                  });
-                  if (getRes.ok) {
-                    const text = await getRes.text();
-                    const dataLine = text.split("\n").find(l => l.startsWith("data:"));
-                    if (dataLine) {
-                      const parsed = JSON.parse(dataLine.replace("data: ", ""));
-                      const raw = JSON.parse(parsed?.[0] ?? "{}");
-                      hfAnswer = raw.response ?? "";
-                    }
-                  }
-                }
-              }
-            } catch (_) { /* fall through to Groq */ }
-          }
-
-          const finalSystemPrompt = hfAnswer
-            ? `You are Masidy. Deliver this answer to the user exactly as written, naturally:\n\n${hfAnswer}`
-            : `You are Masidy, a helpful AI assistant. Answer the user's question directly and naturally.${memorySection}${contextSection}${imageInstruction}`;
+          const finalSystemPrompt = `You are Masidy, a helpful AI assistant created by the Masidy team. Answer the user's question directly and naturally. Never mention other AI companies. If asked who made you, say: I am Masidy, created by the Masidy team.${memorySection}${contextSection}${imageInstruction}`;
 
           const result = streamText({
             model: masidyModel,
