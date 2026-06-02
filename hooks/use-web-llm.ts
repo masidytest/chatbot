@@ -18,6 +18,7 @@ export const WEB_LLM_DISPLAY_NAME = "Masidy Local (Phi-3.5)";
 export const WEB_LLM_SIZE_MB = 2100; // ~2.1GB
 
 type MLCEngine = {
+  reload: (modelId: string) => Promise<void>;
   chat: {
     completions: {
       create: (params: {
@@ -59,12 +60,12 @@ export function useWebLLM() {
     try {
       setStatus("checking");
 
-      const { CreateMLCEngine } = await import("@mlc-ai/web-llm");
+      const { MLCEngine } = await import("@mlc-ai/web-llm");
 
       setStatus("downloading");
       setProgress(0);
 
-      const engine = await CreateMLCEngine(WEB_LLM_MODEL_ID, {
+      const engine = new MLCEngine({
         initProgressCallback: (report: { progress: number; text: string }) => {
           const pct = Math.round(report.progress * 100);
           setProgress(pct);
@@ -73,6 +74,8 @@ export function useWebLLM() {
           else setStatus("loading");
         },
       });
+
+      await engine.reload(WEB_LLM_MODEL_ID);
       engineRef.current = engine as unknown as MLCEngine;
       setStatus("ready");
       setProgress(100);
