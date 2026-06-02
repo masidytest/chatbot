@@ -8,7 +8,8 @@ interface WebLLMHandlerProps {
   onReady: (generate: WebLLMHandlerProps["generate"]) => void;
   onStatusChange: (status: string, progress?: number) => void;
   generate?: (
-    messages: Array<{ role: "user" | "assistant" | "system"; content: string }>,
+    systemPrompt: string,
+    messages: Array<{ role: "user" | "assistant"; content: string }>,
     onToken: (token: string) => void
   ) => Promise<string>;
 }

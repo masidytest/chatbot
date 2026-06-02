@@ -12,55 +12,62 @@ export type WebLLMStatus =
   | "error"
   | "unsupported";
 
+// Phi-3.5 Mini — fast, smart, 3.8B, perfect for browser
 export const WEB_LLM_MODEL_ID = "Phi-3.5-mini-instruct-q4f16_1-MLC";
-export const WEB_LLM_MODEL_NAME = "Masidy Local (Phi-3.5)";
+export const WEB_LLM_DISPLAY_NAME = "Masidy Local (Phi-3.5)";
+export const WEB_LLM_SIZE_MB = 2100; // ~2.1GB
+
+type MLCEngine = {
+  chat: {
+    completions: {
+      create: (params: {
+        messages: Array<{ role: string; content: string }>;
+        stream: true;
+        max_tokens?: number;
+        temperature?: number;
+      }) => Promise<AsyncIterable<{ choices: Array<{ delta: { content?: string } }> }>>;
+    };
+  };
+};
 
 export function useWebLLM() {
   const [status, setStatus] = useState<WebLLMStatus>("idle");
   const [progress, setProgress] = useState(0);
   const [progressText, setProgressText] = useState("");
-  const engineRef = useRef<unknown>(null);
+  const engineRef = useRef<MLCEngine | null>(null);
 
-  const isSupported = useCallback(() => {
+  const isSupported = useCallback((): boolean => {
     if (typeof window === "undefined") return false;
-    // Check WebGPU support
     return "gpu" in navigator;
   }, []);
 
-  const initialize = useCallback(async () => {
+  const initialize = useCallback(async (): Promise<boolean> => {
     if (!isSupported()) {
       setStatus("unsupported");
       return false;
     }
-
-    if (status === "ready") return true;
+    if (engineRef.current) return true;
     if (status === "loading" || status === "downloading") return false;
 
     try {
       setStatus("checking");
-      setProgress(0);
 
-      const { CreateWebWorkerMLCEngine } = await import("@mlc-ai/web-llm");
+      const { CreateMLCEngine } = await import("@mlc-ai/web-llm");
 
       setStatus("downloading");
+      setProgress(0);
 
-      const engine = await CreateWebWorkerMLCEngine(
-        new Worker(new URL("@mlc-ai/web-llm/worker", import.meta.url), { type: "module" }),
-        WEB_LLM_MODEL_ID,
-        {
-          initProgressCallback: (report: { progress: number; text: string }) => {
-            setProgress(Math.round(report.progress * 100));
-            setProgressText(report.text);
-            if (report.progress > 0 && report.progress < 1) {
-              setStatus("downloading");
-            } else if (report.progress >= 1) {
-              setStatus("loading");
-            }
-          },
-        }
-      );
+      const engine = await CreateMLCEngine(WEB_LLM_MODEL_ID, {
+        initProgressCallback: (report: { progress: number; text: string }) => {
+          const pct = Math.round(report.progress * 100);
+          setProgress(pct);
+          setProgressText(report.text || "");
+          if (pct < 100) setStatus("downloading");
+          else setStatus("loading");
+        },
+      });
 
-      engineRef.current = engine;
+      engineRef.current = engine as unknown as MLCEngine;
       setStatus("ready");
       setProgress(100);
       return true;
@@ -73,63 +80,43 @@ export function useWebLLM() {
 
   const generate = useCallback(
     async (
-      messages: Array<{ role: "user" | "assistant" | "system"; content: string }>,
+      systemPrompt: string,
+      userMessages: Array<{ role: "user" | "assistant"; content: string }>,
       onToken: (token: string) => void
     ): Promise<string> => {
-      if (!engineRef.current || status !== "ready") {
-        throw new Error("Engine not ready");
-      }
-
+      if (!engineRef.current) throw new Error("Engine not ready");
       setStatus("generating");
 
-      try {
-        const engine = engineRef.current as {
-          chat: {
-            completions: {
-              create: (params: {
-                messages: Array<{ role: string; content: string }>;
-                stream: boolean;
-                max_tokens?: number;
-                temperature?: number;
-              }) => AsyncIterable<{
-                choices: Array<{ delta: { content?: string } }>;
-              }>;
-            };
-          };
-        };
+      const messages = [
+        { role: "system", content: systemPrompt },
+        ...userMessages,
+      ];
 
-        const chunks = await engine.chat.completions.create({
+      try {
+        const chunks = await engineRef.current.chat.completions.create({
           messages,
           stream: true,
           max_tokens: 512,
           temperature: 0.7,
         });
 
-        let fullText = "";
+        let full = "";
         for await (const chunk of chunks) {
           const token = chunk.choices[0]?.delta?.content ?? "";
           if (token) {
-            fullText += token;
+            full += token;
             onToken(token);
           }
         }
-
         setStatus("ready");
-        return fullText;
+        return full;
       } catch (e) {
         setStatus("ready");
         throw e;
       }
     },
-    [status]
+    []
   );
-
-  const reset = useCallback(() => {
-    engineRef.current = null;
-    setStatus("idle");
-    setProgress(0);
-    setProgressText("");
-  }, []);
 
   return {
     status,
@@ -138,8 +125,8 @@ export function useWebLLM() {
     isSupported,
     initialize,
     generate,
-    reset,
     isReady: status === "ready",
-    isLoading: status === "downloading" || status === "loading" || status === "checking",
+    isLoading: ["downloading", "loading", "checking"].includes(status),
+    isGenerating: status === "generating",
   };
 }
