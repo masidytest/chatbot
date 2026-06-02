@@ -42,28 +42,18 @@ export default function DashboardPage() {
   useEffect(() => {
     if (status !== "authenticated") return;
 
-    // Fetch chat count
-    fetch("/api/history?limit=50")
-      .then((r) => r.json())
-      .then((data: ChatHistory) => setChatCount(data?.chats?.length ?? 0))
-      .catch(() => setChatCount(0));
-
-    // Fetch documents (uploaded files + memory)
-    fetch("/api/document")
+    fetch("/api/dashboard")
       .then((r) => r.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          const mems = data
-            .filter((d) => d.title?.startsWith("__memory__"))
-            .map((d) => ({ key: d.title.replace("__memory__", ""), value: d.content ?? "" }));
-          const docs = data
-            .filter((d) => !d.title?.startsWith("__memory__"))
-            .slice(0, 10);
-          setMemories(mems);
-          setDocuments(docs);
-        }
+        setChatCount(data.chatCount ?? 0);
+        setMemories(data.memories ?? []);
+        setDocuments(data.documents ?? []);
       })
-      .catch(() => {});
+      .catch(() => {
+        setChatCount(0);
+        setMemories([]);
+        setDocuments([]);
+      });
   }, [status]);
 
   if (status === "loading") {
