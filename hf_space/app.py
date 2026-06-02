@@ -8,7 +8,7 @@ import gradio as gr
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-MODEL_ID = "Qwen/Qwen2.5-0.5B-Instruct"
+MODEL_ID = "masidy/masidy-model"
 
 print("Loading Masidy Engine...")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
