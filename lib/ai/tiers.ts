@@ -25,7 +25,7 @@ export const creditCostByModel: Record<string, number> = {
   "masidy": 0,                                    // Free — Groq, costs us $0
   "deepseek/deepseek-v3.2": 1,                   // Code — ~$0.0002/msg → 1cr = 50x margin
   "openai/gpt-oss-20b": 1,                       // Mini — ~$0.0001/msg → 1cr = 100x margin
-  "openai/gpt-oss-120b": 1,                      // Pro model — ~$0.00015/msg
+  "openai/gpt-oss-120b": 1,                      // Max — ~$0.00015/msg
   "xai/grok-4.1-fast-non-reasoning": 1,          // Speed — ~$0.0002/msg
   "moonshotai/kimi-k2.5": 3,                     // Flash — ~$0.0006/msg → 3cr = 5x margin
 };
@@ -75,7 +75,7 @@ export const upgradeMessage: Record<string, string> = {
   "moonshotai/kimi-k2.5":
     "Masidy Flash requires the Pro plan ($10/month). Upgrade at masidy.com to unlock it.",
   "openai/gpt-oss-120b":
-    "Masidy Pro requires the Plus plan ($5/month). Upgrade at masidy.com to unlock it.",
+    "Masidy Max requires the Plus plan ($5/month). Upgrade at masidy.com to unlock it.",
   "deepseek/deepseek-v3.2":
     "Masidy Code requires the Plus plan ($5/month). Upgrade at masidy.com to unlock it.",
   "openai/gpt-oss-20b":

@@ -1,11 +1,11 @@
 "use client";
 
-import { ChevronUp } from "lucide-react";
+import { ChevronUp, LayoutDashboardIcon, SparklesIcon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { User } from "next-auth";
 import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
-import { BillingStatus } from "@/components/chat/billing-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -77,19 +77,29 @@ export function SidebarUserNav({ user }: { user: User }) {
             data-testid="user-nav-menu"
             side="top"
           >
-            {/* Credits + plan + top-up / upgrade UI */}
             {!isGuest && (
               <>
-                <BillingStatus />
+                <DropdownMenuItem
+                  className="cursor-pointer gap-2 text-[13px]"
+                  onSelect={() => router.push("/dashboard")}
+                >
+                  <LayoutDashboardIcon className="size-3.5" />
+                  Dashboard
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer gap-2 text-[13px] text-orange-500 focus:text-orange-500"
+                  onSelect={() => router.push("/pricing")}
+                >
+                  <SparklesIcon className="size-3.5" />
+                  Upgrade plan
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
               </>
             )}
             <DropdownMenuItem
               className="cursor-pointer text-[13px]"
               data-testid="user-nav-item-theme"
-              onSelect={() =>
-                setTheme(resolvedTheme === "dark" ? "light" : "dark")
-              }
+              onSelect={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             >
               {`Toggle ${resolvedTheme === "light" ? "dark" : "light"} mode`}
             </DropdownMenuItem>
@@ -99,21 +109,13 @@ export function SidebarUserNav({ user }: { user: User }) {
                 className="w-full cursor-pointer text-[13px]"
                 onClick={() => {
                   if (status === "loading") {
-                    toast({
-                      type: "error",
-                      description:
-                        "Checking authentication status, please try again!",
-                    });
-
+                    toast({ type: "error", description: "Checking authentication status, please try again!" });
                     return;
                   }
-
                   if (isGuest) {
                     router.push("/login");
                   } else {
-                    signOut({
-                      redirectTo: "/",
-                    });
+                    signOut({ redirectTo: "/" });
                   }
                 }}
                 type="button"

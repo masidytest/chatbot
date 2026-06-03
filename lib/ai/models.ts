@@ -54,7 +54,7 @@ export const chatModels: ChatModel[] = [
   },
   {
     id: "openai/gpt-oss-120b",
-    name: "Masidy Pro",
+    name: "Masidy Max",
     provider: "openai",
     description: "Plus · Deep reasoning — best for complex questions",
     gatewayOrder: ["fireworks", "bedrock"],

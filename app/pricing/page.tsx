@@ -9,22 +9,12 @@ import { MasidyAnimatedIcon } from "@/components/chat/masidy-animated-icon";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const TOP_UPS = [
-  { id: "topup_500",  label: "$5",  credits: 500,  note: "" },
-  { id: "topup_1200", label: "$10", credits: 1200, note: "Best value" },
-  { id: "topup_3500", label: "$25", credits: 3500, note: "+500 bonus" },
-];
-
 export default function PricingPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
 
-  const checkout = async (
-    type: "subscription" | "topup",
-    payload: Record<string, string>,
-    id: string
-  ) => {
+  async function goToCheckout(type: "subscription" | "topup", body: Record<string, string>, id: string) {
     if (!session?.user) {
       router.push("/login");
       return;
@@ -34,16 +24,18 @@ export default function PricingPage() {
       const res = await fetch("/api/billing/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, ...payload }),
+        body: JSON.stringify({ type, ...body }),
       });
-      const data = (await res.json()) as { url?: string };
-      if (data.url) window.location.href = data.url;
+      const json = await res.json() as { url?: string; error?: string };
+      if (json.url) {
+        window.location.href = json.url;
+      }
     } catch {
       // silent
     } finally {
       setLoading(null);
     }
-  };
+  }
 
   return (
     <div className="min-h-dvh bg-background">
@@ -78,6 +70,7 @@ export default function PricingPage() {
 
         {/* Plans */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+
           {/* FREE */}
           <div className="flex flex-col rounded-2xl border-2 border-border/40 bg-card/50 p-6">
             <div className="mb-6">
@@ -111,7 +104,7 @@ export default function PricingPage() {
 
           {/* PLUS */}
           <div className="relative flex flex-col rounded-2xl border-2 border-blue-500/40 bg-card/50 p-6 md:scale-[1.02]">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-500 px-3 py-1 text-[11px] font-semibold text-white">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-500 px-3 py-1 text-[11px] font-semibold text-white whitespace-nowrap">
               Most popular
             </div>
             <div className="mb-6">
@@ -130,7 +123,7 @@ export default function PricingPage() {
                 "Everything in Free",
                 "Masidy Code — best for coding & debugging",
                 "Masidy Mini — fast everyday reasoning",
-                "Masidy Pro — deep reasoning & analysis",
+                "Masidy Max — deep reasoning & analysis",
                 "Masidy Speed — instant responses",
                 "500 credits/month included",
                 "Buy more credits any time",
@@ -144,7 +137,8 @@ export default function PricingPage() {
             <Button
               className="w-full"
               disabled={loading === "plus"}
-              onClick={() => checkout("subscription", { plan: "plus" }, "plus")}
+              onClick={() => goToCheckout("subscription", { plan: "plus" }, "plus")}
+              type="button"
             >
               {loading === "plus" ? "Loading..." : "Upgrade to Plus"}
             </Button>
@@ -152,7 +146,7 @@ export default function PricingPage() {
 
           {/* PRO */}
           <div className="relative flex flex-col rounded-2xl border-2 border-orange-500/40 bg-card/50 p-6">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-500 px-3 py-1 text-[11px] font-semibold text-white">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-500 px-3 py-1 text-[11px] font-semibold text-white whitespace-nowrap">
               Most powerful
             </div>
             <div className="mb-6">
@@ -181,26 +175,27 @@ export default function PricingPage() {
               ))}
             </ul>
             <Button
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white border-0"
+              className="w-full bg-orange-500 hover:bg-orange-600 border-0 text-white"
               disabled={loading === "pro"}
-              onClick={() => checkout("subscription", { plan: "pro" }, "pro")}
+              onClick={() => goToCheckout("subscription", { plan: "pro" }, "pro")}
+              type="button"
             >
               {loading === "pro" ? "Loading..." : "Upgrade to Pro"}
             </Button>
           </div>
         </div>
 
-        {/* Credits section */}
+        {/* Credits */}
         <div className="mt-16 rounded-2xl border border-border/40 bg-card/30 p-8">
           <h2 className="mb-2 text-xl font-bold text-foreground">How credits work</h2>
           <p className="mb-6 text-[14px] text-muted-foreground">
-            Credits are used when you message with paid models. Free model (Masidy) never uses credits.
+            Credits are used when you message with paid models. The free Masidy model never uses credits.
             Credits never expire and roll over every month.
           </p>
           <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
             {[
               { model: "Masidy", cost: "0 credits", note: "Always free" },
-              { model: "Code / Mini / Speed", cost: "1 credit", note: "per message" },
+              { model: "Code / Mini / Speed / Max", cost: "1 credit", note: "per message" },
               { model: "Flash", cost: "3 credits", note: "per message" },
               { model: "1 credit", cost: "= $0.01", note: "value" },
             ].map((row) => (
@@ -217,14 +212,18 @@ export default function PricingPage() {
             Run out before the month ends? Buy more instantly — no waiting for next month.
           </p>
           <div className="grid grid-cols-3 gap-3">
-            {TOP_UPS.map((pkg) => (
+            {[
+              { id: "topup_500",  label: "$5",  credits: 500,  note: "" },
+              { id: "topup_1200", label: "$10", credits: 1200, note: "Best value" },
+              { id: "topup_3500", label: "$25", credits: 3500, note: "+500 bonus" },
+            ].map((pkg) => (
               <button
                 className={cn(
                   "relative flex flex-col items-center justify-center rounded-xl border-2 border-border/40 bg-card/50 py-4 text-center transition-all hover:border-orange-500/50 hover:bg-orange-500/5",
                   loading === pkg.id && "pointer-events-none opacity-50"
                 )}
                 key={pkg.id}
-                onClick={() => checkout("topup", { package: pkg.id }, pkg.id)}
+                onClick={() => goToCheckout("topup", { package: pkg.id }, pkg.id)}
                 type="button"
               >
                 {pkg.note && (
@@ -244,22 +243,10 @@ export default function PricingPage() {
         <div className="mt-16 space-y-4">
           <h2 className="mb-6 text-xl font-bold text-foreground">Questions</h2>
           {[
-            {
-              q: "Can I cancel any time?",
-              a: "Yes. Cancel from your account and you keep access until the end of the billing period. Your remaining credits stay on your account forever.",
-            },
-            {
-              q: "Do credits expire?",
-              a: "No. Credits never expire. Monthly credits roll over, and top-up credits stay until you use them.",
-            },
-            {
-              q: "What happens when I run out of credits?",
-              a: "You can still use Masidy (the free model) for free. For paid models, just buy a top-up and continue instantly — no waiting.",
-            },
-            {
-              q: "Can I upgrade or downgrade?",
-              a: "Yes, any time. Upgrading takes effect immediately. Downgrading takes effect at the next billing cycle.",
-            },
+            { q: "Can I cancel any time?", a: "Yes. Cancel from your dashboard and you keep access until the end of the billing period. Your remaining credits stay forever." },
+            { q: "Do credits expire?", a: "No. Credits never expire. Monthly credits roll over, and top-up credits stay until you use them." },
+            { q: "What happens when I run out of credits?", a: "You can still use Masidy (the free model) for free. For paid models, buy a top-up and continue instantly." },
+            { q: "Can I upgrade or downgrade?", a: "Yes, any time. Upgrading takes effect immediately. Downgrading takes effect at the next billing cycle." },
           ].map(({ q, a }) => (
             <div className="rounded-xl border border-border/40 bg-card/30 p-5" key={q}>
               <div className="mb-1.5 text-[14px] font-semibold text-foreground">{q}</div>
