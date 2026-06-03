@@ -143,6 +143,23 @@ export function ChatShell() {
                   stop={stop}
                 />
               )}
+              {/* Footer links */}
+              <div className="flex items-center justify-center gap-3 pb-0.5">
+                {[
+                  { href: "/features", label: "Features" },
+                  { href: "/pricing",  label: "Pricing"  },
+                  { href: "/about",    label: "About"    },
+                  { href: "/legal",    label: "Legal"    },
+                ].map((l) => (
+                  <a
+                    className="text-[11px] text-muted-foreground/50 transition-colors hover:text-muted-foreground"
+                    href={l.href}
+                    key={l.href}
+                  >
+                    {l.label}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
         </div>
