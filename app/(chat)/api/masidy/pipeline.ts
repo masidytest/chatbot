@@ -574,6 +574,6 @@ function buildContext(sources: string[], depth: Depth, length: Length, question:
   if (sources.length === 0) return "";
   const depthNote = depth === "shallow" ? "Keep the answer brief." : depth === "deep" ? "Give a detailed explanation." : "";
   const lengthNote = length === "short" ? "Be concise." : length === "long" ? "Be comprehensive." : "";
-  const instructions = [depthNote, lengthNote].filter(Boolean).join(" ");
+  const instructions = [depthNote, lengthNote, "Always respond in the same language as the user's question, not the language of the context sources."].filter(Boolean).join(" ");
   return `Retrieved context (use this to answer accurately):\n\n${sources.join("\n\n")}${instructions ? `\n\nInstructions: ${instructions}` : ""}`;
 }
