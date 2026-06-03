@@ -7,12 +7,46 @@ import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://chatbot-masidytests-projects.vercel.app"),
-  title: "Masidy",
-  description: "Masidy — your personal AI system. Search the web, analyze documents, write, code, and remember.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL ?? "https://masidy.com"
+  ),
+  title: {
+    default: "Masidy — AI That Works Harder",
+    template: "%s | Masidy",
+  },
+  description:
+    "Masidy is your personal AI — search the web, analyze documents, generate images, write, code, and remember across every conversation.",
+  keywords: ["AI", "chatbot", "Masidy", "artificial intelligence", "assistant"],
+  authors: [{ name: "Masidy Team" }],
+  creator: "Masidy Team",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://masidy.com",
+    siteName: "Masidy",
+    title: "Masidy — AI That Works Harder",
+    description:
+      "Masidy is your personal AI — search the web, analyze documents, generate images, write, code, and remember across every conversation.",
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Masidy AI",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Masidy — AI That Works Harder",
+    description:
+      "Your personal AI that searches the web, generates images, writes, and codes.",
+    images: ["/twitter-image.png"],
+  },
   icons: {
     icon: "/masidy-icon.svg",
     shortcut: "/masidy-icon.svg",
+    apple: "/masidy-icon.svg",
   },
 };
 

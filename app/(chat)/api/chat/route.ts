@@ -208,14 +208,14 @@ export async function POST(request: Request) {
       }
 
       const memorySection = userMemory ? `\n\n${userMemory}` : "";
-      // Truncate context to max 800 chars to stay within Groq free tier token limits
-      const contextTruncated = pipelineResult.context.slice(0, 800);
+      // Groq llama-3.1-8b-instant has 8k context. Budget: ~500 system base + ~300 memory + ~3000 context + ~2000 history = ~5800 tokens — safe.
+      const contextTruncated = pipelineResult.context.slice(0, 3000);
       const contextSection = contextTruncated ? `\n\nContext:\n${contextTruncated}` : "";
       const imageInstruction = pipelineResult.imageUrl
         ? `\n\nAn image has been generated. Tell the user it's ready. Image URL: ${pipelineResult.imageUrl}`
         : "";
-      // Keep only last 3 messages to reduce token usage
-      const trimmedModelMessages = modelMessages.slice(-3);
+      // Keep last 6 messages for better conversation continuity
+      const trimmedModelMessages = modelMessages.slice(-6);
 
       const stream = createUIMessageStream({
         execute: async ({ writer: dataStream }) => {

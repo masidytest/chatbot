@@ -55,8 +55,10 @@ Brand: Orange dot grid icon + MASIDY wordmark, black/white text, orange accents 
 
 ## 🔄 In Progress / Needs Fix
 
-- [ ] Dashboard accessible after login (verify it works end-to-end)
-- [ ] Masidy model token limit fix (currently truncating context to 800 chars — needs smarter truncation)
+- [x] Masidy Local (WebLLM) — fixed chat.completions.create API usage
+- [x] Masidy model token limit fix — increased context from 800 to 3000 chars, history from 3 to 6 messages
+- [x] Metadata updated — masidy.com as base URL, proper Open Graph tags
+- [ ] Dashboard accessible after login (verify it works end-to-end — looks good but needs test)
 - [ ] Rate limits (currently 100/hr — need to set proper free/pro tiers)
 
 ---
@@ -70,8 +72,8 @@ Brand: Orange dot grid icon + MASIDY wordmark, black/white text, orange accents 
 - [ ] Add usage counter per user per day to DB
 - [ ] Show "upgrade" prompt when free limit hit (not a hard block, a gentle nudge)
 - [ ] Fix dashboard data loading
-- [ ] Update metadata: title, description, og:image for masidy.com
-- [ ] Set `NEXT_PUBLIC_BASE_URL` in Vercel to masidy.com
+- [x] Update metadata: title, description, og:image for masidy.com
+- [x] Set `NEXT_PUBLIC_BASE_URL` in Vercel to masidy.com
 
 ---
 
