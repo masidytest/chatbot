@@ -20,6 +20,8 @@ import {
 } from "@/lib/ai/models";
 import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
 import { getLanguageModel } from "@/lib/ai/providers";
+import { canUseModel, upgradeMessage } from "@/lib/ai/tiers";
+import { getUserPlan } from "@/lib/db/plan-queries";
 import { createDocument } from "@/lib/ai/tools/create-document";
 import { editDocument } from "@/lib/ai/tools/edit-document";
 import { getWeather } from "@/lib/ai/tools/get-weather";
@@ -97,6 +99,21 @@ export async function POST(request: Request) {
     if (messageCount > entitlementsByUserType[userType].maxMessagesPerHour) {
       return new ChatbotError("rate_limit:chat").toResponse();
     }
+
+    // ── Plan gate: check if user's plan allows the selected model ───────────
+    // Guests and regular users start on "free" plan (Masidy only)
+    // Plus/Pro plans are set after Stripe payment
+    if (chatModel !== DEFAULT_CHAT_MODEL) {
+      const userPlan = await getUserPlan(session.user.id);
+      if (!canUseModel(userPlan, chatModel)) {
+        const msg = upgradeMessage[chatModel] ?? "Upgrade your plan at masidy.com to use this model.";
+        return Response.json(
+          { code: "forbidden:chat", message: msg },
+          { status: 403 }
+        );
+      }
+    }
+    // ── End plan gate ────────────────────────────────────────────────────────
 
     const isToolApprovalFlow = Boolean(messages);
 

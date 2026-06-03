@@ -41,6 +41,7 @@ import {
   ModelSelectorLogo,
   ModelSelectorName,
   ModelSelectorTrigger,
+  PlanBadge,
 } from "@/components/ai-elements/model-selector";
 import {
   type ChatModel,
@@ -48,6 +49,7 @@ import {
   DEFAULT_CHAT_MODEL,
   type ModelCapabilities,
 } from "@/lib/ai/models";
+import { requiredPlanForModel } from "@/lib/ai/tiers";
 import type { Attachment, ChatMessage } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -829,6 +831,13 @@ function PureModelSelectorCompact({
                       <ModelIcon modelId={model.id} provider={logoProvider} />
                       <ModelSelectorName>{model.name}</ModelSelectorName>
                       <div className="ml-auto flex items-center gap-2 text-foreground/70">
+                        {/* Plan badge for paid models */}
+                        {curated && (() => {
+                          const plan = requiredPlanForModel(model.id);
+                          if (plan === "pro") return <PlanBadge plan="Pro" />;
+                          if (plan === "plus") return <PlanBadge plan="Plus" />;
+                          return null;
+                        })()}
                         {capabilities?.[model.id]?.tools && (
                           <WrenchIcon className="size-3.5" />
                         )}

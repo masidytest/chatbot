@@ -206,3 +206,19 @@ export const ModelSelectorName = ({
 }: ModelSelectorNameProps) => (
   <span className={cn("flex-1 truncate text-left", className)} {...props} />
 );
+
+/** Badge shown on paid-tier models in the selector */
+export function PlanBadge({ plan }: { plan: "Plus" | "Pro" }) {
+  return (
+    <span
+      className={cn(
+        "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold leading-none",
+        plan === "Pro"
+          ? "bg-orange-500/15 text-orange-500"
+          : "bg-blue-500/10 text-blue-500 dark:text-blue-400"
+      )}
+    >
+      {plan}
+    </span>
+  );
+}
