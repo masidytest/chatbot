@@ -44,6 +44,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "memory" | "documents">("overview");
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const userEmail = session?.user?.email ?? "";
   const userName = userEmail.split("@")[0] ?? "User";
@@ -62,6 +63,7 @@ export default function DashboardPage() {
 
   async function goToCheckout(type: "subscription" | "topup", body: Record<string, string>, id: string) {
     setCheckoutLoading(id);
+    setCheckoutError(null);
     try {
       const res = await fetch("/api/billing/checkout", {
         method: "POST",
@@ -72,10 +74,10 @@ export default function DashboardPage() {
       if (json.url) {
         window.location.href = json.url;
       } else {
-        alert(json.error ?? "Checkout failed. Please try again.");
+        setCheckoutError(json.error ?? "Checkout failed. Please try again.");
       }
     } catch {
-      alert("Network error. Please try again.");
+      setCheckoutError("Network error. Please try again.");
     } finally {
       setCheckoutLoading(null);
     }
@@ -160,9 +162,15 @@ export default function DashboardPage() {
           </Button>
         </div>
 
+        {/* Error banner */}
+        {checkoutError && (
+          <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-500">
+            {checkoutError}
+          </div>
+        )}
+
         {/* Plan + credits card */}
-        <div className="mb-6 rounded-2xl border border-border/40 bg-card/50 p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mb-6 rounded-2xl border border-border/40 bg-card/50 p-6">          <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-foreground">Plan & Credits</h2>
             <Link
               href="/pricing"

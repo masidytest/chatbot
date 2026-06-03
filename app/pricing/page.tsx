@@ -13,27 +13,33 @@ export default function PricingPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  async function goToCheckout(type: "subscription" | "topup", body: Record<string, string>, id: string) {
+  async function goToCheckout(
+    type: "subscription" | "topup",
+    body: Record<string, string>,
+    id: string
+  ) {
     if (!session?.user) {
       router.push("/login");
       return;
     }
     setLoading(id);
+    setError(null);
     try {
       const res = await fetch("/api/billing/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type, ...body }),
       });
-      const json = await res.json() as { url?: string; error?: string };
+      const json = (await res.json()) as { url?: string; error?: string };
       if (json.url) {
         window.location.href = json.url;
       } else {
-        alert(json.error ?? "Something went wrong. Please try again.");
+        setError(json.error ?? "Something went wrong. Please try again.");
       }
     } catch {
-      alert("Network error. Please try again.");
+      setError("Network error. Please try again.");
     } finally {
       setLoading(null);
     }
@@ -60,7 +66,6 @@ export default function PricingPage() {
       </div>
 
       <div className="mx-auto max-w-5xl px-6 py-16">
-        {/* Hero */}
         <div className="mb-14 text-center">
           <h1 className="text-4xl font-bold tracking-tight text-foreground">
             Simple, honest pricing
@@ -69,6 +74,13 @@ export default function PricingPage() {
             Start free. Upgrade when you need more.
           </p>
         </div>
+
+        {/* Error banner */}
+        {error && (
+          <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-[13px] text-red-500">
+            {error}
+          </div>
+        )}
 
         {/* Plans */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -85,13 +97,16 @@ export default function PricingPage() {
             </div>
             <ul className="mb-8 flex-1 space-y-2.5">
               {[
-                "Masidy AI — web search, images, weather",
-                "YouTube summarizer & stock prices",
-                "QR codes, dictionary, news",
+                "Masidy AI — unlimited messages",
+                "Web search (live results)",
+                "Image generation",
+                "Weather, stocks, news",
+                "YouTube & webpage summarizer",
+                "QR codes & dictionary",
+                "Document upload (TXT, MD)",
                 "Memory across conversations",
-                "Voice input & output",
-                "File uploads & document analysis",
-                "Unlimited messages",
+                "Multilingual support",
+                "Voice input (Chrome/Edge)",
               ].map((f) => (
                 <li className="flex items-start gap-2.5 text-[13px] text-foreground" key={f}>
                   <CheckIcon className="mt-0.5 size-3.5 shrink-0 text-orange-500" />
@@ -106,7 +121,7 @@ export default function PricingPage() {
 
           {/* PLUS */}
           <div className="relative flex flex-col rounded-2xl border-2 border-blue-500/40 bg-card/50 p-6 md:scale-[1.02]">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-500 px-3 py-1 text-[11px] font-semibold text-white whitespace-nowrap">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-blue-500 px-3 py-1 text-[11px] font-semibold text-white">
               Most popular
             </div>
             <div className="mb-6">
@@ -123,9 +138,9 @@ export default function PricingPage() {
             <ul className="mb-8 flex-1 space-y-2.5">
               {[
                 "Everything in Free",
-                "Masidy Code — best for coding & debugging",
-                "Masidy Mini — fast everyday reasoning",
-                "Masidy Max — deep reasoning & analysis",
+                "Masidy Code — coding & debugging",
+                "Masidy Mini — fast reasoning",
+                "Masidy Max — deep analysis",
                 "Masidy Speed — instant responses",
                 "500 credits/month included",
                 "Buy more credits any time",
@@ -142,13 +157,13 @@ export default function PricingPage() {
               onClick={() => goToCheckout("subscription", { plan: "plus" }, "plus")}
               type="button"
             >
-              {loading === "plus" ? "Loading..." : "Upgrade to Plus"}
+              {loading === "plus" ? "Redirecting..." : "Upgrade to Plus"}
             </Button>
           </div>
 
           {/* PRO */}
           <div className="relative flex flex-col rounded-2xl border-2 border-orange-500/40 bg-card/50 p-6">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-500 px-3 py-1 text-[11px] font-semibold text-white whitespace-nowrap">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-orange-500 px-3 py-1 text-[11px] font-semibold text-white">
               Most powerful
             </div>
             <div className="mb-6">
@@ -160,12 +175,12 @@ export default function PricingPage() {
                 <span className="text-4xl font-bold text-foreground">$10</span>
                 <span className="mb-1 text-sm text-muted-foreground">/month</span>
               </div>
-              <p className="mt-2 text-[13px] text-muted-foreground">The full Masidy suite. Most capable models.</p>
+              <p className="mt-2 text-[13px] text-muted-foreground">The full Masidy suite.</p>
             </div>
             <ul className="mb-8 flex-1 space-y-2.5">
               {[
                 "Everything in Plus",
-                "Masidy Flash — most powerful (vision + long context)",
+                "Masidy Flash — most powerful model",
                 "1200 credits/month included",
                 "Buy more credits any time",
                 "Priority support",
@@ -182,7 +197,7 @@ export default function PricingPage() {
               onClick={() => goToCheckout("subscription", { plan: "pro" }, "pro")}
               type="button"
             >
-              {loading === "pro" ? "Loading..." : "Upgrade to Pro"}
+              {loading === "pro" ? "Redirecting..." : "Upgrade to Pro"}
             </Button>
           </div>
         </div>
@@ -191,27 +206,26 @@ export default function PricingPage() {
         <div className="mt-16 rounded-2xl border border-border/40 bg-card/30 p-8">
           <h2 className="mb-2 text-xl font-bold text-foreground">How credits work</h2>
           <p className="mb-6 text-[14px] text-muted-foreground">
-            Credits are used when you message with paid models. The free Masidy model never uses credits.
-            Credits never expire and roll over every month.
+            Credits are used when you message with paid models. The free Masidy model never uses credits. Credits never expire.
           </p>
           <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
             {[
               { model: "Masidy", cost: "0 credits", note: "Always free" },
               { model: "Code / Mini / Speed / Max", cost: "1 credit", note: "per message" },
               { model: "Flash", cost: "3 credits", note: "per message" },
-              { model: "1 credit", cost: "= $0.01", note: "value" },
+              { model: "1 credit", cost: "= $0.01", note: "" },
             ].map((row) => (
               <div className="rounded-xl border border-border/40 bg-card/50 p-3 text-center" key={row.model}>
                 <div className="text-[12px] font-medium text-foreground">{row.model}</div>
                 <div className="mt-1 text-lg font-bold text-orange-500">{row.cost}</div>
-                <div className="text-[11px] text-muted-foreground">{row.note}</div>
+                {row.note && <div className="text-[11px] text-muted-foreground">{row.note}</div>}
               </div>
             ))}
           </div>
 
-          <h3 className="mb-3 text-base font-semibold text-foreground">Top up credits any time</h3>
+          <h3 className="mb-3 text-base font-semibold text-foreground">Top up any time</h3>
           <p className="mb-4 text-[13px] text-muted-foreground">
-            Run out before the month ends? Buy more instantly — no waiting for next month.
+            Run out mid-month? Buy more instantly.
           </p>
           <div className="grid grid-cols-3 gap-3">
             {[
@@ -245,10 +259,10 @@ export default function PricingPage() {
         <div className="mt-16 space-y-4">
           <h2 className="mb-6 text-xl font-bold text-foreground">Questions</h2>
           {[
-            { q: "Can I cancel any time?", a: "Yes. Cancel from your dashboard and you keep access until the end of the billing period. Your remaining credits stay forever." },
-            { q: "Do credits expire?", a: "No. Credits never expire. Monthly credits roll over, and top-up credits stay until you use them." },
-            { q: "What happens when I run out of credits?", a: "You can still use Masidy (the free model) for free. For paid models, buy a top-up and continue instantly." },
-            { q: "Can I upgrade or downgrade?", a: "Yes, any time. Upgrading takes effect immediately. Downgrading takes effect at the next billing cycle." },
+            { q: "Can I cancel any time?", a: "Yes. Cancel from your dashboard and you keep access until the period ends. Your remaining credits never expire." },
+            { q: "Do credits expire?", a: "No. Monthly credits roll over. Top-up credits stay until you use them." },
+            { q: "What happens when I run out of credits?", a: "The free Masidy model always works with no credits. For paid models, buy a top-up and continue instantly." },
+            { q: "Can I upgrade or downgrade?", a: "Yes, any time. Upgrading is immediate. Downgrading takes effect at the next billing cycle." },
           ].map(({ q, a }) => (
             <div className="rounded-xl border border-border/40 bg-card/30 p-5" key={q}>
               <div className="mb-1.5 text-[14px] font-semibold text-foreground">{q}</div>
