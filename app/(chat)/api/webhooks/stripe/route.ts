@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
   try {
     switch (event.type) {
-      // ── One-time payment completed (top-up) ────────────────────────────────
+      // ── One-time top-up payment completed ──────────────────────────────────
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.userId ?? session.client_reference_id;
@@ -35,24 +35,22 @@ export async function POST(request: Request) {
           const credits = Number(session.metadata.credits ?? "0");
           if (credits > 0) {
             await addUserCredits(userId, credits);
-            console.log(`Top-up: +${credits} credits for user ${userId}`);
+            console.log(`Top-up: +${credits} credits → user ${userId}`);
           }
         }
 
         if (session.metadata?.type === "subscription" && session.payment_status === "paid") {
-          // subscription.created fires too — but handle here for first payment
           const plan = (session.metadata.plan ?? "plus") as UserPlan;
           await setUserPlan(userId, plan);
           await addUserCredits(userId, creditsByPlan[plan]);
-          console.log(`New subscription: plan=${plan}, +${creditsByPlan[plan]} credits for user ${userId}`);
+          console.log(`New sub: plan=${plan} +${creditsByPlan[plan]} credits → user ${userId}`);
         }
         break;
       }
 
-      // ── Subscription renewed (monthly) ─────────────────────────────────────
+      // ── Monthly renewal — add credits again ────────────────────────────────
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
-        // Only for subscription renewals (not first payment — handled above)
         if (invoice.billing_reason !== "subscription_cycle") break;
 
         const subscriptionId = typeof invoice.subscription === "string"
@@ -64,30 +62,26 @@ export async function POST(request: Request) {
         const userId = subscription.metadata?.userId;
         if (!userId) break;
 
-        // Determine plan from price ID
         const priceId = subscription.items.data[0]?.price?.id;
         let plan: UserPlan = "plus";
         if (priceId === process.env.STRIPE_PRICE_PRO) plan = "pro";
 
-        // Add monthly credits
         await addUserCredits(userId, creditsByPlan[plan]);
-        console.log(`Renewal: plan=${plan}, +${creditsByPlan[plan]} credits for user ${userId}`);
+        console.log(`Renewal: plan=${plan} +${creditsByPlan[plan]} credits → user ${userId}`);
         break;
       }
 
-      // ── Subscription cancelled ──────────────────────────────────────────────
+      // ── Subscription cancelled — downgrade to free ─────────────────────────
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
         const userId = subscription.metadata?.userId;
         if (!userId) break;
-
-        // Downgrade to free — they keep remaining credits
         await setUserPlan(userId, "free");
-        console.log(`Subscription cancelled: downgraded user ${userId} to free`);
+        console.log(`Cancelled: user ${userId} → free (credits kept)`);
         break;
       }
 
-      // ── Subscription upgraded/downgraded ───────────────────────────────────
+      // ── Plan changed (upgrade/downgrade) ───────────────────────────────────
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
         const userId = subscription.metadata?.userId;
@@ -98,7 +92,7 @@ export async function POST(request: Request) {
           let plan: UserPlan = "plus";
           if (priceId === process.env.STRIPE_PRICE_PRO) plan = "pro";
           await setUserPlan(userId, plan);
-          console.log(`Plan updated: user ${userId} → ${plan}`);
+          console.log(`Plan change: user ${userId} → ${plan}`);
         }
         break;
       }
@@ -110,6 +104,3 @@ export async function POST(request: Request) {
 
   return new Response("OK", { status: 200 });
 }
-
-// Stripe needs raw body — disable Next.js body parsing
-export const config = { api: { bodyParser: false } };
