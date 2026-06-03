@@ -4,6 +4,7 @@ import {
   PanelLeftIcon,
   PenSquareIcon,
   SparklesIcon,
+  ImageIcon,
   TrashIcon,
 } from "lucide-react";
 import { MasidyBrand, MasidyIcon } from "@/components/chat/masidy-logo";
@@ -130,6 +131,18 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    className="rounded-lg text-sidebar-foreground/60 transition-colors duration-150 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                    tooltip="Image Studio"
+                  >
+                    <Link href="/image" onClick={() => setOpenMobile(false)}>
+                      <ImageIcon className="size-4" />
+                      <span className="text-[13px]">Image Studio</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
