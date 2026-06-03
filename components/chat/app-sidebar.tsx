@@ -3,6 +3,7 @@
 import {
   PanelLeftIcon,
   PenSquareIcon,
+  SparklesIcon,
   TrashIcon,
 } from "lucide-react";
 import { MasidyBrand, MasidyIcon } from "@/components/chat/masidy-logo";
@@ -129,6 +130,18 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    className="rounded-lg text-orange-500/70 transition-colors duration-150 hover:bg-orange-500/10 hover:text-orange-500"
+                    tooltip="Upgrade Plan"
+                  >
+                    <Link href="/pricing" onClick={() => setOpenMobile(false)}>
+                      <SparklesIcon className="size-4" />
+                      <span className="text-[13px] font-medium">Upgrade</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
