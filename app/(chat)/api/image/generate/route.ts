@@ -102,8 +102,25 @@ export async function POST(request: Request) {
 
     const output = await replicate.run(MODELS[quality] as `${string}/${string}`, { input });
 
-    // Replicate returns a URL or array of URLs
-    const imageUrl = Array.isArray(output) ? output[0] : output;
+    // Replicate SDK v1+ returns FileOutput objects — convert to URL string
+    let imageUrl: string | null = null;
+    if (Array.isArray(output)) {
+      const first = output[0];
+      // FileOutput has a url() method or toString()
+      if (first && typeof (first as { url?: () => URL }).url === "function") {
+        imageUrl = (first as { url: () => URL }).url().href;
+      } else if (typeof first === "string") {
+        imageUrl = first;
+      } else if (first) {
+        imageUrl = String(first);
+      }
+    } else if (output) {
+      if (typeof (output as { url?: () => URL }).url === "function") {
+        imageUrl = (output as { url: () => URL }).url().href;
+      } else {
+        imageUrl = String(output);
+      }
+    }
 
     if (!imageUrl) {
       return Response.json({ error: "Generation failed. Please try again." }, { status: 500 });
@@ -121,8 +138,8 @@ export async function POST(request: Request) {
     });
 
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "Generation failed";
-    console.error("[image/generate]", msg);
-    return Response.json({ error: "Generation failed. Please try again." }, { status: 500 });
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[image/generate] error:", msg);
+    return Response.json({ error: msg }, { status: 500 });
   }
 }
