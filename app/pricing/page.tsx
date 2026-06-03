@@ -21,7 +21,13 @@ export default function PricingPage() {
     id: string
   ) {
     if (!session?.user) {
-      router.push("/login");
+      router.push("/register?redirect=/pricing");
+      return;
+    }
+    // Guest user — must register first so plan attaches to a real account
+    const isGuest = /^guest-\d+$/.test(session.user.email ?? "");
+    if (isGuest) {
+      router.push("/register?redirect=/pricing");
       return;
     }
     setLoading(id);

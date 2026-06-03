@@ -36,7 +36,10 @@ export default function Page() {
       toast({ type: "success", description: "Account created!" });
       setIsSuccessful(true);
       updateSession();
-      router.refresh();
+      // If there's a redirect param, go there after registration
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get("redirect") ?? "/";
+      router.push(redirect);
     }
   }, [state.status]);
 
