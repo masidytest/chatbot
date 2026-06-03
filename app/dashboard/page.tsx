@@ -4,7 +4,6 @@ import {
   ArrowLeftIcon,
   BrainIcon,
   CoinsIcon,
-  FileTextIcon,
   LogOutIcon,
   MessageSquareIcon,
   MoonIcon,
@@ -32,7 +31,6 @@ type BillingStatus = {
 type DashboardData = {
   chatCount: number;
   memories: { key: string; value: string }[];
-  documents: { id: string; title: string; kind: string }[];
 };
 
 export default function DashboardPage() {
@@ -115,7 +113,6 @@ export default function DashboardPage() {
   const tabs = [
     { id: "overview", label: "Overview", icon: MessageSquareIcon },
     { id: "memory",   label: "Memory",   icon: BrainIcon },
-    { id: "documents",label: "Documents",icon: FileTextIcon },
   ] as const;
 
   return (
@@ -269,7 +266,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Stats */}
-        <div className="mb-6 grid grid-cols-3 gap-4">
+        <div className="mb-6 grid grid-cols-2 gap-4">
           <div className="rounded-xl border border-border/40 bg-card/50 p-4 text-center">
             <div className="text-2xl font-bold text-foreground">{data?.chatCount ?? "—"}</div>
             <div className="mt-1 flex items-center justify-center gap-1.5 text-[12px] text-muted-foreground">
@@ -282,13 +279,6 @@ export default function DashboardPage() {
             <div className="mt-1 flex items-center justify-center gap-1.5 text-[12px] text-muted-foreground">
               <BrainIcon className="size-3.5" />
               Memories
-            </div>
-          </div>
-          <div className="rounded-xl border border-border/40 bg-card/50 p-4 text-center">
-            <div className="text-2xl font-bold text-foreground">{data?.documents.length ?? "—"}</div>
-            <div className="mt-1 flex items-center justify-center gap-1.5 text-[12px] text-muted-foreground">
-              <FileTextIcon className="size-3.5" />
-              Documents
             </div>
           </div>
         </div>
@@ -330,10 +320,6 @@ export default function DashboardPage() {
                 <Button className="justify-start gap-2" onClick={() => setActiveTab("memory")} variant="outline">
                   <BrainIcon className="size-4" />
                   View Memory
-                </Button>
-                <Button className="justify-start gap-2" onClick={() => setActiveTab("documents")} variant="outline">
-                  <FileTextIcon className="size-4" />
-                  Documents
                 </Button>
               </div>
             </div>
@@ -390,32 +376,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {activeTab === "documents" && (
-          <div className="space-y-2">
-            {!data?.documents.length ? (
-              <div className="rounded-xl border border-border/40 bg-card/50 p-8 text-center">
-                <FileTextIcon className="mx-auto mb-3 size-8 text-muted-foreground/40" />
-                <p className="text-sm text-muted-foreground">No documents yet.</p>
-                <p className="mt-1 text-xs text-muted-foreground/60">
-                  Upload PDF, TXT, or MD files in chat using the paperclip button.
-                </p>
-              </div>
-            ) : (
-              data.documents.map((doc) => (
-                <div
-                  className="flex items-center gap-3 rounded-xl border border-border/40 bg-card/50 px-4 py-3"
-                  key={doc.id}
-                >
-                  <FileTextIcon className="size-4 shrink-0 text-muted-foreground/60" />
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm text-foreground">{doc.title}</div>
-                    <div className="text-[11px] text-muted-foreground/60">{doc.kind}</div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

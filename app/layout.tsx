@@ -15,10 +15,16 @@ export const metadata: Metadata = {
     template: "%s | Masidy",
   },
   description:
-    "Masidy is your personal AI — search the web, analyze documents, generate images, write, code, and remember across every conversation.",
-  keywords: ["AI", "chatbot", "Masidy", "artificial intelligence", "assistant"],
+    "Masidy is your personal AI assistant. Search the web, get live weather and stock prices, write, code, and remember across every conversation.",
+  keywords: ["AI", "chatbot", "Masidy", "artificial intelligence", "assistant", "web search AI"],
   authors: [{ name: "Masidy Team" }],
   creator: "Masidy Team",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Masidy",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -26,7 +32,7 @@ export const metadata: Metadata = {
     siteName: "Masidy",
     title: "Masidy — AI That Works Harder",
     description:
-      "Masidy is your personal AI — search the web, analyze documents, generate images, write, code, and remember across every conversation.",
+      "Your personal AI assistant. Search the web, get live data, write, code, and remember.",
     images: [
       {
         url: "/opengraph-image.png",
@@ -40,7 +46,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Masidy — AI That Works Harder",
     description:
-      "Your personal AI that searches the web, generates images, writes, and codes.",
+      "Your personal AI. Search the web, get live data, write, and code.",
     images: ["/twitter-image.png"],
   },
   icons: {
@@ -51,7 +57,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
+  width: "device-width",
+  initialScale: 1,
   maximumScale: 1,
+  userScalable: false,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)",  color: "#09090b" },
+  ],
 };
 
 const geist = Geist({

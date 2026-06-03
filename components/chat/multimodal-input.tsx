@@ -553,11 +553,14 @@ function PureMultimodalInput({
         />
         <PromptInputFooter className="px-3 pb-3">
           <PromptInputTools>
-            <AttachmentsButton
-              fileInputRef={fileInputRef}
-              selectedModelId={selectedModelId}
-              status={status}
-            />
+            {/* Hide file upload for Masidy free model — it doesn't support file analysis */}
+            {selectedModelId !== "masidy" && (
+              <AttachmentsButton
+                fileInputRef={fileInputRef}
+                selectedModelId={selectedModelId}
+                status={status}
+              />
+            )}
             {voiceSupported && (
               <Button
                 className={cn(
