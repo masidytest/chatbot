@@ -20,8 +20,9 @@ import {
 } from "@/lib/ai/models";
 import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
 import { getLanguageModel } from "@/lib/ai/providers";
-import { canUseModel, upgradeMessage } from "@/lib/ai/tiers";
+import { canUseModel, creditCostForModel, upgradeMessage } from "@/lib/ai/tiers";
 import { getUserPlan } from "@/lib/db/plan-queries";
+import { deductUserCredits, getUserCredits } from "@/lib/db/credits-queries";
 import { createDocument } from "@/lib/ai/tools/create-document";
 import { editDocument } from "@/lib/ai/tools/edit-document";
 import { getWeather } from "@/lib/ai/tools/get-weather";
@@ -100,20 +101,36 @@ export async function POST(request: Request) {
       return new ChatbotError("rate_limit:chat").toResponse();
     }
 
-    // ── Plan gate: check if user's plan allows the selected model ───────────
-    // Guests and regular users start on "free" plan (Masidy only)
-    // Plus/Pro plans are set after Stripe payment
+    // ── Plan + Credits gate ─────────────────────────────────────────────────
     if (chatModel !== DEFAULT_CHAT_MODEL) {
-      const userPlan = await getUserPlan(session.user.id);
+      const [userPlan, userCredits] = await Promise.all([
+        getUserPlan(session.user.id),
+        getUserCredits(session.user.id),
+      ]);
+
+      // 1. Check plan access
       if (!canUseModel(userPlan, chatModel)) {
         const msg = upgradeMessage[chatModel] ?? "Upgrade your plan at masidy.com to use this model.";
-        return Response.json(
-          { code: "forbidden:chat", message: msg },
-          { status: 403 }
-        );
+        return Response.json({ code: "forbidden:chat", message: msg }, { status: 403 });
+      }
+
+      // 2. Check + deduct credits
+      const cost = creditCostForModel(chatModel);
+      if (cost > 0) {
+        if (userCredits < cost) {
+          return Response.json(
+            {
+              code: "forbidden:chat",
+              message: `You're out of credits. Top up at masidy.com — $5 adds 500 credits, $10 adds 1200 credits.`,
+            },
+            { status: 403 }
+          );
+        }
+        // Deduct optimistically — non-blocking
+        deductUserCredits(session.user.id, cost).catch(() => {});
       }
     }
-    // ── End plan gate ────────────────────────────────────────────────────────
+    // ── End plan + credits gate ─────────────────────────────────────────────
 
     const isToolApprovalFlow = Boolean(messages);
 

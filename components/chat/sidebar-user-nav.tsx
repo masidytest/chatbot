@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { User } from "next-auth";
 import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
+import { BillingStatus } from "@/components/chat/billing-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -76,6 +77,13 @@ export function SidebarUserNav({ user }: { user: User }) {
             data-testid="user-nav-menu"
             side="top"
           >
+            {/* Credits + plan + top-up / upgrade UI */}
+            {!isGuest && (
+              <>
+                <BillingStatus />
+                <DropdownMenuSeparator />
+              </>
+            )}
             <DropdownMenuItem
               className="cursor-pointer text-[13px]"
               data-testid="user-nav-item-theme"
