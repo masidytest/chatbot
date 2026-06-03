@@ -2,17 +2,14 @@ import { auth } from "@/app/(auth)/auth";
 import { ChatbotError } from "@/lib/errors";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
-  apiVersion: "2025-02-24.acacia",
-});
-
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://masidy.com";
 
-/**
- * POST /api/billing/checkout
- * Body: { type: "subscription", plan: "plus" | "pro" }
- *    OR { type: "topup", package: "topup_500" | "topup_1200" | "topup_3500" }
- */
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error("STRIPE_SECRET_KEY not configured");
+  return new Stripe(key, { apiVersion: "2025-02-24.acacia" });
+}
+
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -26,12 +23,13 @@ export async function POST(request: Request) {
   };
 
   try {
+    const stripe = getStripe();
+
     if (body.type === "subscription") {
-      // ── Monthly subscription ──────────────────────────────────────────────
       const priceId =
         body.plan === "pro"
-          ? process.env.STRIPE_PRICE_PRO      // $10/month
-          : process.env.STRIPE_PRICE_PLUS;    // $5/month
+          ? process.env.STRIPE_PRICE_PRO
+          : process.env.STRIPE_PRICE_PLUS;
 
       if (!priceId) {
         return Response.json({ error: "Stripe price not configured" }, { status: 500 });
@@ -53,7 +51,6 @@ export async function POST(request: Request) {
       return Response.json({ url: checkout.url });
 
     } else if (body.type === "topup") {
-      // ── One-time top-up ───────────────────────────────────────────────────
       const packages: Record<string, { credits: number; price: number; label: string }> = {
         topup_500:  { credits: 500,  price: 500,  label: "500 Credits — $5"  },
         topup_1200: { credits: 1200, price: 1000, label: "1200 Credits — $10" },
@@ -71,11 +68,10 @@ export async function POST(request: Request) {
           {
             price_data: {
               currency: "usd",
-              unit_amount: pkg.price, // in cents
+              unit_amount: pkg.price,
               product_data: {
                 name: `Masidy Credits — ${pkg.label}`,
-                description: `${pkg.credits} credits added to your account instantly. Credits never expire.`,
-                images: [`${BASE_URL}/masidy-icon.svg`],
+                description: `${pkg.credits} credits added instantly. Credits never expire.`,
               },
             },
             quantity: 1,
@@ -95,8 +91,9 @@ export async function POST(request: Request) {
     }
 
     return Response.json({ error: "Invalid type" }, { status: 400 });
+
   } catch (e) {
     console.error("Stripe checkout error:", e);
-    return Response.json({ error: "Failed to create checkout session" }, { status: 500 });
+    return Response.json({ error: "Stripe not configured" }, { status: 500 });
   }
 }

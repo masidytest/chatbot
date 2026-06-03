@@ -5,9 +5,11 @@ import { setUserPlan } from "@/lib/db/plan-queries";
 import { creditsByPlan } from "@/lib/ai/tiers";
 import type { UserPlan } from "@/lib/ai/tiers";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
-  apiVersion: "2025-02-24.acacia",
-});
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error("STRIPE_SECRET_KEY not configured");
+  return new Stripe(key, { apiVersion: "2025-02-24.acacia" });
+}
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -17,6 +19,7 @@ export async function POST(request: Request) {
   let event: Stripe.Event;
 
   try {
+    const stripe = getStripe();
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
   } catch (e) {
     console.error("Webhook signature failed:", e);
@@ -24,6 +27,7 @@ export async function POST(request: Request) {
   }
 
   try {
+    const stripe = getStripe();
     switch (event.type) {
       // ── One-time top-up payment completed ──────────────────────────────────
       case "checkout.session.completed": {
