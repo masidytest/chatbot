@@ -117,6 +117,12 @@ export default function RootLayout({
             __html: THEME_COLOR_SCRIPT,
           }}
         />
+        <script
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: service worker registration
+          dangerouslySetInnerHTML={{
+            __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}`,
+          }}
+        />
       </head>
       <body className="antialiased">
         <ThemeProvider

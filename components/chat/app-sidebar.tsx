@@ -7,6 +7,7 @@ import {
   TrashIcon,
 } from "lucide-react";
 import { MasidyBrand, MasidyIcon } from "@/components/chat/masidy-logo";
+import { InstallButton } from "@/components/chat/install-button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { User } from "next-auth";
@@ -149,9 +150,11 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         </SidebarContent>
         <SidebarFooter className="border-t border-sidebar-border pt-2 pb-3">
           {user && <SidebarUserNav user={user} />}
-          <div className="group-data-[collapsible=icon]:hidden px-2 pt-1">
+          <div className="group-data-[collapsible=icon]:hidden px-2 pt-1 space-y-1">
+            <InstallButton />
             <p className="text-[10px] text-sidebar-foreground/30 text-center">Masidy AI</p>
-          </div>        </SidebarFooter>
+          </div>
+        </SidebarFooter>
         <SidebarRail />
       </Sidebar>
 
