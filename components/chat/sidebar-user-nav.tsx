@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronUp, LayoutDashboardIcon } from "lucide-react";
+import { ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { User } from "next-auth";
 import { signOut, useSession } from "next-auth/react";
@@ -76,14 +76,6 @@ export function SidebarUserNav({ user }: { user: User }) {
             data-testid="user-nav-menu"
             side="top"
           >
-            <DropdownMenuItem
-              className="cursor-pointer text-[13px] gap-2"
-              onSelect={() => router.push("/dashboard")}
-            >
-              <LayoutDashboardIcon className="size-3.5" />
-              Dashboard
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               className="cursor-pointer text-[13px]"
               data-testid="user-nav-item-theme"
