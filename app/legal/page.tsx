@@ -9,13 +9,9 @@ export const metadata = {
 export default function LegalPage() {
   return (
     <div className="min-h-dvh bg-background">
-      {/* Header */}
       <div className="border-b border-border/40 bg-sidebar px-6 py-4">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Link
-            className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
-            href="/"
-          >
+          <Link className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors" href="/">
             <ArrowLeftIcon className="size-3.5" />
             Back to chat
           </Link>
@@ -28,14 +24,11 @@ export default function LegalPage() {
       </div>
 
       <div className="mx-auto max-w-3xl px-6 py-16">
-        {/* Nav between legal docs */}
         <div className="mb-10 flex gap-2">
           {["Terms", "Privacy", "Cookies"].map((t, i) => (
             <a
               className={`rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors ${
-                i === 0
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:text-foreground"
+                i === 0 ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
               }`}
               href={`#${t.toLowerCase()}`}
               key={t}
@@ -49,7 +42,6 @@ export default function LegalPage() {
         <section className="mb-16" id="terms">
           <h1 className="mb-2 text-3xl font-bold text-foreground">Terms of Service</h1>
           <p className="mb-8 text-[13px] text-muted-foreground">Last updated: June 2026</p>
-
           <div className="space-y-6 text-[14px] leading-relaxed text-muted-foreground">
             <div>
               <h3 className="mb-2 font-semibold text-foreground">1. Acceptance</h3>
@@ -57,7 +49,7 @@ export default function LegalPage() {
             </div>
             <div>
               <h3 className="mb-2 font-semibold text-foreground">2. Service</h3>
-              <p>Masidy provides AI-powered chat and tools. We reserve the right to modify, suspend, or discontinue the service at any time. We will provide reasonable notice for significant changes.</p>
+              <p>Masidy provides AI-powered chat and tools. We reserve the right to modify, suspend, or discontinue the service at any time with reasonable notice for significant changes.</p>
             </div>
             <div>
               <h3 className="mb-2 font-semibold text-foreground">3. Account</h3>
@@ -65,7 +57,7 @@ export default function LegalPage() {
             </div>
             <div>
               <h3 className="mb-2 font-semibold text-foreground">4. Acceptable Use</h3>
-              <p>Do not use Masidy to generate illegal content, harass others, spread misinformation, attempt to circumvent safety measures, or violate any applicable laws. We may suspend accounts that violate these rules.</p>
+              <p>Do not use Masidy to generate illegal content, harass others, spread misinformation, or violate any applicable laws. We may suspend accounts that violate these rules.</p>
             </div>
             <div>
               <h3 className="mb-2 font-semibold text-foreground">5. Payments & Refunds</h3>
@@ -92,20 +84,18 @@ export default function LegalPage() {
         <section className="mb-16" id="privacy">
           <h1 className="mb-2 text-3xl font-bold text-foreground">Privacy Policy</h1>
           <p className="mb-8 text-[13px] text-muted-foreground">Last updated: June 2026</p>
-
           <div className="space-y-6 text-[14px] leading-relaxed text-muted-foreground">
             <div>
               <h3 className="mb-2 font-semibold text-foreground">What we collect</h3>
               <ul className="list-disc space-y-1 pl-5">
                 <li>Email address and password (hashed) when you create an account</li>
                 <li>Chat messages you send and receive</li>
-                <li>Files you upload for document analysis</li>
-                <li>Usage data (message counts, model used) for billing</li>
+                <li>Usage data for billing purposes</li>
                 <li>Memories you explicitly share (name, preferences, etc.)</li>
               </ul>
             </div>
             <div>
-              <h3 className="mb-2 font-semibold text-foreground">What we do NOT collect</h3>
+              <h3 className="mb-2 font-semibold text-foreground">What we do NOT do</h3>
               <ul className="list-disc space-y-1 pl-5">
                 <li>We do not sell your data to third parties</li>
                 <li>We do not use your conversations to train AI models</li>
@@ -114,7 +104,7 @@ export default function LegalPage() {
             </div>
             <div>
               <h3 className="mb-2 font-semibold text-foreground">How we use your data</h3>
-              <p>To provide and improve the service, process payments, and communicate with you about your account. AI requests are processed through third-party providers (Groq, Vercel AI Gateway) under their respective privacy policies.</p>
+              <p>To provide and improve the service, process payments, and communicate with you about your account.</p>
             </div>
             <div>
               <h3 className="mb-2 font-semibold text-foreground">Data retention</h3>
@@ -122,7 +112,7 @@ export default function LegalPage() {
             </div>
             <div>
               <h3 className="mb-2 font-semibold text-foreground">Security</h3>
-              <p>We use industry-standard encryption and security practices. Passwords are hashed and never stored in plain text. All connections are encrypted via HTTPS.</p>
+              <p>We use industry-standard encryption. Passwords are hashed and never stored in plain text. All connections are encrypted via HTTPS.</p>
             </div>
           </div>
         </section>
@@ -133,24 +123,23 @@ export default function LegalPage() {
         <section id="cookies">
           <h1 className="mb-2 text-3xl font-bold text-foreground">Cookie Policy</h1>
           <p className="mb-8 text-[13px] text-muted-foreground">Last updated: June 2026</p>
-
           <div className="space-y-6 text-[14px] leading-relaxed text-muted-foreground">
             <div>
               <h3 className="mb-2 font-semibold text-foreground">What cookies we use</h3>
               <ul className="list-disc space-y-2 pl-5">
-                <li><strong className="text-foreground">Session cookie</strong> — keeps you logged in across pages. Required for the service to work.</li>
+                <li><strong className="text-foreground">Session cookie</strong> — keeps you logged in. Required for the service to work.</li>
                 <li><strong className="text-foreground">Sidebar state</strong> — remembers whether your sidebar is open or closed.</li>
-                <li><strong className="text-foreground">Model preference</strong> — remembers your last selected AI model.</li>
-                <li><strong className="text-foreground">Theme</strong> — remembers light or dark mode preference.</li>
+                <li><strong className="text-foreground">Model preference</strong> — remembers your last selected model.</li>
+                <li><strong className="text-foreground">Theme</strong> — remembers light or dark mode.</li>
               </ul>
             </div>
             <div>
-              <h3 className="mb-2 font-semibold text-foreground">Third-party cookies</h3>
-              <p>Stripe (our payment processor) may set cookies during checkout for fraud prevention. These are governed by <a className="text-orange-500 hover:text-orange-400" href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer">Stripe's privacy policy</a>.</p>
+              <h3 className="mb-2 font-semibold text-foreground">Payment processor cookies</h3>
+              <p>Our payment processor may set cookies during checkout for security and fraud prevention purposes.</p>
             </div>
             <div>
-              <h3 className="mb-2 font-semibold text-foreground">No tracking or advertising cookies</h3>
-              <p>We do not use Google Analytics, Facebook Pixel, or any advertising network cookies. We do not track you across the web.</p>
+              <h3 className="mb-2 font-semibold text-foreground">No tracking or advertising</h3>
+              <p>We do not use any analytics, advertising, or tracking cookies. We do not track you across the web.</p>
             </div>
           </div>
         </section>

@@ -144,10 +144,10 @@ export default function PricingPage() {
             <ul className="mb-8 flex-1 space-y-2.5">
               {[
                 "Everything in Free",
-                "Masidy Code — coding, debugging, 164K context",
-                "Masidy Mini — fast reasoning + tool use, 131K context",
-                "Masidy Max — strongest reasoning, complex research",
-                "Masidy Speed — reads images, 1M context, fastest",
+                "Masidy Code — best for coding and debugging",
+                "Masidy Mini — fast reasoning and everyday tasks",
+                "Masidy Max — deep reasoning and complex research",
+                "Masidy Speed — image understanding, fastest responses",
                 "500 credits/month included",
                 "Buy more credits any time",
               ].map((f) => (

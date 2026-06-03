@@ -8,14 +8,12 @@ import {
   EyeIcon,
   FileTextIcon,
   GlobeIcon,
-  ImageIcon,
   LanguagesIcon,
   MicIcon,
   QrCodeIcon,
   SearchIcon,
   SparklesIcon,
   TrendingUpIcon,
-  VideoIcon,
   ZapIcon,
   MessageSquareIcon,
 } from "lucide-react";
@@ -42,7 +40,7 @@ export default function FeaturesPage() {
       <div className="mx-auto max-w-5xl px-6 py-16">
         <div className="mb-14 text-center">
           <h1 className="text-4xl font-bold tracking-tight text-foreground">Everything Masidy can do</h1>
-          <p className="mt-3 text-lg text-muted-foreground">Honest list. No fake features.</p>
+          <p className="mt-3 text-lg text-muted-foreground">One platform. Powerful capabilities across every plan.</p>
         </div>
 
         {/* FREE MODEL */}
@@ -53,22 +51,21 @@ export default function FeaturesPage() {
             </div>
             <h2 className="text-lg font-bold text-foreground">Masidy <span className="ml-2 rounded-full bg-green-500/10 px-2 py-0.5 text-[12px] font-semibold text-green-600 dark:text-green-400">Free forever</span></h2>
           </div>
-          <p className="mb-5 text-[14px] text-muted-foreground">The default model. Powered by Groq Llama 3.1 8B. Fast, free, and capable — but text-only with an 8,000 token context window.</p>
+          <p className="mb-5 text-[14px] text-muted-foreground">The default model — fast, capable, and free. Perfect for everyday tasks.</p>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
             {[
-              { icon: SearchIcon,        title: "Web Search",            desc: "Live results from LangSearch, Wikipedia, DuckDuckGo. Always current." },
-              { icon: ImageIcon,         title: "Image Generation",      desc: 'Say "draw a sunset" and get an image. Powered by Pollinations.ai.' },
-              { icon: CloudIcon,         title: "Live Weather",          desc: "Temperature, humidity, wind for any city in the world." },
-              { icon: TrendingUpIcon,    title: "Stock & Crypto Prices", desc: "Live prices for AAPL, TSLA, BTC, ETH, and any ticker." },
-              { icon: GlobeIcon,         title: "Webpage Summarizer",    desc: "Paste any URL and Masidy reads and summarizes the page." },
+              { icon: SearchIcon,        title: "Web Search",            desc: "Live results from across the web. Always current, never outdated." },
+              { icon: CloudIcon,         title: "Live Weather",          desc: "Current temperature, humidity, and conditions for any city in the world." },
+              { icon: TrendingUpIcon,    title: "Stock & Crypto Prices", desc: "Live market prices for stocks and crypto. Ask about any ticker or company." },
+              { icon: GlobeIcon,         title: "Webpage Summarizer",    desc: "Paste any URL and Masidy reads and summarizes the page for you." },
               { icon: SparklesIcon,      title: "Latest News",           desc: "Ask about any topic and get real headlines from the web." },
-              { icon: QrCodeIcon,        title: "QR Code Generator",     desc: 'Say "QR code for masidy.com" and get a scannable code.' },
-              { icon: BrainIcon,         title: "Memory",                desc: "Masidy remembers your name, preferences, and facts across conversations." },
-              { icon: FileTextIcon,      title: "Document Upload",       desc: "Upload TXT or Markdown files. Masidy reads and answers questions about them." },
-              { icon: LanguagesIcon,     title: "Multilingual",          desc: "Auto-detects your language and responds in it. Arabic, French, Spanish, Chinese, and more." },
-              { icon: MicIcon,           title: "Voice Input",           desc: "Speak instead of typing. Works in Chrome and Edge on desktop." },
-              { icon: CodeIcon,          title: "Coding",                desc: "Write, explain, and debug code. Not specialized — use Masidy Code (Plus) for serious work." },
-              { icon: MessageSquareIcon, title: "Dictionary",            desc: "Ask for definitions, phonetics, and meanings of any word." },
+              { icon: QrCodeIcon,        title: "QR Code Generator",     desc: "Generate a scannable QR code for any URL or text instantly." },
+              { icon: BrainIcon,         title: "Memory",                desc: "Masidy remembers your name, preferences, and facts across all conversations." },
+              { icon: FileTextIcon,      title: "Document Upload",       desc: "Upload text files and ask questions about their content." },
+              { icon: LanguagesIcon,     title: "Multilingual",          desc: "Responds in the language you write in — Arabic, French, Spanish, Chinese, and more." },
+              { icon: MicIcon,           title: "Voice Input",           desc: "Speak instead of typing. Works in Chrome and Edge." },
+              { icon: CodeIcon,          title: "Coding",                desc: "Write, explain, and debug code in any programming language." },
+              { icon: MessageSquareIcon, title: "Dictionary",            desc: "Definitions, phonetics, and meanings for any word." },
             ].map((f) => (
               <div className="rounded-xl border border-border/40 bg-card/50 p-4" key={f.title}>
                 <div className="mb-2 flex items-center gap-2">
@@ -78,12 +75,6 @@ export default function FeaturesPage() {
                 <p className="text-[12px] leading-relaxed text-muted-foreground">{f.desc}</p>
               </div>
             ))}
-          </div>
-          <div className="mt-4 rounded-xl border border-orange-500/20 bg-orange-500/5 p-4">
-            <p className="text-[13px] text-muted-foreground">
-              <span className="font-semibold text-foreground">What Masidy (free) cannot do:</span>{" "}
-              Read images · Read PDF files · Vision · Long documents over ~6,000 words · Deep reasoning chains
-            </p>
           </div>
         </div>
 
@@ -103,12 +94,11 @@ export default function FeaturesPage() {
                 tag: "Coding",
                 color: "border-blue-500/20",
                 items: [
-                  "Best model for writing and debugging code",
-                  "Combined reasoning + tool use (unique)",
-                  "164,000 token context — large codebases",
-                  "Algorithms, data structures, system design",
-                  "Creates code files, documents, spreadsheets",
-                  "Text only — cannot read images",
+                  "Best for writing and debugging code",
+                  "Combined reasoning and tool use",
+                  "Large context window for full codebases",
+                  "Algorithms, system design, technical analysis",
+                  "Creates code files, documents, and spreadsheets",
                 ],
               },
               {
@@ -116,12 +106,11 @@ export default function FeaturesPage() {
                 tag: "Fast reasoning",
                 color: "border-blue-500/20",
                 items: [
-                  "Ultra-fast first response (0.1s)",
-                  "o3-mini level reasoning quality",
-                  "Tool use: documents, code, spreadsheets",
-                  "131,000 token context",
-                  "Math, logic, everyday questions",
-                  "Text only — cannot read images",
+                  "Ultra-fast responses",
+                  "Strong reasoning and problem solving",
+                  "Creates documents, code, and spreadsheets",
+                  "Great for everyday tasks and quick answers",
+                  "Math, logic, writing, and more",
                 ],
               },
               {
@@ -129,25 +118,23 @@ export default function FeaturesPage() {
                 tag: "Deep reasoning",
                 color: "border-blue-500/20",
                 items: [
-                  "Strongest open-weight reasoning model",
-                  "Best for hard questions and research",
-                  "Tool use: documents, code, spreadsheets",
-                  "131,000 token context",
-                  "Long-form writing and analysis",
-                  "Text only — cannot read images",
+                  "Strongest reasoning on the platform",
+                  "Best for complex questions and research",
+                  "Creates documents, code, and spreadsheets",
+                  "Long-form writing and in-depth analysis",
+                  "Multi-step problem solving",
                 ],
               },
               {
                 name: "Masidy Speed",
-                tag: "Vision + 1M context",
+                tag: "Vision + Large context",
                 color: "border-orange-500/20",
                 items: [
-                  "Fastest model on the platform (0.3s)",
-                  "✅ Reads and analyzes images you send",
-                  "1,000,000 token context — entire books/codebases",
-                  "Tool use: documents, code, spreadsheets",
-                  "Best for large document analysis",
-                  "Built for speed — not deep reasoning",
+                  "Fastest model on the platform",
+                  "Reads and analyzes images you send",
+                  "Massive context window for large documents",
+                  "Creates documents, code, and spreadsheets",
+                  "Built for speed and real-time tasks",
                 ],
               },
             ].map((m) => (
@@ -159,7 +146,7 @@ export default function FeaturesPage() {
                 <ul className="space-y-1.5">
                   {m.items.map((item) => (
                     <li className="text-[12px] leading-relaxed text-muted-foreground" key={item}>
-                      {item.startsWith("✅") ? item : `• ${item}`}
+                      • {item}
                     </li>
                   ))}
                 </ul>
@@ -180,21 +167,21 @@ export default function FeaturesPage() {
             <div className="mb-3 flex items-center gap-3">
               <EyeIcon className="size-5 text-orange-500" />
               <span className="text-[15px] font-bold text-foreground">Masidy Flash</span>
-              <span className="rounded-full bg-orange-500/15 px-2 py-0.5 text-[10px] font-semibold text-orange-500">Vision + 262K context</span>
+              <span className="rounded-full bg-orange-500/15 px-2 py-0.5 text-[10px] font-semibold text-orange-500">Vision · Most Capable</span>
             </div>
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
               {[
-                "✅ Reads and analyzes images you send",
-                "262,000 token context — largest text context",
-                "Best coding model — specialized in frontend UI",
-                "Tool use: documents, code, spreadsheets",
-                "Combined reasoning + tool use simultaneously",
+                "Reads and analyzes images you send",
+                "Largest context window on the platform",
+                "Advanced coding — UI, animations, full apps",
+                "Creates documents, code, and spreadsheets",
+                "Combined reasoning and tool use",
                 "Most capable model on the platform",
                 "Agentic workflows and multi-step tasks",
-                "Long document and research analysis",
+                "Best for research and long document analysis",
               ].map((item) => (
                 <div className="text-[13px] text-muted-foreground" key={item}>
-                  {item.startsWith("✅") ? item : `• ${item}`}
+                  • {item}
                 </div>
               ))}
             </div>
@@ -202,7 +189,7 @@ export default function FeaturesPage() {
         </div>
 
         <div className="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-8 text-center">
-          <h2 className="mb-2 text-2xl font-bold text-foreground">Start with what's free</h2>
+          <h2 className="mb-2 text-2xl font-bold text-foreground">Start for free</h2>
           <p className="mb-6 text-muted-foreground">The free Masidy model handles most tasks. Upgrade only when you need more.</p>
           <Link className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-orange-600" href="/">
             Start chatting for free
