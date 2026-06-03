@@ -138,10 +138,10 @@ export default function PricingPage() {
             <ul className="mb-8 flex-1 space-y-2.5">
               {[
                 "Everything in Free",
-                "Masidy Code — coding & debugging",
-                "Masidy Mini — fast reasoning",
-                "Masidy Max — deep analysis",
-                "Masidy Speed — instant responses",
+                "Masidy Code — coding, debugging, 164K context",
+                "Masidy Mini — fast reasoning + tool use, 131K context",
+                "Masidy Max — strongest reasoning, complex research",
+                "Masidy Speed — reads images, 1M context, fastest",
                 "500 credits/month included",
                 "Buy more credits any time",
               ].map((f) => (
@@ -180,7 +180,7 @@ export default function PricingPage() {
             <ul className="mb-8 flex-1 space-y-2.5">
               {[
                 "Everything in Plus",
-                "Masidy Flash — most powerful model",
+                "Masidy Flash — reads images, 262K context, vision + code",
                 "1200 credits/month included",
                 "Buy more credits any time",
                 "Priority support",

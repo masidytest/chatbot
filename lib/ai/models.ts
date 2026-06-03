@@ -28,27 +28,27 @@ export const chatModels: ChatModel[] = [
     id: "masidy",
     name: "Masidy",
     provider: "custom",
-    description: "Free · Web search, images, weather, stocks, memory and more",
+    description: "Free · Web search, images, weather, stocks, YouTube, memory and more",
   },
   {
     id: "moonshotai/kimi-k2.5",
     name: "Masidy Flash",
     provider: "moonshotai",
-    description: "Pro · Most capable — vision, coding, long context",
+    description: "Pro · Most capable — reads images, 262K context, coding, vision, tools",
     gatewayOrder: ["fireworks", "bedrock"],
   },
   {
     id: "deepseek/deepseek-v3.2",
     name: "Masidy Code",
     provider: "deepseek",
-    description: "Plus · Best for coding, debugging, and technical tasks",
+    description: "Plus · Best for coding, debugging, technical analysis — 164K context",
     gatewayOrder: ["bedrock", "deepinfra"],
   },
   {
     id: "openai/gpt-oss-20b",
     name: "Masidy Mini",
     provider: "openai",
-    description: "Plus · Fast and smart — great for everyday tasks",
+    description: "Plus · Fast reasoning, tool use, 131K context — great for everyday tasks",
     gatewayOrder: ["groq", "bedrock"],
     reasoningEffort: "low",
   },
@@ -56,7 +56,7 @@ export const chatModels: ChatModel[] = [
     id: "openai/gpt-oss-120b",
     name: "Masidy Max",
     provider: "openai",
-    description: "Plus · Deep reasoning — best for complex questions",
+    description: "Plus · Strongest open-weight reasoning — complex analysis and research",
     gatewayOrder: ["fireworks", "bedrock"],
     reasoningEffort: "low",
   },
@@ -64,63 +64,31 @@ export const chatModels: ChatModel[] = [
     id: "xai/grok-4.1-fast-non-reasoning",
     name: "Masidy Speed",
     provider: "xai",
-    description: "Plus · Fastest responses — real-time and instant",
+    description: "Plus · Fastest model — reads images, 1M context, instant responses",
     gatewayOrder: ["xai"],
   },
 ];
 
-// Static capabilities for models that don't go through the AI Gateway.
+// Static capabilities — based on verified Vercel AI Gateway docs
+// Flash: vision ✅ tools ✅ — moonshotai/kimi-k2.5
+// Speed: vision ✅ tools ✅ — xai/grok-4.1-fast-non-reasoning
+// Code: tools ✅ vision ❌ — deepseek/deepseek-v3.2
+// Mini: tools ✅ vision ❌ reasoning ✅ — openai/gpt-oss-20b
+// Max: tools ✅ vision ❌ reasoning ✅ — openai/gpt-oss-120b
 const staticCapabilities: Record<string, ModelCapabilities> = {
-  masidy: { tools: true, vision: false, reasoning: true },
-  "meta/llama-3.1-8b": { tools: true, vision: false, reasoning: true },
+  masidy:                              { tools: false, vision: false, reasoning: true },
+  "moonshotai/kimi-k2.5":             { tools: true,  vision: true,  reasoning: true },
+  "deepseek/deepseek-v3.2":           { tools: true,  vision: false, reasoning: true },
+  "openai/gpt-oss-20b":               { tools: true,  vision: false, reasoning: true },
+  "openai/gpt-oss-120b":              { tools: true,  vision: false, reasoning: true },
+  "xai/grok-4.1-fast-non-reasoning":  { tools: true,  vision: true,  reasoning: false },
 };
 
 export async function getCapabilities(): Promise<
   Record<string, ModelCapabilities>
 > {
-  const results = await Promise.all(
-    chatModels.map(async (model) => {
-      // Return static capabilities for custom/local models.
-      if (staticCapabilities[model.id]) {
-        return [model.id, staticCapabilities[model.id]];
-      }
-
-      try {
-        const res = await fetch(
-          `https://ai-gateway.vercel.sh/v1/models/${model.id}/endpoints`,
-          { next: { revalidate: 86_400 } }
-        );
-        if (!res.ok) {
-          return [model.id, { tools: false, vision: false, reasoning: false }];
-        }
-
-        const json = await res.json();
-        const endpoints = json.data?.endpoints ?? [];
-        const params = new Set(
-          endpoints.flatMap(
-            (e: { supported_parameters?: string[] }) =>
-              e.supported_parameters ?? []
-          )
-        );
-        const inputModalities = new Set(
-          json.data?.architecture?.input_modalities ?? []
-        );
-
-        return [
-          model.id,
-          {
-            tools: params.has("tools"),
-            vision: inputModalities.has("image"),
-            reasoning: params.has("reasoning"),
-          },
-        ];
-      } catch {
-        return [model.id, { tools: false, vision: false, reasoning: false }];
-      }
-    })
-  );
-
-  return Object.fromEntries(results);
+  // Return static capabilities for all known models — no API call needed
+  return staticCapabilities;
 }
 
 export const isDemo = process.env.IS_DEMO === "1";
@@ -143,10 +111,7 @@ export async function getAllGatewayModels(): Promise<
     const res = await fetch("https://ai-gateway.vercel.sh/v1/models", {
       next: { revalidate: 86_400 },
     });
-    if (!res.ok) {
-      return [];
-    }
-
+    if (!res.ok) return [];
     const json = await res.json();
     return (json.data ?? [])
       .filter((m: GatewayModel) => m.type === "language")
