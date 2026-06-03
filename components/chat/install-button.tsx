@@ -1,6 +1,6 @@
 "use client";
 
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -8,14 +8,20 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-export function InstallButton() {
+export function InstallBanner() {
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [installed, setInstalled] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    // Check if already installed
+    // Already installed — never show
     if (window.matchMedia("(display-mode: standalone)").matches) {
-      setInstalled(true);
+      setIsStandalone(true);
+      return;
+    }
+    // User dismissed before — don't show again this session
+    if (sessionStorage.getItem("install-dismissed")) {
+      setDismissed(true);
       return;
     }
 
@@ -23,36 +29,54 @@ export function InstallButton() {
       e.preventDefault();
       setPrompt(e as BeforeInstallPromptEvent);
     };
-
     window.addEventListener("beforeinstallprompt", handler);
-    window.addEventListener("appinstalled", () => setInstalled(true));
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
-    };
+    window.addEventListener("appinstalled", () => setIsStandalone(true));
+    return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
-  // Don't show if already installed or no prompt available
-  if (installed || !prompt) return null;
-
   const handleInstall = async () => {
+    if (!prompt) return;
     await prompt.prompt();
-    const result = await prompt.userChoice;
-    if (result.outcome === "accepted") {
-      setInstalled(true);
-      setPrompt(null);
-    }
+    const { outcome } = await prompt.userChoice;
+    if (outcome === "accepted") setIsStandalone(true);
+    setPrompt(null);
   };
 
+  const handleDismiss = () => {
+    sessionStorage.setItem("install-dismissed", "1");
+    setDismissed(true);
+  };
+
+  if (isStandalone || dismissed || !prompt) return null;
+
   return (
-    <button
-      className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[13px] text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-      onClick={handleInstall}
-      type="button"
-      title="Install Masidy as an app"
-    >
-      <DownloadIcon className="size-4" />
-      <span>Install app</span>
-    </button>
+    <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between gap-3 border-t border-border/40 bg-card/95 px-4 py-3 backdrop-blur-xl md:bottom-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:rounded-2xl md:border md:shadow-[var(--shadow-float)] md:px-5 md:py-3.5 md:min-w-[320px]">
+      <div className="flex items-center gap-3">
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-orange-500/10">
+          <DownloadIcon className="size-4 text-orange-500" />
+        </div>
+        <div>
+          <p className="text-[13px] font-semibold text-foreground">Get Masidy on your device</p>
+          <p className="text-[11px] text-muted-foreground">Install for a faster experience</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          className="rounded-lg bg-orange-500 px-3 py-1.5 text-[12px] font-semibold text-white transition-colors hover:bg-orange-600"
+          onClick={handleInstall}
+          type="button"
+        >
+          Install
+        </button>
+        <button
+          className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:text-foreground"
+          onClick={handleDismiss}
+          type="button"
+          aria-label="Dismiss"
+        >
+          <XIcon className="size-4" />
+        </button>
+      </div>
+    </div>
   );
 }
