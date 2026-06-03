@@ -120,13 +120,20 @@ export default function RootLayout({
           // biome-ignore lint/security/noDangerouslySetInnerHtml: service worker registration
           dangerouslySetInnerHTML={{
             __html: `
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/sw.js').catch(function(){});
-}
-window.addEventListener('beforeinstallprompt',function(e){
-  e.preventDefault();
-  window.__installPrompt=e;
-});
+(function(){
+  if(!('serviceWorker' in navigator)) return;
+  // Unregister any old broken SW first, then register fresh
+  navigator.serviceWorker.getRegistrations().then(function(regs){
+    var unreg = regs.map(function(r){ return r.unregister(); });
+    return Promise.all(unreg);
+  }).then(function(){
+    return navigator.serviceWorker.register('/sw.js');
+  }).catch(function(){});
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();
+    window.__installPrompt=e;
+  });
+})();
 `.trim(),
           }}
         />
