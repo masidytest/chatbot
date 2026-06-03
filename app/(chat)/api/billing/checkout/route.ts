@@ -5,7 +5,7 @@ import Stripe from "stripe";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://masidy.com";
 
 // Hardcoded price IDs — env vars override these
-const PRICE_PLUS = "price_1TecNWD31DwzbfMdkh4faZmb";
+const PRICE_PLUS = "price_1TeCNWD31DwzbfMdkh4faZmb";
 const PRICE_PRO  = "price_1Tc3N8D31DwzbfMdFpndopvQ";
 
 export async function POST(request: Request) {
