@@ -26,18 +26,14 @@ export async function POST(request: Request) {
     const stripe = getStripe();
 
     if (body.type === "subscription") {
+      // Use env var, fall back to known price IDs
       const priceId =
         body.plan === "pro"
-          ? process.env.STRIPE_PRICE_PRO
-          : process.env.STRIPE_PRICE_PLUS;
+          ? (process.env.STRIPE_PRICE_PRO ?? "price_1Tc3N8D31DwzbfMdFpndopvQ")
+          : (process.env.STRIPE_PRICE_PLUS ?? "price_1TecNWD31DwzbfMdkh4faZmb");
 
-      console.log(`[billing] plan=${body.plan} priceId=${priceId ?? "NOT SET"} hasPlusEnv=${!!process.env.STRIPE_PRICE_PLUS} hasProEnv=${!!process.env.STRIPE_PRICE_PRO}`);
+      console.log(`[billing] plan=${body.plan} priceId=${priceId}`);
 
-      if (!priceId) {
-        return Response.json({
-          error: `Stripe price ID not configured for plan: ${body.plan}. Add STRIPE_PRICE_PLUS and STRIPE_PRICE_PRO to Vercel env vars.`,
-        }, { status: 500 });
-      }
 
       const checkout = await stripe.checkout.sessions.create({
         mode: "subscription",
