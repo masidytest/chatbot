@@ -45,12 +45,8 @@ export function understand(question: string): {
     return { intent: "greeting", depth: "shallow", length: "short" };
   }
 
-  // Image generation
-  if (q.match(/\b(generate|create|draw|make|paint|design|show me|صور|ارسم|اصنع)\b.*\b(image|picture|photo|illustration|art|صورة|رسم)\b/) ||
-      q.match(/\b(image|picture|photo)\b.*\b(of|for|showing)\b/) ||
-      q.startsWith("generate image") || q.startsWith("create image") || q.startsWith("draw ")) {
-    return { intent: "image_generation", depth: "shallow", length: "short" };
-  }
+  // Image generation — not supported on free model, fall through to general
+  // (Pollinations requires server-side auth we don't have)
 
   // Weather
   if (q.match(/\b(weather|temperature|forecast|rain|sunny|humid|طقس|درجة الحرارة|مناخ)\b/)) {
@@ -503,14 +499,11 @@ export async function runMasidyPipeline(
 
   const { intent, depth, length } = understand(last);
 
-  // ── Image generation
-  if (intent === "image_generation") {
-    const prompt = last.replace(/\b(generate|create|draw|make|paint|design|show me|صور|ارسم|اصنع)\b/gi, "").replace(/\b(image|picture|photo|illustration|art|صورة|رسم)\b/gi, "").trim();
-    const result = await generateImage(prompt || last);
-    return { context: result.context, imageUrl: result.imageUrl, intent };
-  }
+  // Image generation — REMOVED: Pollinations API requires authentication on server-side
+  // Remove this intent to avoid false promises to users
+  // if (intent === "image_generation") { ... }
 
-  // ── QR code
+  // QR code
   if (intent === "qr_code") {
     const result = await generateQRCode(last);
     return { context: result.context, imageUrl: result.imageUrl, intent };

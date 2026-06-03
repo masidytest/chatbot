@@ -99,14 +99,14 @@ export default function PricingPage() {
               {[
                 "Masidy AI — unlimited messages",
                 "Web search (live results)",
-                "Image generation",
-                "Weather, stocks, news",
-                "YouTube & webpage summarizer",
-                "QR codes & dictionary",
-                "Document upload (TXT, MD)",
+                "Live weather for any city",
+                "Stock & crypto prices",
+                "Webpage summarizer",
+                "QR code generator",
+                "Dictionary & definitions",
                 "Memory across conversations",
-                "Multilingual support",
-                "Voice input (Chrome/Edge)",
+                "Multilingual — responds in your language",
+                "Write & explain code",
               ].map((f) => (
                 <li className="flex items-start gap-2.5 text-[13px] text-foreground" key={f}>
                   <CheckIcon className="mt-0.5 size-3.5 shrink-0 text-orange-500" />
