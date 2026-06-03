@@ -53,12 +53,20 @@ export default function DashboardPage() {
     if (status !== "authenticated") return;
 
     Promise.all([
-      fetch("/api/billing/status").then((r) => r.json()),
-      fetch("/api/dashboard").then((r) => r.json()),
+      fetch("/api/billing/status").then((r) => r.json()).catch(() => null),
+      fetch("/api/dashboard").then((r) => r.json()).catch(() => null),
     ]).then(([b, d]) => {
-      setBilling(b as BillingStatus);
-      setData(d as DashboardData);
-    }).catch(() => {});
+      // Only set billing if it looks like a valid response
+      if (b && b.plan && !b.error && !b.code) {
+        setBilling(b as BillingStatus);
+      } else if (!b || b.error || b.code) {
+        // API error — default to free plan display, no error shown
+        setBilling({ plan: "free", planName: "Free", credits: 0, monthlyCredits: 0 });
+      }
+      if (d && !d.error) {
+        setData(d as DashboardData);
+      }
+    });
   }, [status]);
 
   async function goToCheckout(type: "subscription" | "topup", body: Record<string, string>, id: string) {

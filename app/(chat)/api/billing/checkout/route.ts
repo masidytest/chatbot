@@ -4,11 +4,9 @@ import Stripe from "stripe";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://masidy.com";
 
-function getStripe() {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) throw new Error("STRIPE_SECRET_KEY not configured");
-  return new Stripe(key, { apiVersion: "2025-02-24.acacia" });
-}
+// Hardcoded price IDs — env vars override these
+const PRICE_PLUS = "price_1TecNWD31DwzbfMdkh4faZmb";
+const PRICE_PRO  = "price_1Tc3N8D31DwzbfMdFpndopvQ";
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -16,24 +14,32 @@ export async function POST(request: Request) {
     return new ChatbotError("unauthorized:chat").toResponse();
   }
 
-  const body = await request.json() as {
-    type: "subscription" | "topup";
-    plan?: "plus" | "pro";
-    package?: string;
-  };
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeKey) {
+    return Response.json({ error: "Payment system not configured. Contact support." }, { status: 500 });
+  }
+
+  const stripe = new Stripe(stripeKey, { apiVersion: "2025-02-24.acacia" });
+
+  let body: { type?: string; plan?: string; package?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: "Invalid request body" }, { status: 400 });
+  }
 
   try {
-    const stripe = getStripe();
-
     if (body.type === "subscription") {
-      // Use env var, fall back to known price IDs
-      const priceId =
-        body.plan === "pro"
-          ? (process.env.STRIPE_PRICE_PRO ?? "price_1Tc3N8D31DwzbfMdFpndopvQ")
-          : (process.env.STRIPE_PRICE_PLUS ?? "price_1TecNWD31DwzbfMdkh4faZmb");
+      const isPlus = body.plan === "plus";
+      const isPro  = body.plan === "pro";
 
-      console.log(`[billing] plan=${body.plan} priceId=${priceId}`);
+      if (!isPlus && !isPro) {
+        return Response.json({ error: `Unknown plan: ${body.plan}` }, { status: 400 });
+      }
 
+      const priceId = isPro
+        ? (process.env.STRIPE_PRICE_PRO?.trim() ?? PRICE_PRO)
+        : (process.env.STRIPE_PRICE_PLUS?.trim() ?? PRICE_PLUS);
 
       const checkout = await stripe.checkout.sessions.create({
         mode: "subscription",
@@ -45,7 +51,7 @@ export async function POST(request: Request) {
         },
         client_reference_id: session.user.id,
         success_url: `${BASE_URL}/?billing=success&plan=${body.plan}`,
-        cancel_url: `${BASE_URL}/?billing=cancelled`,
+        cancel_url: `${BASE_URL}/pricing`,
       });
 
       return Response.json({ url: checkout.url });
@@ -84,16 +90,18 @@ export async function POST(request: Request) {
         },
         client_reference_id: session.user.id,
         success_url: `${BASE_URL}/?billing=success&credits=${pkg.credits}`,
-        cancel_url: `${BASE_URL}/?billing=cancelled`,
+        cancel_url: `${BASE_URL}/pricing`,
       });
 
       return Response.json({ url: checkout.url });
+
+    } else {
+      return Response.json({ error: `Unknown type: ${body.type}` }, { status: 400 });
     }
 
-    return Response.json({ error: "Invalid type" }, { status: 400 });
-
   } catch (e) {
-    console.error("Stripe checkout error:", e);
-    return Response.json({ error: "Stripe not configured" }, { status: 500 });
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error(`[billing/checkout] plan=${body.plan} error:`, msg);
+    return Response.json({ error: msg }, { status: 500 });
   }
 }
