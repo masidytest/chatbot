@@ -10,7 +10,6 @@ export type Intent =
   | "weather"
   | "currency"
   | "webpage_summary"
-  | "youtube_summary"
   | "dictionary"
   | "qr_code"
   | "chart"
@@ -68,9 +67,9 @@ export function understand(question: string): {
     return { intent: "webpage_summary", depth: "medium", length: "medium" };
   }
 
-  // YouTube
+  // YouTube — API is broken, fall through to web search which will find info about the video
   if (q.match(/youtube\.com|youtu\.be/) || q.match(/\b(youtube|video|transcript|summarize.*video|video.*summary)\b/)) {
-    return { intent: "youtube_summary", depth: "medium", length: "medium" };
+    return { intent: "webpage_summary", depth: "medium", length: "medium" };
   }
 
   // Stock prices
@@ -117,10 +116,28 @@ export function understand(question: string): {
   return { intent, depth, length };
 }
 
-// ── Tool: Image generation (Pollinations.ai — free, no key) ─────────────────
+// ── Tool: Image generation (Pollinations.ai — free with Referer header) ─────
 async function generateImage(prompt: string): Promise<{ imageUrl: string; context: string }> {
   const encoded = encodeURIComponent(prompt);
-  const imageUrl = `https://image.pollinations.ai/prompt/${encoded}?width=800&height=600&nologo=true`;
+  // Pollinations requires Referer header to work without API key
+  const imageUrl = `https://image.pollinations.ai/prompt/${encoded}`;
+
+  // Verify the image actually generates (Pollinations needs Referer)
+  try {
+    const res = await fetch(imageUrl, {
+      headers: { Referer: "https://masidy.com" },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) {
+      return {
+        imageUrl: "",
+        context: `Image generation is temporarily unavailable. Please try again later.`,
+      };
+    }
+  } catch {
+    // Non-fatal — return the URL anyway, browser may still load it
+  }
+
   return {
     imageUrl,
     context: `[Image generated for: "${prompt}"]\nImage URL: ${imageUrl}`,
@@ -194,55 +211,8 @@ async function getCurrencyData(query: string): Promise<string[]> {
   }
 }
 
-// ── Tool: YouTube transcript + summary ───────────────────────────────────────
-async function getYouTubeTranscript(query: string): Promise<string[]> {
-  try {
-    // Extract video ID from URL
-    const videoIdMatch = query.match(
-      /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
-    );
-    const videoId = videoIdMatch?.[1];
-    if (!videoId) return [];
-
-    // Fetch video metadata from YouTube oEmbed (no API key needed)
-    const oembedRes = await fetch(
-      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`,
-      { signal: AbortSignal.timeout(5000) }
-    );
-    const title = oembedRes.ok
-      ? ((await oembedRes.json()) as { title?: string }).title ?? "YouTube Video"
-      : "YouTube Video";
-
-    // Fetch auto-generated transcript via YouTube's timedtext API
-    const transcriptRes = await fetch(
-      `https://www.youtube.com/api/timedtext?lang=en&v=${videoId}&fmt=json3`,
-      { signal: AbortSignal.timeout(8000) }
-    );
-
-    if (transcriptRes.ok) {
-      const data = await transcriptRes.json() as {
-        events?: Array<{ segs?: Array<{ utf8?: string }> }>;
-      };
-      const events = data?.events ?? [];
-      const text = events
-        .flatMap((e) => e.segs ?? [])
-        .map((s) => s.utf8 ?? "")
-        .join(" ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .slice(0, 4000);
-
-      if (text.length > 100) {
-        return [`[YouTube: ${title}]\nVideo ID: ${videoId}\nTranscript:\n${text}`];
-      }
-    }
-
-    // Fallback: no transcript available
-    return [`[YouTube: ${title}]\nVideo ID: ${videoId}\nNo transcript available for this video. I can only summarize what I know about this topic from other sources.`];
-  } catch {
-    return [];
-  }
-}
+// ── Tool: YouTube transcript — REMOVED: YouTube timedtext API no longer works
+// YouTube transcripts require authentication now. Removed to avoid false promises.
 
 // ── Tool: Stock prices (Yahoo Finance — free, no key) ────────────────────────
 async function getStockPrice(query: string): Promise<string[]> {
@@ -570,11 +540,8 @@ export async function runMasidyPipeline(
     if (data.length > 0) return { context: data.join("\n\n"), intent };
   }
 
-  // ── YouTube summary
-  if (intent === "youtube_summary") {
-    const data = await getYouTubeTranscript(last);
-    if (data.length > 0) return { context: data.join("\n\n"), intent };
-  }
+  // ── YouTube summary — removed (API no longer works)
+  // Falls through to webpage_summary intent above
 
   // ── Stock prices
   if (intent === "stock") {

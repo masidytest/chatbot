@@ -60,7 +60,6 @@ export default function FeaturesPage() {
               { icon: ImageIcon,         title: "Image Generation",      desc: 'Say "draw a sunset" and get an image. Powered by Pollinations.ai.' },
               { icon: CloudIcon,         title: "Live Weather",          desc: "Temperature, humidity, wind for any city in the world." },
               { icon: TrendingUpIcon,    title: "Stock & Crypto Prices", desc: "Live prices for AAPL, TSLA, BTC, ETH, and any ticker." },
-              { icon: VideoIcon,         title: "YouTube Summarizer",    desc: "Paste a YouTube URL and get a full summary of the video." },
               { icon: GlobeIcon,         title: "Webpage Summarizer",    desc: "Paste any URL and Masidy reads and summarizes the page." },
               { icon: SparklesIcon,      title: "Latest News",           desc: "Ask about any topic and get real headlines from the web." },
               { icon: QrCodeIcon,        title: "QR Code Generator",     desc: 'Say "QR code for masidy.com" and get a scannable code.' },
