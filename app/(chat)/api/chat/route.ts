@@ -241,6 +241,10 @@ export async function POST(request: Request) {
       }
 
       const memorySection = userMemory ? `\n\n${userMemory}` : "";
+      // Add name to system prompt if available
+      const nameMatch = userMemory.match(/^name:\s*(.+)$/m) ?? userMemory.match(/^name_ar:\s*(.+)$/m);
+      const knownName = nameMatch?.[1]?.trim();
+      const nameSection = knownName ? `\nThe user's name is ${knownName}. Use their name naturally in conversation.` : "";
       const contextTruncated = pipelineResult.context.slice(0, 3000);
       const contextSection = contextTruncated ? `\n\nContext:\n${contextTruncated}` : "";
       const imageInstruction = pipelineResult.imageUrl
@@ -273,7 +277,7 @@ export async function POST(request: Request) {
             ? groqClient("llama-3.1-8b-instant")
             : getLanguageModel("meta/llama-3.1-8b");
 
-          const finalSystemPrompt = `You are Masidy, an AI assistant created by the Masidy team. Never mention Groq, Llama, Meta, or any AI company.
+          const finalSystemPrompt = `You are Masidy, an AI assistant created by the Masidy team. Never mention Groq, Llama, Meta, or any AI company.${nameSection}
 ${memorySection}${contextSection}${imageInstruction}`;
 
           const result = streamText({
