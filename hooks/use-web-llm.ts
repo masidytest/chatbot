@@ -12,45 +12,24 @@ export type WebLLMStatus =
   | "error"
   | "unsupported";
 
-// Phi-3.5 Mini — fast, smart, 3.8B, perfect for browser
 export const WEB_LLM_MODEL_ID = "Phi-3.5-mini-instruct-q4f16_1-MLC";
 export const WEB_LLM_DISPLAY_NAME = "Masidy Local";
-export const WEB_LLM_SIZE_MB = 2100;
-
-type MLCEngine = {
-  reload: (modelId: string) => Promise<void>;
-  generate: (
-    prompt: string,
-    progressCallback?: (step: number, currentMessage: string) => void,
-    streamInterval?: number,
-    genConfig?: Record<string, unknown>
-  ) => Promise<string>;
-  getMessage: () => Promise<string>;
-  resetChat: () => Promise<void>;
-  chat: {
-    completions: {
-      create: (params: {
-        model?: string;
-        messages: Array<{ role: string; content: string }>;
-        stream: true;
-        max_tokens?: number;
-        temperature?: number;
-      }) => Promise<AsyncIterable<{ choices: Array<{ delta: { content?: string } }> }>>;
-    };
-  };
-};
 
 export function useWebLLM() {
   const [status, setStatus] = useState<WebLLMStatus>("idle");
   const [progress, setProgress] = useState(0);
   const [progressText, setProgressText] = useState("");
-  const engineRef = useRef<MLCEngine | null>(null);
+  // Use any type for the engine since WebLLM types are complex
+  // biome-ignore lint/suspicious/noExplicitAny: WebLLM engine
+  const engineRef = useRef<any>(null);
 
   const isSupported = useCallback(async (): Promise<boolean> => {
     if (typeof window === "undefined") return false;
     if (!("gpu" in navigator)) return false;
     try {
-      const adapter = await (navigator as Navigator & { gpu: { requestAdapter: () => Promise<unknown> } }).gpu.requestAdapter();
+      // biome-ignore lint/suspicious/noExplicitAny: WebGPU API
+      const nav = navigator as any;
+      const adapter = await nav.gpu.requestAdapter();
       return adapter !== null;
     } catch {
       return false;
@@ -68,25 +47,23 @@ export function useWebLLM() {
 
     try {
       setStatus("checking");
-
-      const { MLCEngine } = await import("@mlc-ai/web-llm");
+      const webllm = await import("@mlc-ai/web-llm");
+      const MLCEngine = webllm.MLCEngine;
 
       setStatus("downloading");
       setProgress(0);
 
       const engine = new MLCEngine({
         initProgressCallback: (report: { progress: number; text: string }) => {
-          const pct = Math.round(report.progress * 100);
+          const pct = Math.round((report.progress ?? 0) * 100);
           setProgress(pct);
-          setProgressText(report.text || "");
-          if (pct < 100) setStatus("downloading");
-          else setStatus("loading");
+          setProgressText(report.text ?? "");
+          if (pct >= 100) setStatus("loading");
         },
       });
 
-      await engine.reload("Phi-3.5-mini-instruct-q4f16_1-MLC");
-      console.log("WebLLM: model loaded successfully");
-      engineRef.current = engine as unknown as MLCEngine;
+      await engine.reload(WEB_LLM_MODEL_ID);
+      engineRef.current = engine;
       setStatus("ready");
       setProgress(100);
       return true;
@@ -103,41 +80,34 @@ export function useWebLLM() {
       userMessages: Array<{ role: "user" | "assistant"; content: string }>,
       onToken: (token: string) => void
     ): Promise<string> => {
-      if (!engineRef.current) throw new Error("Engine not ready");
+      const engine = engineRef.current;
+      if (!engine) throw new Error("Engine not ready");
       setStatus("generating");
 
+      const messages = [
+        { role: "system", content: systemPrompt },
+        ...userMessages,
+      ];
+
       try {
-        // Build Phi-3.5 chat template prompt
-        const promptParts = [`<|system|>\n${systemPrompt}<|end|>`];
-        for (const msg of userMessages) {
-          if (msg.role === "user") {
-            promptParts.push(`<|user|>\n${msg.content}<|end|>`);
-          } else {
-            promptParts.push(`<|assistant|>\n${msg.content}<|end|>`);
-          }
-        }
-        promptParts.push("<|assistant|>\n");
-        const fullPrompt = promptParts.join("\n");
+        // Use chat.completions.create — the only API in v0.2.x
+        const stream = await engine.chat.completions.create({
+          messages,
+          stream: true,
+          max_tokens: 512,
+          temperature: 0.7,
+        });
 
         let full = "";
-        let prevLen = 0;
-
-        await engineRef.current.generate(
-          fullPrompt,
-          (_step: number, currentMessage: string) => {
-            const newContent = currentMessage.slice(prevLen);
-            prevLen = currentMessage.length;
-            if (newContent) {
-              full = currentMessage;
-              onToken(newContent);
-            }
-          },
-          1
-        );
-
-        const finalMsg = await engineRef.current.getMessage();
+        for await (const chunk of stream) {
+          const token = chunk.choices?.[0]?.delta?.content ?? "";
+          if (token) {
+            full += token;
+            onToken(token);
+          }
+        }
         setStatus("ready");
-        return finalMsg || full;
+        return full;
       } catch (e) {
         setStatus("ready");
         throw e;
