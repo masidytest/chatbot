@@ -19,6 +19,14 @@ export const WEB_LLM_SIZE_MB = 2100;
 
 type MLCEngine = {
   reload: (modelId: string) => Promise<void>;
+  generate: (
+    prompt: string,
+    progressCallback?: (step: number, currentMessage: string) => void,
+    streamInterval?: number,
+    genConfig?: Record<string, unknown>
+  ) => Promise<string>;
+  getMessage: () => Promise<string>;
+  resetChat: () => Promise<void>;
   chat: {
     completions: {
       create: (params: {
@@ -98,29 +106,38 @@ export function useWebLLM() {
       if (!engineRef.current) throw new Error("Engine not ready");
       setStatus("generating");
 
-      const messages = [
-        { role: "system", content: systemPrompt },
-        ...userMessages,
-      ];
-
       try {
-        const chunks = await engineRef.current.chat.completions.create({
-          model: WEB_LLM_MODEL_ID,
-          messages,
-          stream: true,
-          max_tokens: 512,
-          temperature: 0.7,
-        });
-        let full = "";
-        for await (const chunk of chunks) {
-          const token = chunk.choices[0]?.delta?.content ?? "";
-          if (token) {
-            full += token;
-            onToken(token);
+        // Build Phi-3.5 chat template prompt
+        const promptParts = [`<|system|>\n${systemPrompt}<|end|>`];
+        for (const msg of userMessages) {
+          if (msg.role === "user") {
+            promptParts.push(`<|user|>\n${msg.content}<|end|>`);
+          } else {
+            promptParts.push(`<|assistant|>\n${msg.content}<|end|>`);
           }
         }
+        promptParts.push("<|assistant|>\n");
+        const fullPrompt = promptParts.join("\n");
+
+        let full = "";
+        let prevLen = 0;
+
+        await engineRef.current.generate(
+          fullPrompt,
+          (_step: number, currentMessage: string) => {
+            const newContent = currentMessage.slice(prevLen);
+            prevLen = currentMessage.length;
+            if (newContent) {
+              full = currentMessage;
+              onToken(newContent);
+            }
+          },
+          1
+        );
+
+        const finalMsg = await engineRef.current.getMessage();
         setStatus("ready");
-        return full;
+        return finalMsg || full;
       } catch (e) {
         setStatus("ready");
         throw e;
