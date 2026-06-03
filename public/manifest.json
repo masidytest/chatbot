@@ -4,15 +4,21 @@
   "description": "Your personal AI assistant. Search the web, get live data, write and code.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#F97316",
   "theme_color": "#F97316",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/masidy-icon.svg",
+      "src": "/masidy-app-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/masidy-app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }
