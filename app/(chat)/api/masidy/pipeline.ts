@@ -14,6 +14,8 @@ export type Intent =
   | "dictionary"
   | "qr_code"
   | "chart"
+  | "stock"
+  | "news"
   | "general";
 
 type Depth = "shallow" | "medium" | "deep";
@@ -67,8 +69,19 @@ export function understand(question: string): {
   }
 
   // YouTube
-  if (q.match(/youtube\.com|youtu\.be/) || q.match(/\b(youtube|video|transcript|summarize.*video)\b/)) {
+  if (q.match(/youtube\.com|youtu\.be/) || q.match(/\b(youtube|video|transcript|summarize.*video|video.*summary)\b/)) {
     return { intent: "youtube_summary", depth: "medium", length: "medium" };
+  }
+
+  // Stock prices
+  if (q.match(/\b(stock|share|price|ticker|trading|market|nasdaq|nyse|crypto|bitcoin|ethereum|btc|eth)\b/) ||
+      q.match(/\b(AAPL|TSLA|MSFT|GOOGL|AMZN|META|NVDA|AMD)\b/i)) {
+    return { intent: "stock", depth: "shallow", length: "short" };
+  }
+
+  // News
+  if (q.match(/\b(news|headlines|latest|breaking|today.*news|recent.*news)\b/)) {
+    return { intent: "news", depth: "shallow", length: "medium" };
   }
 
   // Dictionary
@@ -176,6 +189,194 @@ async function getCurrencyData(query: string): Promise<string[]> {
 
     const converted = (amount * rate).toFixed(2);
     return [`[Currency Exchange]\n${amount} ${from} = ${converted} ${to}\nRate: 1 ${from} = ${rate.toFixed(4)} ${to}\nUpdated: ${data.date}`];
+  } catch {
+    return [];
+  }
+}
+
+// ── Tool: YouTube transcript + summary ───────────────────────────────────────
+async function getYouTubeTranscript(query: string): Promise<string[]> {
+  try {
+    // Extract video ID from URL
+    const videoIdMatch = query.match(
+      /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+    );
+    const videoId = videoIdMatch?.[1];
+    if (!videoId) return [];
+
+    // Fetch video metadata from YouTube oEmbed (no API key needed)
+    const oembedRes = await fetch(
+      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`,
+      { signal: AbortSignal.timeout(5000) }
+    );
+    const title = oembedRes.ok
+      ? ((await oembedRes.json()) as { title?: string }).title ?? "YouTube Video"
+      : "YouTube Video";
+
+    // Fetch auto-generated transcript via YouTube's timedtext API
+    const transcriptRes = await fetch(
+      `https://www.youtube.com/api/timedtext?lang=en&v=${videoId}&fmt=json3`,
+      { signal: AbortSignal.timeout(8000) }
+    );
+
+    if (transcriptRes.ok) {
+      const data = await transcriptRes.json() as {
+        events?: Array<{ segs?: Array<{ utf8?: string }> }>;
+      };
+      const events = data?.events ?? [];
+      const text = events
+        .flatMap((e) => e.segs ?? [])
+        .map((s) => s.utf8 ?? "")
+        .join(" ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 4000);
+
+      if (text.length > 100) {
+        return [`[YouTube: ${title}]\nVideo ID: ${videoId}\nTranscript:\n${text}`];
+      }
+    }
+
+    // Fallback: no transcript available
+    return [`[YouTube: ${title}]\nVideo ID: ${videoId}\nNo transcript available for this video. I can only summarize what I know about this topic from other sources.`];
+  } catch {
+    return [];
+  }
+}
+
+// ── Tool: Stock prices (Yahoo Finance — free, no key) ────────────────────────
+async function getStockPrice(query: string): Promise<string[]> {
+  try {
+    // Extract ticker symbol — match patterns like "AAPL", "TSLA price", "what is MSFT stock"
+    const tickerMatch = query.match(
+      /\b([A-Z]{1,5})\b(?=\s*(?:stock|price|share|trading|worth|$))/i
+    ) ?? query.match(/\b([A-Z]{2,5})\b/);
+    
+    let ticker = tickerMatch?.[1]?.toUpperCase();
+
+    // Map common names to tickers
+    const nameToTicker: Record<string, string> = {
+      apple: "AAPL", microsoft: "MSFT", google: "GOOGL", alphabet: "GOOGL",
+      amazon: "AMZN", tesla: "TSLA", meta: "META", facebook: "META",
+      netflix: "NFLX", nvidia: "NVDA", amd: "AMD", intel: "INTC",
+      bitcoin: "BTC-USD", ethereum: "ETH-USD", btc: "BTC-USD", eth: "ETH-USD",
+    };
+    const lower = query.toLowerCase();
+    for (const [name, symbol] of Object.entries(nameToTicker)) {
+      if (lower.includes(name)) { ticker = symbol; break; }
+    }
+
+    if (!ticker) return [];
+
+    const res = await fetch(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`,
+      {
+        headers: { "User-Agent": "Mozilla/5.0" },
+        signal: AbortSignal.timeout(6000),
+      }
+    );
+    if (!res.ok) return [];
+
+    const json = await res.json() as {
+      chart?: {
+        result?: Array<{
+          meta?: {
+            symbol?: string;
+            regularMarketPrice?: number;
+            previousClose?: number;
+            currency?: string;
+            exchangeName?: string;
+            longName?: string;
+            regularMarketVolume?: number;
+            fiftyTwoWeekHigh?: number;
+            fiftyTwoWeekLow?: number;
+          };
+        }>;
+        error?: unknown;
+      };
+    };
+
+    const meta = json?.chart?.result?.[0]?.meta;
+    if (!meta) return [];
+
+    const price = meta.regularMarketPrice ?? 0;
+    const prev = meta.previousClose ?? price;
+    const change = price - prev;
+    const changePct = prev > 0 ? ((change / prev) * 100).toFixed(2) : "0.00";
+    const direction = change >= 0 ? "▲" : "▼";
+    const currency = meta.currency ?? "USD";
+    const name = meta.longName ?? meta.symbol ?? ticker;
+
+    return [
+      `[Stock: ${meta.symbol ?? ticker} — ${name}]
+Exchange: ${meta.exchangeName ?? "N/A"}
+Price: ${price.toFixed(2)} ${currency} ${direction} ${Math.abs(change).toFixed(2)} (${changePct}%)
+Previous Close: ${prev.toFixed(2)} ${currency}
+52-Week High: ${meta.fiftyTwoWeekHigh?.toFixed(2) ?? "N/A"} | Low: ${meta.fiftyTwoWeekLow?.toFixed(2) ?? "N/A"}
+Volume: ${meta.regularMarketVolume?.toLocaleString() ?? "N/A"}`,
+    ];
+  } catch {
+    return [];
+  }
+}
+
+// ── Tool: News (NewsAPI — free tier, 100 req/day) ─────────────────────────────
+async function getLatestNews(query: string): Promise<string[]> {
+  try {
+    const apiKey = process.env.NEWS_API_KEY;
+    // Extract topic from query
+    const topic = query
+      .replace(/\b(latest|news|headlines|today|recent|about|on)\b/gi, "")
+      .trim() || "technology";
+
+    if (apiKey) {
+      const res = await fetch(
+        `https://newsapi.org/v2/everything?q=${encodeURIComponent(topic)}&pageSize=5&sortBy=publishedAt&language=en`,
+        {
+          headers: { "X-Api-Key": apiKey },
+          signal: AbortSignal.timeout(6000),
+        }
+      );
+      if (res.ok) {
+        const data = await res.json() as {
+          articles?: Array<{ title?: string; description?: string; source?: { name?: string }; publishedAt?: string }>;
+        };
+        const articles = data?.articles ?? [];
+        if (articles.length > 0) {
+          const formatted = articles
+            .slice(0, 5)
+            .map(
+              (a) =>
+                `• ${a.title ?? "No title"} (${a.source?.name ?? "Unknown"}, ${
+                  a.publishedAt ? new Date(a.publishedAt).toLocaleDateString() : "today"
+                })\n  ${a.description ?? ""}`
+            )
+            .join("\n\n");
+          return [`[Latest News: ${topic}]\n${formatted}`];
+        }
+      }
+    }
+
+    // Fallback: DuckDuckGo news (no key needed)
+    const res = await fetch(
+      `https://api.duckduckgo.com/?q=${encodeURIComponent(`${topic} news`)}&format=json&no_html=1`,
+      { signal: AbortSignal.timeout(5000) }
+    );
+    if (!res.ok) return [];
+    const data = await res.json() as {
+      RelatedTopics?: Array<{ Text?: string; FirstURL?: string }>;
+      AbstractText?: string;
+    };
+    const topics = data?.RelatedTopics?.slice(0, 5) ?? [];
+    if (topics.length > 0) {
+      return [
+        `[News: ${topic}]\n${topics
+          .filter((t) => t.Text)
+          .map((t) => `• ${t.Text}`)
+          .join("\n")}`,
+      ];
+    }
+    return [];
   } catch {
     return [];
   }
@@ -366,6 +567,24 @@ export async function runMasidyPipeline(
   // ── Dictionary
   if (intent === "dictionary") {
     const data = await getDictionaryData(last);
+    if (data.length > 0) return { context: data.join("\n\n"), intent };
+  }
+
+  // ── YouTube summary
+  if (intent === "youtube_summary") {
+    const data = await getYouTubeTranscript(last);
+    if (data.length > 0) return { context: data.join("\n\n"), intent };
+  }
+
+  // ── Stock prices
+  if (intent === "stock") {
+    const data = await getStockPrice(last);
+    if (data.length > 0) return { context: data.join("\n\n"), intent };
+  }
+
+  // ── News
+  if (intent === "news") {
+    const data = await getLatestNews(last);
     if (data.length > 0) return { context: data.join("\n\n"), intent };
   }
 
