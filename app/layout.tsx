@@ -19,7 +19,6 @@ export const metadata: Metadata = {
   keywords: ["AI", "chatbot", "Masidy", "artificial intelligence", "assistant", "web search AI"],
   authors: [{ name: "Masidy Team" }],
   creator: "Masidy Team",
-  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
