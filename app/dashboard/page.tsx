@@ -68,8 +68,14 @@ export default function DashboardPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type, ...body }),
       });
-      const json = await res.json() as { url?: string };
-      if (json.url) window.location.href = json.url;
+      const json = await res.json() as { url?: string; error?: string };
+      if (json.url) {
+        window.location.href = json.url;
+      } else {
+        alert(json.error ?? "Checkout failed. Please try again.");
+      }
+    } catch {
+      alert("Network error. Please try again.");
     } finally {
       setCheckoutLoading(null);
     }

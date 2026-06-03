@@ -31,8 +31,12 @@ export async function POST(request: Request) {
           ? process.env.STRIPE_PRICE_PRO
           : process.env.STRIPE_PRICE_PLUS;
 
+      console.log(`[billing] plan=${body.plan} priceId=${priceId ?? "NOT SET"} hasPlusEnv=${!!process.env.STRIPE_PRICE_PLUS} hasProEnv=${!!process.env.STRIPE_PRICE_PRO}`);
+
       if (!priceId) {
-        return Response.json({ error: "Stripe price not configured" }, { status: 500 });
+        return Response.json({
+          error: `Stripe price ID not configured for plan: ${body.plan}. Add STRIPE_PRICE_PLUS and STRIPE_PRICE_PRO to Vercel env vars.`,
+        }, { status: 500 });
       }
 
       const checkout = await stripe.checkout.sessions.create({

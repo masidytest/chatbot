@@ -228,7 +228,6 @@ export async function POST(request: Request) {
       }));
 
       const pipelineResult = await runMasidyPipeline(masidyMessages, session.user.id);
-      const modelMessages = await convertToModelMessages(uiMessages);
 
       // Load user memory
       const { getUserMemory, extractMemoryFacts, saveMemoryFact } = await import("@/lib/memory");
@@ -242,14 +241,21 @@ export async function POST(request: Request) {
       }
 
       const memorySection = userMemory ? `\n\n${userMemory}` : "";
-      // Groq llama-3.1-8b-instant has 8k context. Budget: ~500 system base + ~300 memory + ~3000 context + ~2000 history = ~5800 tokens — safe.
       const contextTruncated = pipelineResult.context.slice(0, 3000);
       const contextSection = contextTruncated ? `\n\nContext:\n${contextTruncated}` : "";
       const imageInstruction = pipelineResult.imageUrl
         ? `\n\nAn image has been generated. Tell the user it's ready. Image URL: ${pipelineResult.imageUrl}`
         : "";
-      // Keep last 6 messages for better conversation continuity
-      const trimmedModelMessages = modelMessages.slice(-6);
+
+      // Build plain-text messages for Groq — Groq Llama doesn't support vision
+      // so we extract only text parts and ensure content is always a string
+      const groqMessages = masidyMessages
+        .slice(-6)
+        .filter((m) => m.content.trim().length > 0)
+        .map((m) => ({
+          role: m.role as "user" | "assistant",
+          content: m.content,
+        }));
 
       const stream = createUIMessageStream({
         execute: async ({ writer: dataStream }) => {
@@ -272,7 +278,7 @@ export async function POST(request: Request) {
           const result = streamText({
             model: masidyModel,
             system: finalSystemPrompt,
-            messages: trimmedModelMessages,
+            messages: groqMessages,
             ...(process.env.GROQ_API_KEY ? {} : {
               providerOptions: {
                 gateway: { order: ["groq", "deepinfra", "bedrock"] },

@@ -29,9 +29,11 @@ export default function PricingPage() {
       const json = await res.json() as { url?: string; error?: string };
       if (json.url) {
         window.location.href = json.url;
+      } else {
+        alert(json.error ?? "Something went wrong. Please try again.");
       }
     } catch {
-      // silent
+      alert("Network error. Please try again.");
     } finally {
       setLoading(null);
     }
