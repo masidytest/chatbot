@@ -119,7 +119,15 @@ export default function RootLayout({
         <script
           // biome-ignore lint/security/noDangerouslySetInnerHtml: service worker registration
           dangerouslySetInnerHTML={{
-            __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}`,
+            __html: `
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').catch(function(){});
+}
+window.addEventListener('beforeinstallprompt',function(e){
+  e.preventDefault();
+  window.__installPrompt=e;
+});
+`.trim(),
           }}
         />
       </head>
