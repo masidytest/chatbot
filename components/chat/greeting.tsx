@@ -36,7 +36,7 @@ export const Greeting = () => {
         initial={{ opacity: 0, y: 10 }}
         transition={{ delay: 0.5, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
-        Search the web · Analyze documents · Write · Code · Remember
+        Search the web · Generate images · Weather & stocks · Write · Code · Remember
       </motion.div>
     </div>
   );
