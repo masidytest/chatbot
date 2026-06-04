@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     return new ChatbotError("unauthorized:chat").toResponse();
   }
 
-  const apiKey = process.env.FAL_API_KEY;
+  const apiKey = process.env.FAL_KEY ?? process.env.FAL_API_KEY;
   if (!apiKey) {
     return Response.json({ error: "Image generation not configured." }, { status: 500 });
   }
@@ -88,6 +88,7 @@ export async function POST(request: Request) {
         image_size,
         num_images: 1,
         enable_safety_checker: true,
+        output_format: "jpeg" as const,
         ...(quality === "schnell" ? { num_inference_steps: 4 } : {}),
         ...(quality === "dev" ? { num_inference_steps: 28, guidance_scale: 3.5 } : {}),
       },
