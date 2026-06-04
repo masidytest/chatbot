@@ -13,8 +13,16 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Internal Masidy engine route — called server-side from /api/chat (already authenticated).
+  // Internal routes that handle their own auth
   if (pathname.startsWith("/api/masidy")) {
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/api/image")) {
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/api/billing")) {
     return NextResponse.next();
   }
 
