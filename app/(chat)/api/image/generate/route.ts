@@ -2,31 +2,38 @@ import { auth } from "@/app/(auth)/auth";
 import { getUserPlan } from "@/lib/db/plan-queries";
 import { deductUserCredits, getUserCredits } from "@/lib/db/credits-queries";
 
-const CREDIT_COST = { schnell: 3, dev: 10, pro: 20 } as const;
+// Stability AI credit costs (1 credit = $0.01 on our platform)
+// Stability actual cost: core=3cr, sd3.5=3.5cr, ultra=8cr
+const CREDIT_COST = { standard: 3, high: 5, pro: 10 } as const;
 
-// Black Forest Labs FLUX endpoints
-const BFL_ENDPOINTS: Record<string, string> = {
-  schnell: "flux-dev",        // flux-dev is best quality at reasonable cost
-  dev:     "flux-pro-1.1",    // High quality
-  pro:     "flux-2-pro-preview", // Latest & best
+// Stability AI style preset mapping from our UI styles
+const STYLE_MAP: Record<string, string> = {
+  "Photorealistic": "photographic",
+  "Digital Art":    "digital-art",
+  "Oil Painting":   "enhance",
+  "Watercolor":     "watercolor",
+  "3D Render":      "3d-model",
+  "Anime":          "anime",
+  "Sketch":         "line-art",
+  "Cinematic":      "cinematic",
+  "Minimalist":     "low-poly",
+  "Abstract":       "fantasy-art",
 };
 
-const PLAN_MODEL: Record<string, keyof typeof BFL_ENDPOINTS> = {
-  free: "schnell",
-  plus: "dev",
-  pro:  "pro",
-};
-
-const ASPECT_SIZES: Record<string, { width: number; height: number }> = {
-  "1:1":  { width: 1024, height: 1024 },
-  "16:9": { width: 1440, height: 810  },
-  "9:16": { width: 810,  height: 1440 },
-  "4:3":  { width: 1024, height: 768  },
-  "3:4":  { width: 768,  height: 1024 },
+// Stability AI valid aspect ratios
+const ASPECT_MAP: Record<string, string> = {
+  "1:1":  "1:1",
+  "16:9": "16:9",
+  "9:16": "9:16",
+  "4:3":  "3:2",   // closest match
+  "3:4":  "2:3",   // closest match
 };
 
 export async function POST(request: Request) {
-  const apiKey = process.env.FLUXAPI_API_KEY ?? process.env.BFL_API_KEY ?? process.env.FAL_KEY;
+  const apiKey = process.env.STABILITY_API_KEY
+    ?? process.env.FLUXAPI_API_KEY
+    ?? process.env.BFL_API_KEY;
+
   if (!apiKey) {
     return Response.json({ error: "Image generation not configured." }, { status: 500 });
   }
@@ -34,7 +41,13 @@ export async function POST(request: Request) {
   const session = await auth();
   const userId = session?.user?.id;
 
-  let body: { prompt?: string; aspectRatio?: string; quality?: "schnell" | "dev" | "pro" };
+  let body: {
+    prompt?: string;
+    aspectRatio?: string;
+    style?: string;
+    quality?: "standard" | "high" | "pro";
+  };
+
   try {
     body = await request.json();
   } catch {
@@ -45,95 +58,83 @@ export async function POST(request: Request) {
     return Response.json({ error: "Prompt is required" }, { status: 400 });
   }
 
-  // Determine quality
-  let quality: keyof typeof BFL_ENDPOINTS = "schnell";
-  if (userId && body.quality && body.quality !== "schnell") {
+  // Determine quality based on plan
+  let quality: "standard" | "high" | "pro" = "standard";
+  if (userId && body.quality && body.quality !== "standard") {
     const userPlan = await getUserPlan(userId);
     if (body.quality === "pro" && userPlan !== "pro") {
       return Response.json({ error: "Professional quality requires the Pro plan." }, { status: 403 });
     }
-    if (body.quality === "dev" && userPlan === "free") {
+    if (body.quality === "high" && userPlan === "free") {
       return Response.json({ error: "High quality requires the Plus plan." }, { status: 403 });
     }
     quality = body.quality;
   }
 
-  // Credit check
-  if (userId && quality !== "schnell") {
-    const cost = CREDIT_COST[quality as keyof typeof CREDIT_COST];
+  // Credit check for paid quality
+  if (userId && quality !== "standard") {
+    const cost = CREDIT_COST[quality];
     const credits = await getUserCredits(userId);
     if (credits < cost) {
       return Response.json({ error: `Not enough credits (need ${cost}).` }, { status: 403 });
     }
   }
 
-  const endpoint = BFL_ENDPOINTS[quality];
-  const size = ASPECT_SIZES[body.aspectRatio ?? "1:1"] ?? ASPECT_SIZES["1:1"];
+  const aspect_ratio = ASPECT_MAP[body.aspectRatio ?? "1:1"] ?? "1:1";
+  const style_preset = body.style ? STYLE_MAP[body.style] : undefined;
+
+  // Choose endpoint based on quality
+  const endpoint = quality === "pro"
+    ? "https://api.stability.ai/v2beta/stable-image/generate/ultra"
+    : quality === "high"
+    ? "https://api.stability.ai/v2beta/stable-image/generate/sd3"
+    : "https://api.stability.ai/v2beta/stable-image/generate/core";
 
   try {
-    // Step 1: Submit generation request
-    const submitRes = await fetch(`https://api.bfl.ai/v1/${endpoint}`, {
+    const formData = new FormData();
+    formData.append("prompt", body.prompt);
+    formData.append("output_format", "jpeg");
+    formData.append("aspect_ratio", aspect_ratio);
+    if (style_preset) formData.append("style_preset", style_preset);
+    if (quality === "high") formData.append("model", "sd3.5-medium");
+    // Required dummy field for some endpoints
+    formData.append("none", "");
+
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
-        "accept": "application/json",
-        "x-key": apiKey,
-        "Content-Type": "application/json",
+        authorization: `Bearer ${apiKey}`,
+        accept: "application/json",
+        "stability-client-id": "masidy",
       },
-      body: JSON.stringify({
-        prompt: body.prompt,
-        width: size.width,
-        height: size.height,
-      }),
-      signal: AbortSignal.timeout(15000),
+      body: formData,
+      signal: AbortSignal.timeout(60000),
     });
 
-    if (!submitRes.ok) {
-      const err = await submitRes.text();
-      return Response.json({ error: `BFL API error: ${submitRes.status} ${err}` }, { status: 500 });
+    if (!res.ok) {
+      const err = await res.text();
+      console.error("[image/generate] Stability error:", res.status, err);
+      return Response.json({ error: `Generation failed: ${err}` }, { status: 500 });
     }
 
-    const submitData = await submitRes.json() as { id: string; polling_url: string };
-    const pollingUrl = submitData.polling_url;
+    const data = await res.json() as { image?: string; finish_reason?: string; seed?: number };
 
-    if (!pollingUrl) {
-      return Response.json({ error: "No polling URL returned" }, { status: 500 });
+    if (!data.image) {
+      return Response.json({ error: "No image returned from generation service." }, { status: 500 });
     }
 
-    // Step 2: Poll for result (max 60 seconds)
-    for (let i = 0; i < 60; i++) {
-      await new Promise((r) => setTimeout(r, 1000));
-
-      const pollRes = await fetch(pollingUrl, {
-        headers: { "accept": "application/json", "x-key": apiKey },
-        signal: AbortSignal.timeout(10000),
-      });
-
-      if (!pollRes.ok) continue;
-
-      const pollData = await pollRes.json() as {
-        status: string;
-        result?: { sample: string };
-      };
-
-      if (pollData.status === "Ready" && pollData.result?.sample) {
-        // Deduct credits for paid quality
-        if (userId && quality !== "schnell") {
-          deductUserCredits(userId, CREDIT_COST[quality as keyof typeof CREDIT_COST]).catch(() => {});
-        }
-        return Response.json({ url: pollData.result.sample, quality });
-      }
-
-      if (pollData.status === "Error" || pollData.status === "Failed") {
-        return Response.json({ error: "Generation failed. Please try again." }, { status: 500 });
-      }
-      // Still pending — keep polling
+    // Deduct credits for paid quality
+    if (userId && quality !== "standard") {
+      deductUserCredits(userId, CREDIT_COST[quality]).catch(() => {});
     }
 
-    return Response.json({ error: "Generation timed out. Please try again." }, { status: 500 });
+    // Return as data URL — Stability returns base64 encoded image
+    const imageUrl = `data:image/jpeg;base64,${data.image}`;
+    return Response.json({ url: imageUrl, quality });
 
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    console.error("[image/generate] BFL error:", msg);
+    console.error("[image/generate] error:", msg);
     return Response.json({ error: msg }, { status: 500 });
   }
 }

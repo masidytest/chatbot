@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type AspectRatio = "1:1" | "16:9" | "9:16" | "4:3" | "3:4";
-type Quality = "schnell" | "dev" | "pro";
+type Quality = "standard" | "high" | "pro";
 
 const ASPECT_RATIOS: { value: AspectRatio; label: string; w: number; h: number }[] = [
   { value: "1:1",  label: "Square",    w: 1, h: 1 },
@@ -53,7 +53,7 @@ export default function ImageStudioPage() {
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState<string | null>(null);
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("1:1");
-  const [quality, setQuality] = useState<Quality>("schnell");
+  const [quality, setQuality] = useState<Quality>("standard");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [current, setCurrent] = useState<GeneratedImage | null>(null);
@@ -224,9 +224,9 @@ export default function ImageStudioPage() {
               <label className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Quality</label>
               <div className="space-y-1.5">
                 {[
-                  { value: "schnell" as Quality, label: "Standard",    desc: "Fast generation",       plan: "Free",  icon: null },
-                  { value: "dev"     as Quality, label: "High Quality",desc: "Better detail & realism",plan: "Plus",  icon: ZapIcon },
-                  { value: "pro"     as Quality, label: "Professional", desc: "Best quality output",   plan: "Pro",   icon: SparklesIcon },
+                  { value: "standard" as Quality, label: "Standard",      desc: "Fast generation",        plan: "Free",  icon: null },
+                  { value: "high"     as Quality, label: "High Quality",  desc: "SD 3.5 — better detail", plan: "Plus",  icon: ZapIcon },
+                  { value: "pro"      as Quality, label: "Professional",  desc: "Ultra — best output",    plan: "Pro",   icon: SparklesIcon },
                 ].map((q) => (
                   <button
                     className={cn(
