@@ -323,45 +323,47 @@ ${memorySection}${contextSection}${imageInstruction}`;
 
     // ── OpenRouter free models branch ───────────────────────────────────────
     if (FREE_OPENROUTER_MODELS.has(chatModel)) {
-      // Build messages with image support for vision models
-      const openRouterMessages = uiMessages.map((m) => {
-        const textParts = m.parts.filter(
-          (p): p is { type: "text"; text: string } => p.type === "text"
-        );
-        const fileParts = m.parts.filter(
-          (p): p is { type: "file"; url: string; mediaType: string } => p.type === "file" && "url" in p
-        );
+      // Build messages — include image attachments for vision models
+      const openRouterMessages: import("ai").ModelMessage[] = uiMessages
+        .filter((m) => m.role === "user" || m.role === "assistant")
+        .map((m) => {
+          const textContent = m.parts
+            .filter((p): p is { type: "text"; text: string } => p.type === "text")
+            .map((p) => p.text)
+            .join(" ")
+            .trim();
 
-        if (fileParts.length === 0) {
-          // Text only message
-          const content = textParts.map((p) => p.text).join(" ").trim();
-          if (!content) return null;
-          return { role: m.role as "user" | "assistant", content };
-        }
+          const imageParts = m.parts.filter(
+            (p) => p.type === "file" && "url" in p
+          ) as Array<{ type: "file"; url: string; mediaType: string }>;
 
-        // Message with file attachments — build multipart content
-        const contentParts: Array<
-          | { type: "text"; text: string }
-          | { type: "image_url"; image_url: { url: string } }
-        > = [];
-
-        if (textParts.length > 0) {
-          const text = textParts.map((p) => p.text).join(" ").trim();
-          if (text) contentParts.push({ type: "text", text });
-        }
-
-        for (const file of fileParts) {
-          if (file.url && (file.mediaType?.startsWith("image/") ?? file.url.startsWith("data:image"))) {
-            contentParts.push({ type: "image_url", image_url: { url: file.url } });
-          } else if (file.url) {
-            // Non-image file — add as text note
-            contentParts.push({ type: "text", text: `[File attached: ${file.url}]` });
+          if (imageParts.length === 0 || m.role === "assistant") {
+            if (!textContent) return null;
+            return { role: m.role as "user" | "assistant", content: textContent };
           }
-        }
 
-        if (contentParts.length === 0) return null;
-        return { role: m.role as "user" | "assistant", content: contentParts };
-      }).filter(Boolean) as Array<{ role: string; content: unknown }>;
+          // User message with images — use AI SDK content array format
+          const contentParts: import("ai").UserContent = [];
+          if (textContent) contentParts.push({ type: "text", text: textContent });
+          for (const img of imageParts) {
+            if (img.url.startsWith("data:")) {
+              // base64 data URL
+              const [header, base64] = img.url.split(",");
+              const mimeType = header.split(":")[1]?.split(";")[0] ?? "image/jpeg";
+              contentParts.push({
+                type: "image",
+                image: base64,
+                mimeType: mimeType as `image/${string}`,
+              });
+            } else {
+              // Remote URL
+              contentParts.push({ type: "image", image: new URL(img.url) });
+            }
+          }
+          if (contentParts.length === 0) return null;
+          return { role: "user" as const, content: contentParts };
+        })
+        .filter((m): m is import("ai").ModelMessage => m !== null);
 
       const openRouterSystemPrompt = OPENROUTER_MODEL_PROMPTS[chatModel] ?? "You are Masidy, a helpful AI assistant created by the Masidy team.";
 
@@ -370,7 +372,7 @@ ${memorySection}${contextSection}${imageInstruction}`;
           const result = streamText({
             model: getLanguageModel(chatModel),
             system: openRouterSystemPrompt,
-            messages: openRouterMessages as import("ai").ModelMessage[],
+            messages: openRouterMessages,
           });
 
           dataStream.merge(result.toUIMessageStream());
