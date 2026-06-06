@@ -575,7 +575,6 @@ function PureMultimodalInput({
                 selectedModelId={selectedModelId}
                 status={status}
               />
-            )}
             {voiceSupported && (
               <Button
                 className={cn(
