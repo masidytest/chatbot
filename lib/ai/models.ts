@@ -112,11 +112,11 @@ export const chatModels: ChatModel[] = [
 const staticCapabilities: Record<string, ModelCapabilities> = {
   // Free OpenRouter models
   "masidy":                              { tools: false, vision: false, reasoning: true },
-  "openai/gpt-oss-20b:free":             { tools: true,  vision: false, reasoning: true },
-  "openai/gpt-oss-120b:free":            { tools: true,  vision: false, reasoning: true },
-  "poolside/laguna-m.1:free":            { tools: true,  vision: false, reasoning: true },
-  "google/gemma-4-31b-it:free":          { tools: true,  vision: true,  reasoning: false },
-  "poolside/laguna-xs.2:free":           { tools: true,  vision: false, reasoning: true },
+  "openai/gpt-oss-20b:free":             { tools: false, vision: false, reasoning: true },
+  "openai/gpt-oss-120b:free":            { tools: false, vision: false, reasoning: true },
+  "poolside/laguna-m.1:free":            { tools: false, vision: false, reasoning: true },
+  "google/gemma-4-31b-it:free":          { tools: false, vision: true,  reasoning: false },
+  "poolside/laguna-xs.2:free":           { tools: false, vision: false, reasoning: true },
   // Paid Gateway models
   "moonshotai/kimi-k2.5":               { tools: true,  vision: true,  reasoning: true },
   "deepseek/deepseek-v3.2":             { tools: true,  vision: false, reasoning: true },
