@@ -343,7 +343,7 @@ export default function PricingPage() {
         <div className="mt-16 space-y-4">
           <h2 className="mb-6 text-xl font-bold text-foreground">Questions</h2>
           {[
-            { q: "Are the free models really free?", a: "Yes. Masidy, Masidy Nano, Core, Build, Vision, and Think are completely free — no credits, no card, no limits. They run on OpenRouter's free tier and our own infrastructure." },
+            { q: "Are the free models really free?", a: "Yes. Masidy, Masidy Nano, Core, Build, Vision, and Think are completely free — no credits, no card, no limits. Forever." },
             { q: "Can I cancel any time?", a: "Yes. Cancel from your dashboard and keep access until the period ends. Your remaining credits never expire." },
             { q: "Do credits expire?", a: "No. Monthly credits roll over. Top-up credits stay until you use them." },
             { q: "What happens when I run out of credits?", a: "All 6 free models keep working with no credits. For paid models (Code, Mini, Max, Speed, Flash), buy a top-up and continue instantly." },
