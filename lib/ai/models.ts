@@ -111,7 +111,7 @@ export const chatModels: ChatModel[] = [
 // Static capabilities
 const staticCapabilities: Record<string, ModelCapabilities> = {
   // Free OpenRouter models
-  "masidy":                              { tools: false, vision: false, reasoning: true },
+  "masidy":                              { tools: true,  vision: false, reasoning: true },
   "openai/gpt-oss-20b:free":             { tools: true,  vision: false, reasoning: true },
   "openai/gpt-oss-120b:free":            { tools: true,  vision: false, reasoning: true },
   "poolside/laguna-m.1:free":            { tools: true,  vision: false, reasoning: true },
