@@ -28,6 +28,12 @@ import { editDocument } from "@/lib/ai/tools/edit-document";
 import { getWeather } from "@/lib/ai/tools/get-weather";
 import { requestSuggestions } from "@/lib/ai/tools/request-suggestions";
 import { updateDocument } from "@/lib/ai/tools/update-document";
+import { webSearch } from "@/lib/ai/tools/web-search";
+import { getStocks } from "@/lib/ai/tools/get-stocks";
+import { getNews } from "@/lib/ai/tools/get-news";
+import { getDictionary } from "@/lib/ai/tools/get-dictionary";
+import { generateQRCode } from "@/lib/ai/tools/generate-qr-code";
+import { summarizeWebpage } from "@/lib/ai/tools/summarize-webpage";
 import { isProductionEnvironment } from "@/lib/constants";
 import {
   createStreamId,
@@ -346,6 +352,12 @@ ${memorySection}${contextSection}${imageInstruction}`;
                   "editDocument",
                   "updateDocument",
                   "requestSuggestions",
+                  "webSearch",
+                  "getStocks",
+                  "getNews",
+                  "getDictionary",
+                  "generateQRCode",
+                  "summarizeWebpage",
                 ],
           providerOptions: {
             ...(modelConfig?.gatewayOrder && {
@@ -373,6 +385,12 @@ ${memorySection}${contextSection}${imageInstruction}`;
               dataStream,
               modelId: chatModel,
             }),
+            webSearch,
+            getStocks,
+            getNews,
+            getDictionary,
+            generateQRCode,
+            summarizeWebpage,
           },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,
