@@ -324,7 +324,7 @@ ${memorySection}${contextSection}${imageInstruction}`;
     // ── OpenRouter free models branch ───────────────────────────────────────
     if (FREE_OPENROUTER_MODELS.has(chatModel)) {
       // Build messages — include image attachments for vision models
-      const openRouterMessages: import("ai").ModelMessage[] = uiMessages
+      const openRouterMessages = (uiMessages
         .filter((m) => m.role === "user" || m.role === "assistant")
         .map((m) => {
           const textContent = m.parts
@@ -363,7 +363,7 @@ ${memorySection}${contextSection}${imageInstruction}`;
           if (contentParts.length === 0) return null;
           return { role: "user" as const, content: contentParts };
         })
-        .filter((m): m is import("ai").ModelMessage => m !== null && m.content !== undefined && (typeof m.content === "string" ? m.content.length > 0 : m.content.length > 0));
+        .filter((m): m is import("ai").ModelMessage => m !== null && m.content !== undefined && (typeof m.content === "string" ? m.content.length > 0 : m.content.length > 0))) as import("ai").ModelMessage[];
 
       const openRouterSystemPrompt = OPENROUTER_MODEL_PROMPTS[chatModel] ?? "You are Masidy, a helpful AI assistant created by the Masidy team.";
 
