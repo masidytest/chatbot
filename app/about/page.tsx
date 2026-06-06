@@ -37,7 +37,7 @@ export default function AboutPage() {
               across conversations, write code, and more — all from one place.
             </p>
             <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-              Masidy now has 11 models — 6 completely free (Masidy, Nano, Core, Build, Vision, Think) and 5 premium models for the most demanding tasks. Free models include image understanding, coding, reasoning, and web search. Paid plans unlock deeper context windows, stronger reasoning, and the most capable model on the platform.
+              Masidy now has 11 models — 6 completely free (Masidy, Nano, Core, Build, Vision, Think) and 5 premium models for the most demanding tasks. Free models include image understanding (Vision), coding, reasoning, and the core Masidy model adds web search, weather, and tools. Paid plans unlock deeper context windows, stronger reasoning, tool support, and the most capable model on the platform.
             </p>
           </section>
 

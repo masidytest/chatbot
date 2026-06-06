@@ -122,8 +122,7 @@ export default function FeaturesPage() {
                 items: [
                   "Best free coding model on the platform",
                   "Complex software engineering tasks",
-                  "Agentic coding workflows",
-                  "Tool calling and reasoning",
+                  "Coding and debugging workflows",
                   "128K context window",
                   "Zero credits — always free",
                 ],
