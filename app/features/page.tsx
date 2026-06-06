@@ -97,7 +97,7 @@ export default function FeaturesPage() {
                   "Fast responses for everyday questions",
                   "Writing, summarizing, and editing",
                   "General Q&A and explanations",
-                  "Same underlying model as Masidy Mini (paid)",
+                  "Tool use: live weather, document creation, suggestions",
                   "Zero credits — always free",
                 ],
               },
@@ -110,7 +110,7 @@ export default function FeaturesPage() {
                   "Deep reasoning and complex analysis",
                   "Research, comparisons, and reports",
                   "Multi-step problem solving",
-                  "Same underlying model as Masidy Max (paid)",
+                  "Tool use: live weather, document creation, suggestions",
                   "Zero credits — always free",
                 ],
               },
@@ -123,7 +123,7 @@ export default function FeaturesPage() {
                   "Best free coding model on the platform",
                   "Complex software engineering tasks",
                   "Coding and debugging workflows",
-                  "128K context window",
+                  "Tool use: live weather, document creation, suggestions",
                   "Zero credits — always free",
                 ],
               },
@@ -136,7 +136,7 @@ export default function FeaturesPage() {
                   "Reads and analyzes images you send",
                   "Describe, interpret, and extract text from images",
                   "Visual Q&A and image comparisons",
-                  "Free vision capability — no paid plan needed",
+                  "Tool use: live weather, document creation, suggestions",
                   "Zero credits — always free",
                 ],
               },
@@ -149,7 +149,7 @@ export default function FeaturesPage() {
                   "Quick code fixes and debugging",
                   "Code explanations and walkthroughs",
                   "Fast, compact responses",
-                  "Great for quick development questions",
+                  "Tool use: live weather, document creation, suggestions",
                   "Zero credits — always free",
                 ],
               },
@@ -193,6 +193,27 @@ export default function FeaturesPage() {
                 <div className="rounded-xl border border-border/40 bg-card/50 p-4" key={f.title}>
                   <div className="mb-1.5 flex items-center gap-2">
                     <f.icon className="size-4 text-orange-500" />
+                    <span className="text-[13px] font-semibold text-foreground">{f.title}</span>
+                  </div>
+                  <p className="text-[12px] leading-relaxed text-muted-foreground">{f.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* All free models tools */}
+          <div className="rounded-xl border border-border/40 bg-card/30 p-6 mt-6">
+            <h3 className="mb-4 text-[14px] font-semibold text-foreground">Tools available on all 6 free models</h3>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {[
+                { icon: CloudIcon,    title: "Live Weather",         desc: "Get real-time weather for any location." },
+                { icon: FileTextIcon, title: "Document Creation",    desc: "Create and format documents on demand." },
+                { icon: CodeIcon,     title: "Document Editing",     desc: "Edit and modify documents instantly." },
+                { icon: SparklesIcon, title: "Suggestions",          desc: "Get personalized recommendations." },
+              ].map((f) => (
+                <div className="rounded-xl border border-green-500/20 bg-card/50 p-4" key={f.title}>
+                  <div className="mb-1.5 flex items-center gap-2">
+                    <f.icon className="size-4 text-green-500" />
                     <span className="text-[13px] font-semibold text-foreground">{f.title}</span>
                   </div>
                   <p className="text-[12px] leading-relaxed text-muted-foreground">{f.desc}</p>
