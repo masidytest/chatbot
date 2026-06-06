@@ -188,7 +188,6 @@ export default function FeaturesPage() {
                 { icon: MicIcon,           title: "Voice Input",           desc: "Speak instead of typing." },
                 { icon: CodeIcon,          title: "Coding",                desc: "Write and debug any language." },
                 { icon: MessageSquareIcon, title: "Dictionary",            desc: "Definitions and phonetics." },
-                { icon: ImageIcon,         title: "Image Generation",      desc: "Generate images from text." },
               ].map((f) => (
                 <div className="rounded-xl border border-border/40 bg-card/50 p-4" key={f.title}>
                   <div className="mb-1.5 flex items-center gap-2">
