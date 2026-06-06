@@ -20,21 +20,48 @@ export const creditsByPlan: Record<UserPlan, number> = {
 };
 
 // Credits consumed per message per model (1 credit = $0.01)
-// Covers API cost + margin
 export const creditCostByModel: Record<string, number> = {
-  "masidy": 0,                                    // Free — Groq, costs us $0
-  "deepseek/deepseek-v3.2": 1,                   // Code — ~$0.0002/msg → 1cr = 50x margin
-  "openai/gpt-oss-20b": 1,                       // Mini — ~$0.0001/msg → 1cr = 100x margin
-  "openai/gpt-oss-120b": 1,                      // Max — ~$0.00015/msg
-  "xai/grok-4.1-fast-non-reasoning": 1,          // Speed — ~$0.0002/msg
-  "moonshotai/kimi-k2.5": 3,                     // Flash — ~$0.0006/msg → 3cr = 5x margin
+  // Free — zero cost
+  "masidy": 0,
+  "openai/gpt-oss-20b:free": 0,
+  "openai/gpt-oss-120b:free": 0,
+  "poolside/laguna-m.1:free": 0,
+  "google/gemma-4-31b-it:free": 0,
+  "poolside/laguna-xs.2:free": 0,
+  // Paid Gateway models
+  "deepseek/deepseek-v3.2": 1,
+  "openai/gpt-oss-20b": 1,
+  "openai/gpt-oss-120b": 1,
+  "xai/grok-4.1-fast-non-reasoning": 1,
+  "moonshotai/kimi-k2.5": 3,
 };
+
+// OpenRouter free model IDs — available on all plans at zero cost
+export const FREE_OPENROUTER_MODELS = new Set([
+  "openai/gpt-oss-20b:free",
+  "openai/gpt-oss-120b:free",
+  "poolside/laguna-m.1:free",
+  "google/gemma-4-31b-it:free",
+  "poolside/laguna-xs.2:free",
+]);
 
 // Which models each plan can access
 export const modelsByPlan: Record<UserPlan, string[]> = {
-  free: ["masidy"],
+  free: [
+    "masidy",
+    "openai/gpt-oss-20b:free",
+    "openai/gpt-oss-120b:free",
+    "poolside/laguna-m.1:free",
+    "google/gemma-4-31b-it:free",
+    "poolside/laguna-xs.2:free",
+  ],
   plus: [
     "masidy",
+    "openai/gpt-oss-20b:free",
+    "openai/gpt-oss-120b:free",
+    "poolside/laguna-m.1:free",
+    "google/gemma-4-31b-it:free",
+    "poolside/laguna-xs.2:free",
     "deepseek/deepseek-v3.2",
     "openai/gpt-oss-20b",
     "openai/gpt-oss-120b",
@@ -42,7 +69,12 @@ export const modelsByPlan: Record<UserPlan, string[]> = {
   ],
   pro: [
     "masidy",
-    "moonshotai/kimi-k2.5",               // Flash — Pro only
+    "openai/gpt-oss-20b:free",
+    "openai/gpt-oss-120b:free",
+    "poolside/laguna-m.1:free",
+    "google/gemma-4-31b-it:free",
+    "poolside/laguna-xs.2:free",
+    "moonshotai/kimi-k2.5",
     "deepseek/deepseek-v3.2",
     "openai/gpt-oss-20b",
     "openai/gpt-oss-120b",

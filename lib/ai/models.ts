@@ -21,15 +21,54 @@ export type ChatModel = {
   description: string;
   gatewayOrder?: string[];
   reasoningEffort?: "none" | "minimal" | "low" | "medium" | "high";
+  openrouter?: boolean; // routed via OpenRouter, not Vercel Gateway
 };
 
 export const chatModels: ChatModel[] = [
+  // ── Free models (no credits, no plan required) ────────────────────────────
   {
     id: "masidy",
     name: "Masidy",
     provider: "custom",
     description: "Free · Web search, images, weather, stocks, YouTube, memory and more",
   },
+  {
+    id: "openai/gpt-oss-20b:free",
+    name: "Masidy Nano",
+    provider: "openrouter",
+    description: "Free · Fast everyday assistant — same model as Mini, zero credits",
+    openrouter: true,
+  },
+  {
+    id: "openai/gpt-oss-120b:free",
+    name: "Masidy Core",
+    provider: "openrouter",
+    description: "Free · Strong reasoning and analysis — same model as Max, zero credits",
+    openrouter: true,
+  },
+  {
+    id: "poolside/laguna-m.1:free",
+    name: "Masidy Build",
+    provider: "openrouter",
+    description: "Free · Best free coding agent — debugging, code generation, refactoring",
+    openrouter: true,
+  },
+  {
+    id: "google/gemma-4-31b-it:free",
+    name: "Masidy Vision",
+    provider: "openrouter",
+    description: "Free · Reads images and documents — vision understanding, analysis",
+    openrouter: true,
+  },
+  {
+    id: "poolside/laguna-xs.2:free",
+    name: "Masidy Think",
+    provider: "openrouter",
+    description: "Free · Compact, fast coding assistant — quick fixes and explanations",
+    openrouter: true,
+  },
+
+  // ── Paid models (credits required) ───────────────────────────────────────
   {
     id: "moonshotai/kimi-k2.5",
     name: "Masidy Flash",
@@ -69,19 +108,21 @@ export const chatModels: ChatModel[] = [
   },
 ];
 
-// Static capabilities — based on verified Vercel AI Gateway docs
-// Flash: vision ✅ tools ✅ — moonshotai/kimi-k2.5
-// Speed: vision ✅ tools ✅ — xai/grok-4.1-fast-non-reasoning
-// Code: tools ✅ vision ❌ — deepseek/deepseek-v3.2
-// Mini: tools ✅ vision ❌ reasoning ✅ — openai/gpt-oss-20b
-// Max: tools ✅ vision ❌ reasoning ✅ — openai/gpt-oss-120b
+// Static capabilities
 const staticCapabilities: Record<string, ModelCapabilities> = {
-  masidy:                              { tools: false, vision: false, reasoning: true },
-  "moonshotai/kimi-k2.5":             { tools: true,  vision: true,  reasoning: true },
-  "deepseek/deepseek-v3.2":           { tools: true,  vision: false, reasoning: true },
-  "openai/gpt-oss-20b":               { tools: true,  vision: false, reasoning: true },
-  "openai/gpt-oss-120b":              { tools: true,  vision: false, reasoning: true },
-  "xai/grok-4.1-fast-non-reasoning":  { tools: true,  vision: true,  reasoning: false },
+  // Free OpenRouter models
+  "masidy":                              { tools: false, vision: false, reasoning: true },
+  "openai/gpt-oss-20b:free":             { tools: false, vision: false, reasoning: true },
+  "openai/gpt-oss-120b:free":            { tools: false, vision: false, reasoning: true },
+  "poolside/laguna-m.1:free":            { tools: false, vision: false, reasoning: true },
+  "google/gemma-4-31b-it:free":          { tools: false, vision: true,  reasoning: false },
+  "poolside/laguna-xs.2:free":           { tools: false, vision: false, reasoning: true },
+  // Paid Gateway models
+  "moonshotai/kimi-k2.5":               { tools: true,  vision: true,  reasoning: true },
+  "deepseek/deepseek-v3.2":             { tools: true,  vision: false, reasoning: true },
+  "openai/gpt-oss-20b":                 { tools: true,  vision: false, reasoning: true },
+  "openai/gpt-oss-120b":                { tools: true,  vision: false, reasoning: true },
+  "xai/grok-4.1-fast-non-reasoning":    { tools: true,  vision: true,  reasoning: false },
 };
 
 export async function getCapabilities(): Promise<

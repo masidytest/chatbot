@@ -18,9 +18,9 @@ import {
   DEFAULT_CHAT_MODEL,
   getCapabilities,
 } from "@/lib/ai/models";
-import { type RequestHints, systemPrompt } from "@/lib/ai/prompts";
+import { type RequestHints, systemPrompt, OPENROUTER_MODEL_PROMPTS } from "@/lib/ai/prompts";
 import { getLanguageModel } from "@/lib/ai/providers";
-import { canUseModel, creditCostForModel, upgradeMessage } from "@/lib/ai/tiers";
+import { canUseModel, creditCostForModel, upgradeMessage, FREE_OPENROUTER_MODELS } from "@/lib/ai/tiers";
 import { getUserPlan } from "@/lib/db/plan-queries";
 import { deductUserCredits, getUserCredits } from "@/lib/db/credits-queries";
 import { createDocument } from "@/lib/ai/tools/create-document";
@@ -320,6 +320,55 @@ ${memorySection}${contextSection}${imageInstruction}`;
       return createUIMessageStreamResponse({ stream });
     }
     // ── End Masidy branch ───────────────────────────────────────────────────
+
+    // ── OpenRouter free models branch ───────────────────────────────────────
+    if (FREE_OPENROUTER_MODELS.has(chatModel)) {
+      const openRouterMessages = uiMessages.map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.parts
+          .filter((p): p is { type: "text"; text: string } => p.type === "text")
+          .map((p) => p.text)
+          .join(" "),
+      })).filter((m) => m.content.trim());
+
+      const openRouterSystemPrompt = OPENROUTER_MODEL_PROMPTS[chatModel] ?? "You are Masidy, a helpful AI assistant created by the Masidy team.";
+
+      const stream = createUIMessageStream({
+        execute: async ({ writer: dataStream }) => {
+          const result = streamText({
+            model: getLanguageModel(chatModel), // routes to OpenRouter via providers.ts
+            system: openRouterSystemPrompt,
+            messages: openRouterMessages,
+          });
+
+          dataStream.merge(result.toUIMessageStream());
+
+          if (titlePromise) {
+            try {
+              const title = await titlePromise;
+              dataStream.write({ type: "data-chat-title", data: title });
+              updateChatTitleById({ chatId: id, title });
+            } catch (_) { /* non-fatal */ }
+          }
+        },
+        generateId: generateUUID,
+        onFinish: async ({ messages: finishedMessages }) => {
+          await saveMessages({
+            messages: finishedMessages.map((m) => ({
+              id: m.id,
+              role: m.role,
+              parts: m.parts,
+              createdAt: new Date(),
+              attachments: [],
+              chatId: id,
+            })),
+          });
+        },
+      });
+
+      return createUIMessageStreamResponse({ stream });
+    }
+    // ── End OpenRouter branch ───────────────────────────────────────────────
 
     const modelConfig = chatModels.find((m) => m.id === chatModel);
     const modelCapabilities = await getCapabilities();

@@ -1,7 +1,22 @@
+import { createOpenAI } from "@ai-sdk/openai";
 import { customProvider, gateway } from "ai";
 import { isTestEnvironment } from "../constants";
 import { titleModel } from "./models";
+import { FREE_OPENROUTER_MODELS } from "./tiers";
 
+// ── OpenRouter client (for free models) ───────────────────────────────────────
+// OpenRouter only supports Chat Completions API, not the Responses API.
+// Using openrouter.chat(modelId) explicitly forces chat completions endpoint.
+const openrouter = createOpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY ?? "",
+  headers: {
+    "HTTP-Referer": "https://masidy.com",
+    "X-Title": "Masidy",
+  },
+});
+
+// ── Test provider ─────────────────────────────────────────────────────────────
 export const myProvider = isTestEnvironment
   ? (() => {
       const { chatModel, titleModel } = require("./models.mock");
@@ -14,11 +29,19 @@ export const myProvider = isTestEnvironment
     })()
   : null;
 
+// ── Main model resolver ───────────────────────────────────────────────────────
 export function getLanguageModel(modelId: string) {
   if (isTestEnvironment && myProvider) {
     return myProvider.languageModel(modelId);
   }
 
+  // Route OpenRouter free models through OpenRouter Chat Completions API
+  // Use .chat() explicitly to avoid the Responses API being used
+  if (FREE_OPENROUTER_MODELS.has(modelId)) {
+    return openrouter.chat(modelId);
+  }
+
+  // All paid models go through Vercel AI Gateway
   return gateway.languageModel(modelId);
 }
 

@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.39",
+    "@ai-sdk/openai": "^3.0.68",
     "@ai-sdk/provider": "^3.0.3",
     "@ai-sdk/react": "3.0.118",
     "@codemirror/lang-python": "^6.1.6",
@@ -29,6 +30,7 @@
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/api-logs": "^0.200.0",
     "@radix-ui/react-use-controllable-state": "^1.2.2",
+    "@stackblitz/sdk": "^1.11.0",
     "@streamdown/cjk": "^1.0.2",
     "@streamdown/code": "^1.0.3",
     "@streamdown/math": "^1.0.2",
@@ -37,6 +39,8 @@
     "@vercel/blob": "^0.24.1",
     "@vercel/functions": "^2.0.0",
     "@vercel/otel": "^1.12.0",
+    "@vercel/sandbox": "^2.1.1",
+    "@vercel/sdk": "^1.21.9",
     "ai": "6.0.116",
     "bcrypt-ts": "^5.0.2",
     "botid": "^1.5.11",
@@ -86,6 +90,7 @@
     "tailwindcss-animate": "^1.0.7",
     "use-stick-to-bottom": "^1.1.1",
     "usehooks-ts": "^3.1.0",
+    "v0-sdk": "^0.16.4",
     "zod": "^3.25.76"
   },
   "devDependencies": {

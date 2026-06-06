@@ -15,6 +15,11 @@ import {
   GaugeIcon,
   BotIcon,
   CpuIcon,
+  SparklesIcon,
+  LayersIcon,
+  HammerIcon,
+  ScanEyeIcon,
+  WandIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -80,14 +85,25 @@ function setCookie(name: string, value: string) {
 // Custom icon renderer — Masidy models get Lucide icons, others get provider logos
 function ModelIcon({ modelId, provider }: { modelId: string; provider: string }) {
   const iconClass = "size-4 text-foreground/70";
-  if (modelId === "masidy") return <img alt="Masidy" src="/masidy-icon.svg" className="size-4" width={16} height={16} />;
-  if (modelId === "masidy-local") return <SunDim className={iconClass} strokeWidth={1.5} />;
-  if (modelId.includes("kimi") || modelId.includes("moonshotai")) return <ZapIcon className={iconClass} strokeWidth={1.5} />;
-  if (modelId.includes("deepseek")) return <CodeIcon className={iconClass} strokeWidth={1.5} />;
-  if (modelId.includes("gpt-oss-20b")) return <BotIcon className={iconClass} strokeWidth={1.5} />;
-  if (modelId.includes("gpt-oss-120b")) return <BrainIcon className={iconClass} strokeWidth={1.5} />;
-  if (modelId.includes("grok")) return <GaugeIcon className={iconClass} strokeWidth={1.5} />;
-  // fallback: provider logo from models.dev
+
+  // ── Masidy free model (custom) ────────────────────────────────────────────
+  if (modelId === "masidy")            return <img alt="Masidy" src="/masidy-icon.svg" className="size-4" width={16} height={16} />;
+
+  // ── OpenRouter free models ────────────────────────────────────────────────
+  if (modelId === "openai/gpt-oss-20b:free")    return <SparklesIcon  className={iconClass} strokeWidth={1.5} />; // Masidy Nano
+  if (modelId === "openai/gpt-oss-120b:free")   return <LayersIcon    className={iconClass} strokeWidth={1.5} />; // Masidy Core
+  if (modelId === "poolside/laguna-m.1:free")   return <HammerIcon    className={iconClass} strokeWidth={1.5} />; // Masidy Build
+  if (modelId === "google/gemma-4-31b-it:free") return <ScanEyeIcon   className={iconClass} strokeWidth={1.5} />; // Masidy Vision
+  if (modelId === "poolside/laguna-xs.2:free")  return <WandIcon      className={iconClass} strokeWidth={1.5} />; // Masidy Think
+
+  // ── Paid Gateway models ───────────────────────────────────────────────────
+  if (modelId.includes("kimi") || modelId.includes("moonshotai")) return <ZapIcon   className={iconClass} strokeWidth={1.5} />; // Flash
+  if (modelId.includes("deepseek"))                                return <CodeIcon  className={iconClass} strokeWidth={1.5} />; // Code
+  if (modelId === "openai/gpt-oss-20b")                            return <BotIcon   className={iconClass} strokeWidth={1.5} />; // Mini
+  if (modelId === "openai/gpt-oss-120b")                           return <BrainIcon className={iconClass} strokeWidth={1.5} />; // Max
+  if (modelId.includes("grok"))                                    return <GaugeIcon className={iconClass} strokeWidth={1.5} />; // Speed
+
+  // Fallback: provider logo from models.dev CDN
   return (
     <img
       alt={provider}

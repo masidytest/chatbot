@@ -43,7 +43,7 @@ export const ModelSelectorContent = ({
   <PopoverContent
     align="start"
     className={cn(
-      "w-[280px] p-0 rounded-xl border border-border/60 bg-card/95 backdrop-blur-xl shadow-[var(--shadow-float)]",
+      "w-[280px] p-0 rounded-xl border border-border/60 bg-card/95 backdrop-blur-xl shadow-[var(--shadow-float)] max-h-[90vh] overflow-hidden",
       className
     )}
     side="top"
@@ -68,7 +68,7 @@ export const ModelSelectorInput = ({
 export type ModelSelectorListProps = ComponentProps<typeof CommandList>;
 
 export const ModelSelectorList = ({ className, ...props }: ModelSelectorListProps) => (
-  <CommandList className={cn("max-h-[280px]", className)} {...props} />
+  <CommandList className={cn("max-h-[480px] overflow-y-auto", className)} {...props} />
 );
 
 export type ModelSelectorEmptyProps = ComponentProps<typeof CommandEmpty>;
