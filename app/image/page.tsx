@@ -225,8 +225,8 @@ export default function ImageStudioPage() {
               <div className="space-y-1.5">
                 {[
                   { value: "standard" as Quality, label: "Standard",      desc: "Fast generation",        plan: "Free",  icon: null },
-                  { value: "high"     as Quality, label: "High Quality",  desc: "SD 3.5 — better detail", plan: "Plus",  icon: ZapIcon },
-                  { value: "pro"      as Quality, label: "Professional",  desc: "Ultra — best output",    plan: "Pro",   icon: SparklesIcon },
+                  { value: "high"     as Quality, label: "High Quality",  desc: "Better detail & quality", plan: "Plus",  icon: ZapIcon },
+                  { value: "pro"      as Quality, label: "Professional",  desc: "Maximum quality output",    plan: "Pro",   icon: SparklesIcon },
                 ].map((q) => (
                   <button
                     className={cn(
@@ -377,3 +377,4 @@ export default function ImageStudioPage() {
     </div>
   );
 }
+
