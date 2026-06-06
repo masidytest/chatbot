@@ -370,8 +370,7 @@ ${memorySection}${contextSection}${imageInstruction}`;
           const result = streamText({
             model: getLanguageModel(chatModel),
             system: openRouterSystemPrompt,
-            // Pass as model messages — the openrouter client handles multipart content
-            messages: openRouterMessages as Parameters<typeof streamText>[0]["messages"],
+            messages: openRouterMessages as import("ai").ModelMessage[],
           });
 
           dataStream.merge(result.toUIMessageStream());
