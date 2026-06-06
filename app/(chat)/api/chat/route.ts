@@ -323,50 +323,27 @@ ${memorySection}${contextSection}${imageInstruction}`;
 
     // ── OpenRouter free models branch ───────────────────────────────────────
     if (FREE_OPENROUTER_MODELS.has(chatModel)) {
-      // Build messages — include image attachments for vision models
-      const openRouterMessages = (uiMessages
-        .filter((m) => m.role === "user" || m.role === "assistant")
-        .map((m) => {
-          const textContent = m.parts
-            .filter((p): p is { type: "text"; text: string } => p.type === "text")
-            .map((p) => p.text)
-            .join(" ")
-            .trim();
-
-          const imageParts = m.parts.filter(
-            (p) => p.type === "file" && "url" in p
-          ) as Array<{ type: "file"; url: string; mediaType: string }>;
-
-          if (imageParts.length === 0 || m.role === "assistant") {
-            if (!textContent) return null;
-            return { role: m.role as "user" | "assistant", content: textContent };
-          }
-
-          // User message with images — use AI SDK content array format
-          const contentParts: import("ai").UserContent = [];
-          if (textContent) contentParts.push({ type: "text", text: textContent });
-          for (const img of imageParts) {
-            if (img.url.startsWith("data:")) {
-              const base64 = img.url.split(",")[1] ?? img.url;
-              contentParts.push({ type: "image", image: base64 });
-            } else {
-              // Remote URL
-              contentParts.push({ type: "image", image: new URL(img.url) });
-            }
-          }
-          if (contentParts.length === 0) return null;
-          return { role: "user" as const, content: contentParts };
-        })
-        .filter((m): m is import("ai").ModelMessage => m !== null && m.content !== undefined && (typeof m.content === "string" ? m.content.length > 0 : m.content.length > 0))) as import("ai").ModelMessage[];
-
       const openRouterSystemPrompt = OPENROUTER_MODEL_PROMPTS[chatModel] ?? "You are Masidy, a helpful AI assistant created by the Masidy team.";
 
       const stream = createUIMessageStream({
         execute: async ({ writer: dataStream }) => {
+          // Build simple text messages — vision handled by Masidy Flash/Speed on paid plans
+          const msgs = uiMessages
+            .filter((m) => m.role === "user" || m.role === "assistant")
+            .map((m) => ({
+              role: m.role as "user" | "assistant",
+              content: m.parts
+                .filter((p): p is { type: "text"; text: string } => p.type === "text")
+                .map((p) => p.text)
+                .join(" ")
+                .trim(),
+            }))
+            .filter((m) => m.content.length > 0);
+
           const result = streamText({
             model: getLanguageModel(chatModel),
             system: openRouterSystemPrompt,
-            messages: openRouterMessages,
+            messages: msgs,
           });
 
           dataStream.merge(result.toUIMessageStream());
