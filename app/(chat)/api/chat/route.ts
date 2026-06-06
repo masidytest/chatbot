@@ -329,7 +329,7 @@ ${memorySection}${contextSection}${imageInstruction}`;
           (p): p is { type: "text"; text: string } => p.type === "text"
         );
         const fileParts = m.parts.filter(
-          (p): p is { type: "file"; url: string; mediaType?: string } => p.type === "file"
+          (p): p is { type: "file"; url: string; mediaType: string } => p.type === "file" && "url" in p
         );
 
         if (fileParts.length === 0) {
