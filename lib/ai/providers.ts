@@ -6,7 +6,6 @@ import { FREE_OPENROUTER_MODELS } from "./tiers";
 
 // ── OpenRouter client (for free models) ───────────────────────────────────────
 // OpenRouter only supports Chat Completions API, not the Responses API.
-// Using openrouter.chat(modelId) explicitly forces chat completions endpoint.
 const openrouter = createOpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: process.env.OPENROUTER_API_KEY ?? "",
@@ -36,9 +35,8 @@ export function getLanguageModel(modelId: string) {
   }
 
   // Route OpenRouter free models through OpenRouter Chat Completions API
-  // Use .chat() explicitly to avoid the Responses API being used
   if (FREE_OPENROUTER_MODELS.has(modelId)) {
-    return openrouter.chat(modelId);
+    return openrouter.languageModel(modelId);
   }
 
   // All paid models go through Vercel AI Gateway
