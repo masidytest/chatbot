@@ -569,9 +569,8 @@ function PureMultimodalInput({
         />
         <PromptInputFooter className="px-3 pb-3">
           <PromptInputTools>
-            {/* Hide file upload for Masidy free model — it doesn't support file analysis */}
-            {selectedModelId !== "masidy" && (
-              <AttachmentsButton
+            {/* Show file upload for all models — Masidy Vision, Flash, Speed support images; others support documents */}
+            <AttachmentsButton
                 fileInputRef={fileInputRef}
                 selectedModelId={selectedModelId}
                 status={status}
