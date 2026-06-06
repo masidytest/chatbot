@@ -363,7 +363,7 @@ ${memorySection}${contextSection}${imageInstruction}`;
           if (contentParts.length === 0) return null;
           return { role: "user" as const, content: contentParts };
         })
-        .filter((m): m is import("ai").ModelMessage => m !== null);
+        .filter((m): m is import("ai").ModelMessage => m !== null && m.content !== undefined && (typeof m.content === "string" ? m.content.length > 0 : m.content.length > 0));
 
       const openRouterSystemPrompt = OPENROUTER_MODEL_PROMPTS[chatModel] ?? "You are Masidy, a helpful AI assistant created by the Masidy team.";
 
