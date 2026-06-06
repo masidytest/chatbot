@@ -94,7 +94,7 @@ export default function PricingPage() {
           </p>
           <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-6">
             {[
-              { name: "Masidy",       desc: "Web search, memory, tools" },
+              { name: "Masidy",       desc: "Memory, web search, tools" },
               { name: "Masidy Nano",  desc: "Fast everyday assistant" },
               { name: "Masidy Core",  desc: "Strong reasoning" },
               { name: "Masidy Build", desc: "Best free coder" },
@@ -107,6 +107,9 @@ export default function PricingPage() {
               </div>
             ))}
           </div>
+          <p className="mt-3 text-[12px] text-muted-foreground text-center">
+            All 6 free models include: web search, weather, stocks, news, QR codes, dictionary, webpage summarizer, and more.
+          </p>
         </div>
 
         {/* Plans */}
@@ -125,7 +128,8 @@ export default function PricingPage() {
             <ul className="mb-8 flex-1 space-y-2.5">
               {[
                 "6 free models — all included",
-                "Masidy — web search, live data, memory",
+                "Web search, weather, stocks, and live data on all models",
+                "Masidy — includes conversation memory",
                 "Masidy Nano — fast everyday assistant",
                 "Masidy Core — strong reasoning",
                 "Masidy Build — best free coding model",
@@ -247,11 +251,11 @@ export default function PricingPage() {
               <tbody className="space-y-2">
                 {[
                   { name: "Masidy",        best: "Web search, live data, weather, stocks, memory",   plan: "Free", cost: "0 credits" },
-                  { name: "Masidy Nano",   best: "Fast everyday tasks, Q&A, writing",                plan: "Free", cost: "0 credits" },
-                  { name: "Masidy Core",   best: "Strong reasoning, research, analysis",             plan: "Free", cost: "0 credits" },
-                  { name: "Masidy Build",  best: "Code generation, debugging, engineering tasks",    plan: "Free", cost: "0 credits" },
-                  { name: "Masidy Vision", best: "Image understanding, visual analysis",             plan: "Free", cost: "0 credits" },
-                  { name: "Masidy Think",  best: "Quick code fixes, short explanations",             plan: "Free", cost: "0 credits" },
+                  { name: "Masidy Nano",   best: "Fast everyday tasks, web search, tools",           plan: "Free", cost: "0 credits" },
+                  { name: "Masidy Core",   best: "Strong reasoning, research, web search, tools",    plan: "Free", cost: "0 credits" },
+                  { name: "Masidy Build",  best: "Code generation, debugging, web search, tools",    plan: "Free", cost: "0 credits" },
+                  { name: "Masidy Vision", best: "Image understanding, visual analysis, tools",      plan: "Free", cost: "0 credits" },
+                  { name: "Masidy Think",  best: "Quick code fixes, explanations, tools",            plan: "Free", cost: "0 credits" },
                   { name: "Masidy Code",   best: "Deep coding, large codebases, 164K context",       plan: "Plus", cost: "1 credit" },
                   { name: "Masidy Mini",   best: "Fast reasoning + tool use, 131K context",          plan: "Plus", cost: "1 credit" },
                   { name: "Masidy Max",    best: "Complex reasoning, long research",                 plan: "Plus", cost: "1 credit" },
