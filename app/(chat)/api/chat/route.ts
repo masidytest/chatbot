@@ -327,18 +327,42 @@ ${memorySection}${contextSection}${imageInstruction}`;
 
       const stream = createUIMessageStream({
         execute: async ({ writer: dataStream }) => {
-          // Build simple text messages — vision handled by Masidy Flash/Speed on paid plans
+          // Build messages with vision support for Masidy Vision
           const msgs = uiMessages
             .filter((m) => m.role === "user" || m.role === "assistant")
-            .map((m) => ({
-              role: m.role as "user" | "assistant",
-              content: m.parts
+            .map((m) => {
+              const textContent = m.parts
                 .filter((p): p is { type: "text"; text: string } => p.type === "text")
                 .map((p) => p.text)
                 .join(" ")
-                .trim(),
-            }))
-            .filter((m) => m.content.length > 0);
+                .trim();
+
+              const imageParts = m.parts.filter(
+                (p) => p.type === "file" && "url" in p
+              ) as Array<{ type: "file"; url: string }>;
+
+              // For assistant messages or messages without images, use text only
+              if (imageParts.length === 0 || m.role === "assistant") {
+                if (!textContent) return null;
+                return { role: m.role as "user" | "assistant", content: textContent };
+              }
+
+              // User message with images — use AI SDK content array format
+              const contentParts: import("ai").UserContent = [];
+              if (textContent) contentParts.push({ type: "text", text: textContent });
+              for (const img of imageParts) {
+                if (img.url.startsWith("data:")) {
+                  const base64 = img.url.split(",")[1] ?? img.url;
+                  contentParts.push({ type: "image", image: base64 });
+                } else {
+                  // Remote URL
+                  contentParts.push({ type: "image", image: new URL(img.url) });
+                }
+              }
+              if (contentParts.length === 0) return null;
+              return { role: "user" as const, content: contentParts };
+            })
+            .filter((m) => m !== null && m.content !== undefined && (typeof m.content === "string" ? m.content.length > 0 : m.content.length > 0)) as import("ai").ModelMessage[];
 
           const result = streamText({
             model: getLanguageModel(chatModel),
