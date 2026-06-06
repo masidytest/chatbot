@@ -49,7 +49,7 @@ export default function FeaturesPage() {
       <div className="mx-auto max-w-5xl px-6 py-16">
         <div className="mb-14 text-center">
           <h1 className="text-4xl font-bold tracking-tight text-foreground">Everything Masidy can do</h1>
-          <p className="mt-3 text-lg text-muted-foreground">11 models. One platform. Most of it completely free.</p>
+          <p className="mt-3 text-lg text-muted-foreground">11 models. One platform. Most completely free, all with tools.</p>
         </div>
 
         {/* FREE MODELS SECTION */}
