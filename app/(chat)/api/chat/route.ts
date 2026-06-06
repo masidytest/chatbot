@@ -347,14 +347,8 @@ ${memorySection}${contextSection}${imageInstruction}`;
           if (textContent) contentParts.push({ type: "text", text: textContent });
           for (const img of imageParts) {
             if (img.url.startsWith("data:")) {
-              // base64 data URL
-              const [header, base64] = img.url.split(",");
-              const mimeType = header.split(":")[1]?.split(";")[0] ?? "image/jpeg";
-              contentParts.push({
-                type: "image",
-                image: base64,
-                mimeType: mimeType as `image/${string}`,
-              });
+              const base64 = img.url.split(",")[1] ?? img.url;
+              contentParts.push({ type: "image", image: base64 });
             } else {
               // Remote URL
               contentParts.push({ type: "image", image: new URL(img.url) });
