@@ -41,7 +41,7 @@ export function TranslationProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('language', lang);
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-    window.location.reload(); // Force full page reload to update all text
+    // Note: No reload needed - React will re-render automatically
   };
 
   const t = (key: string, defaultValue?: string): string => {
