@@ -1439,7 +1439,16 @@
       "legal": "قانوني",
       "dashboard": "لوحة التحكم",
       "upgradePlan": "ترقية الخطة",
-      "logout": "تسجيل الخروج"
+      "logout": "تسجيل الخروج",
+      "lightMode": "الوضع الفاتح",
+      "darkMode": "الوضع الداكن",
+      "loginToAccount": "تسجيل الدخول إلى حسابك",
+      "signOut": "تسجيل الخروج",
+      "restore": "استعادة",
+      "latest": "الأحدث",
+      "showChanges": "عرض التغييرات",
+      "editingMessage": "تعديل الرسالة",
+      "continue": "متابعة"
     }
   },
   "it": {

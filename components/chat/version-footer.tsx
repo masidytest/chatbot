@@ -6,6 +6,7 @@ import { ChevronLeftIcon, ChevronRightIcon, DiffIcon } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 import { useSWRConfig } from "swr";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { useArtifact } from "@/hooks/use-artifact";
 import type { Document } from "@/lib/db/schema";
 import { cn, getDocumentTimestampByIndex } from "@/lib/utils";
@@ -26,6 +27,7 @@ export const VersionFooter = ({
   mode,
   setMode,
 }: VersionFooterProps) => {
+  const { t } = useTranslation();
   const { artifact } = useArtifact();
 
   const { mutate } = useSWRConfig();
@@ -75,7 +77,7 @@ export const VersionFooter = ({
             mode === "diff" && "bg-muted text-foreground"
           )}
           onClick={() => setMode(mode === "diff" ? "edit" : "diff")}
-          title="Show changes"
+          title={t("common.showChanges", "Show changes")}
           type="button"
         >
           <DiffIcon className="size-4" />
@@ -125,7 +127,7 @@ export const VersionFooter = ({
           }}
           type="button"
         >
-          Restore
+          {t("common.restore", "Restore")}
           {isMutating && (
             <div className="animate-spin">
               <LoaderIcon size={14} />
@@ -140,7 +142,7 @@ export const VersionFooter = ({
           }}
           type="button"
         >
-          Latest
+          {t("common.latest", "Latest")}
         </button>
       </div>
     </motion.div>

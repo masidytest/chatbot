@@ -425,7 +425,7 @@ function PureMultimodalInput({
     <div className={cn("relative flex w-full flex-col gap-4", className)}>
       {editingMessage && onCancelEdit && (
         <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
-          <span>Editing message</span>
+          <span>{t("common.editingMessage", "Editing message")}</span>
           <button
             className="rounded px-1.5 py-0.5 text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground"
             onMouseDown={(e) => {
@@ -434,7 +434,7 @@ function PureMultimodalInput({
             }}
             type="button"
           >
-            Cancel
+            {t("common.cancel")}
           </button>
         </div>
       )}
@@ -564,7 +564,7 @@ function PureMultimodalInput({
             }
           }}
           placeholder={
-            editingMessage ? "Edit your message..." : "Ask anything..."
+            editingMessage ? t("chat.editMessage", "Edit your message...") : t("chat.askAnything", "Ask anything...")
           }
           ref={textareaRef}
           value={input}

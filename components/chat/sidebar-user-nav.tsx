@@ -44,7 +44,7 @@ export function SidebarUserNav({ user }: { user: User }) {
   const router = useRouter();
   const { data, status } = useSession();
   const { setTheme, resolvedTheme } = useTheme();
-  const { language, setLanguage, languages, isLoaded } = useTranslation();
+  const { t, language, setLanguage, languages, isLoaded } = useTranslation();
 
   const isGuest = guestRegex.test(data?.user?.email ?? "");
 
@@ -95,14 +95,14 @@ export function SidebarUserNav({ user }: { user: User }) {
                   onSelect={() => router.push("/dashboard")}
                 >
                   <LayoutDashboardIcon className="size-3.5" />
-                  Dashboard
+                  {t("common.dashboard", "Dashboard")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer gap-2 text-[13px] text-orange-500 focus:text-orange-500"
                   onSelect={() => router.push("/pricing")}
                 >
                   <SparklesIcon className="size-3.5" />
-                  Upgrade plan
+                  {t("common.upgradePlan", "Upgrade plan")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
               </>
@@ -115,12 +115,12 @@ export function SidebarUserNav({ user }: { user: User }) {
               {resolvedTheme === "dark" ? (
                 <>
                   <SunIcon className="size-3.5" />
-                  Light mode
+                  {t("common.lightMode", "Light mode")}
                 </>
               ) : (
                 <>
                   <MoonIcon className="size-3.5" />
-                  Dark mode
+                  {t("common.darkMode", "Dark mode")}
                 </>
               )}
             </DropdownMenuItem>
@@ -161,7 +161,7 @@ export function SidebarUserNav({ user }: { user: User }) {
                 }}
                 type="button"
               >
-                {isGuest ? "Login to your account" : "Sign out"}
+                {isGuest ? t("common.loginToAccount", "Login to your account") : t("common.signOut", "Sign out")}
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
