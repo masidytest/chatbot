@@ -1,0 +1,104 @@
+{
+  "en": {
+    "chat": {
+      "newChat": "New chat",
+      "deleteAll": "Delete all",
+      "imageStudio": "Image Studio",
+      "upgrade": "Upgrade",
+      "searchChats": "Search chats...",
+      "noChats": "No chats yet",
+      "chatHistory": "Chat history"
+    },
+    "common": {
+      "language": "Language",
+      "search": "Search",
+      "loading": "Loading",
+      "error": "Error"
+    }
+  },
+  "es": {
+    "chat": {
+      "newChat": "Nuevo chat",
+      "deleteAll": "Eliminar todo",
+      "imageStudio": "Estudio de imágenes",
+      "upgrade": "Actualizar",
+      "searchChats": "Buscar chats...",
+      "noChats": "Sin chats aún",
+      "chatHistory": "Historial de chat"
+    },
+    "common": {
+      "language": "Idioma",
+      "search": "Buscar",
+      "loading": "Cargando",
+      "error": "Error"
+    }
+  },
+  "fr": {
+    "chat": {
+      "newChat": "Nouveau chat",
+      "deleteAll": "Supprimer tout",
+      "imageStudio": "Studio d'images",
+      "upgrade": "Améliorer",
+      "searchChats": "Rechercher des chats...",
+      "noChats": "Aucun chat pour le moment",
+      "chatHistory": "Historique des chats"
+    },
+    "common": {
+      "language": "Langue",
+      "search": "Rechercher",
+      "loading": "Chargement",
+      "error": "Erreur"
+    }
+  },
+  "de": {
+    "chat": {
+      "newChat": "Neuer Chat",
+      "deleteAll": "Alles löschen",
+      "imageStudio": "Bildstudio",
+      "upgrade": "Upgrade",
+      "searchChats": "Chats durchsuchen...",
+      "noChats": "Noch keine Chats",
+      "chatHistory": "Chat-Verlauf"
+    },
+    "common": {
+      "language": "Sprache",
+      "search": "Suchen",
+      "loading": "Lädt",
+      "error": "Fehler"
+    }
+  },
+  "ar": {
+    "chat": {
+      "newChat": "دردشة جديدة",
+      "deleteAll": "حذف الكل",
+      "imageStudio": "استوديو الصور",
+      "upgrade": "ترقية",
+      "searchChats": "البحث في الدردشات...",
+      "noChats": "لا توجد دردشات بعد",
+      "chatHistory": "سجل الدردشات"
+    },
+    "common": {
+      "language": "اللغة",
+      "search": "البحث",
+      "loading": "جاري التحميل",
+      "error": "خطأ"
+    }
+  },
+  "it": {
+    "chat": {
+      "newChat": "Nuova chat",
+      "deleteAll": "Elimina tutto",
+      "imageStudio": "Studio immagini",
+      "upgrade": "Aggiorna",
+      "searchChats": "Cerca chat...",
+      "noChats": "Nessuna chat ancora",
+      "chatHistory": "Cronologia chat"
+    },
+    "common": {
+      "language": "Lingua",
+      "search": "Cerca",
+      "loading": "Caricamento",
+      "error": "Errore"
+    }
+  }
+}
