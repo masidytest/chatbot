@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { MasidyAnimatedIcon } from "@/components/chat/masidy-animated-icon";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 type BillingStatus = {
   plan: "free" | "plus" | "pro";
@@ -37,6 +38,7 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const { resolvedTheme, setTheme } = useTheme();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const [billing, setBilling] = useState<BillingStatus | null>(null);
   const [data, setData] = useState<DashboardData | null>(null);
@@ -117,11 +119,11 @@ export default function DashboardPage() {
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <Link className="flex items-center gap-1.5 text-[13px] text-muted-foreground" href="/">
             <ArrowLeftIcon className="size-4" />
-            <span className="hidden sm:inline">Back</span>
+            <span className="hidden sm:inline">{t("dashboard.back", "Back")}</span>
           </Link>
           <div className="flex items-center gap-2">
             <MasidyAnimatedIcon animate={false} size={20} />
-            <span className="text-sm font-bold text-foreground">MASIDY</span>
+            <span className="text-sm font-bold text-foreground">{t("common.masidy", "MASIDY")}</span>
           </div>
           <Button onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")} size="icon" variant="ghost" className="size-8">
             {resolvedTheme === "dark" ? <SunIcon className="size-4" /> : <MoonIcon className="size-4" />}
@@ -151,7 +153,7 @@ export default function DashboardPage() {
               className="shrink-0 text-xs"
             >
               <LogOutIcon className="size-3.5" />
-              <span className="ml-1.5 hidden sm:inline">Sign out</span>
+              <span className="ml-1.5 hidden sm:inline">{t("dashboard.signOut", "Sign out")}</span>
             </Button>
           </div>
         </div>
@@ -166,8 +168,8 @@ export default function DashboardPage() {
         {/* Plan & Credits */}
         <div className="rounded-2xl border border-border/40 bg-card/50 p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-foreground">Plan & Credits</h2>
-            <Link href="/pricing" className="text-[12px] text-orange-500">View plans →</Link>
+            <h2 className="text-sm font-semibold text-foreground">{t("dashboard.planCredits", "Plan & Credits")}</h2>
+            <Link href="/pricing" className="text-[12px] text-orange-500">{t("dashboard.viewPlans", "View plans →")}</Link>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -179,17 +181,17 @@ export default function DashboardPage() {
                 {billing?.planName ?? "—"}
               </div>
               <div className="text-xl font-bold text-foreground">
-                {billing?.plan === "free" ? "Free" : billing?.plan === "plus" ? "$5/mo" : "$10/mo"}
+                {billing?.plan === "free" ? t("dashboard.free", "Free") : billing?.plan === "plus" ? "$5/mo" : "$10/mo"}
               </div>
             </div>
             <div className="rounded-xl bg-muted/40 p-4 text-center">
               <div className="mb-1 flex items-center justify-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 <CoinsIcon className="size-3" />
-                Credits
+                {t("dashboard.credits", "Credits")}
               </div>
               <div className="text-xl font-bold text-foreground">{billing?.credits ?? "—"}</div>
               {billing?.plan !== "free" && (
-                <div className="text-[10px] text-muted-foreground">+{billing?.monthlyCredits}/mo</div>
+                <div className="text-[10px] text-muted-foreground">+{billing?.monthlyCredits}{t("dashboard.perMonth", "/month")}</div>
               )}
             </div>
           </div>
@@ -204,7 +206,7 @@ export default function DashboardPage() {
                 variant="outline"
               >
                 <ZapIcon className="mr-2 size-4 text-blue-500" />
-                {checkoutLoading === "plus" ? "Loading..." : "Get Plus — $5/month"}
+                {checkoutLoading === "plus" ? t("common.loading", "Loading...") : t("dashboard.getPlus", "Get Plus — $5/month")}
               </Button>
               <Button
                 className="w-full justify-center bg-orange-500 hover:bg-orange-600 border-0 text-white"
@@ -212,19 +214,19 @@ export default function DashboardPage() {
                 onClick={() => goToCheckout("subscription", { plan: "pro" }, "pro")}
               >
                 <SparklesIcon className="mr-2 size-4" />
-                {checkoutLoading === "pro" ? "Loading..." : "Get Pro — $10/month"}
+                {checkoutLoading === "pro" ? t("common.loading", "Loading...") : t("dashboard.getPro", "Get Pro — $10/month")}
               </Button>
             </div>
           )}
 
           {billing?.plan !== "free" && (
             <div className="space-y-3">
-              <p className="text-[12px] text-muted-foreground text-center">Top up credits — never expire</p>
+              <p className="text-[12px] text-muted-foreground text-center">{t("dashboard.topupCredits", "Top up credits — never expire")}</p>
               <div className="grid grid-cols-3 gap-2">
                 {[
                   { id: "topup_500",  label: "$5",  credits: 500,  note: "" },
-                  { id: "topup_1200", label: "$10", credits: 1200, note: "Best value" },
-                  { id: "topup_3500", label: "$25", credits: 3500, note: "+500 bonus" },
+                  { id: "topup_1200", label: "$10", credits: 1200, note: t("dashboard.bestValue", "Best value") },
+                  { id: "topup_3500", label: "$25", credits: 3500, note: t("dashboard.bonus", "bonus") + " +500" },
                 ].map((pkg) => (
                   <button
                     className={cn(
@@ -255,14 +257,14 @@ export default function DashboardPage() {
             <div className="text-2xl font-bold text-foreground">{data?.chatCount ?? "—"}</div>
             <div className="mt-1 flex items-center justify-center gap-1.5 text-[12px] text-muted-foreground">
               <MessageSquareIcon className="size-3.5" />
-              Chats
+              {t("dashboard.chats", "Chats")}
             </div>
           </div>
           <div className="rounded-xl border border-border/40 bg-card/50 p-4 text-center">
             <div className="text-2xl font-bold text-foreground">{data?.memories.length ?? "—"}</div>
             <div className="mt-1 flex items-center justify-center gap-1.5 text-[12px] text-muted-foreground">
               <BrainIcon className="size-3.5" />
-              Memories
+              {t("dashboard.memories", "Memories")}
             </div>
           </div>
         </div>
@@ -282,7 +284,7 @@ export default function DashboardPage() {
               type="button"
             >
               <tab.icon className="size-4" />
-              {tab.label}
+              {tab.label === "Overview" ? t("dashboard.overview", "Overview") : t("dashboard.memory", "Memory")}
             </button>
           ))}
         </div>
@@ -291,28 +293,28 @@ export default function DashboardPage() {
         {activeTab === "overview" && (
           <div className="space-y-3">
             <div className="rounded-xl border border-border/40 bg-card/50 p-5 space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">Quick Actions</h3>
+              <h3 className="text-sm font-semibold text-foreground">{t("dashboard.quickActions", "Quick Actions")}</h3>
               <Button className="w-full justify-center gap-2" onClick={() => router.push("/")} variant="outline">
                 <MessageSquareIcon className="size-4" />
-                New Chat
+                {t("chat.newChat", "New Chat")}
               </Button>
               <Button className="w-full justify-center gap-2" onClick={() => router.push("/pricing")} variant="outline">
                 <SparklesIcon className="size-4" />
-                Upgrade Plan
+                {t("dashboard.upgradePlan", "Upgrade plan")}
               </Button>
               <Button className="w-full justify-center gap-2" onClick={() => setActiveTab("memory")} variant="outline">
                 <BrainIcon className="size-4" />
-                View Memory
+                {t("dashboard.viewMemory", "View Memory")}
               </Button>
             </div>
 
             <div className="rounded-xl border border-border/40 bg-card/50 p-5">
-              <div className="mb-1 text-sm font-medium text-foreground">Delete all chats</div>
-              <div className="mb-3 text-xs text-muted-foreground">Permanently remove all conversations</div>
+              <div className="mb-1 text-sm font-medium text-foreground">{t("dashboard.deleteAllChats", "Delete all chats")}</div>
+              <div className="mb-3 text-xs text-muted-foreground">{t("dashboard.permanentlyRemove", "Permanently remove all conversations")}</div>
               <Button
                 className="w-full justify-center"
                 onClick={() => {
-                  if (confirm("Delete all chats? This cannot be undone.")) {
+                  if (confirm(t("dashboard.deleteConfirm", "Delete all chats? This cannot be undone."))) {
                     fetch("/api/history", { method: "DELETE" }).then(() => {
                       setData((d) => d ? { ...d, chatCount: 0 } : d);
                       router.push("/");
@@ -322,7 +324,7 @@ export default function DashboardPage() {
                 variant="destructive"
               >
                 <TrashIcon className="mr-2 size-4" />
-                Delete all chats
+                {t("dashboard.deleteAllChatsBtn", "Delete all chats")}
               </Button>
             </div>
           </div>
@@ -333,9 +335,9 @@ export default function DashboardPage() {
             {!data?.memories.length ? (
               <div className="rounded-xl border border-border/40 bg-card/50 p-8 text-center">
                 <BrainIcon className="mx-auto mb-3 size-8 text-muted-foreground/40" />
-                <p className="text-sm text-muted-foreground">No memories yet.</p>
+                <p className="text-sm text-muted-foreground">{t("dashboard.noMemoriesYet", "No memories yet.")}</p>
                 <p className="mt-1 text-xs text-muted-foreground/60">
-                  Tell Masidy your name or preferences and it will remember them.
+                  {t("dashboard.tellMasidy", "Tell Masidy your name or preferences and it will remember them.")}
                 </p>
               </div>
             ) : (

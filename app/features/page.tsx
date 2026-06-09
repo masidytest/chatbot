@@ -28,19 +28,21 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { MasidyAnimatedIcon } from "@/components/chat/masidy-animated-icon";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function FeaturesPage() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-dvh bg-background">
       <div className="border-b border-border/40 bg-sidebar px-6 py-4">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <Link className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors" href="/">
             <ArrowLeftIcon className="size-3.5" />
-            Back to chat
+            {t("features.backToChat", "Back to chat")}
           </Link>
           <div className="flex items-center gap-2">
             <MasidyAnimatedIcon animate={false} size={22} />
-            <span className="font-bold text-foreground">MASIDY</span>
+            <span className="font-bold text-foreground">{t("common.masidy", "MASIDY")}</span>
           </div>
           <div className="w-20" />
         </div>
@@ -48,8 +50,8 @@ export default function FeaturesPage() {
 
       <div className="mx-auto max-w-5xl px-6 py-16">
         <div className="mb-14 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">Everything Masidy can do</h1>
-          <p className="mt-3 text-lg text-muted-foreground">11 models. One platform. Most completely free, all with tools.</p>
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">{t("features.everythingMasidy", "Everything Masidy can do")}</h1>
+          <p className="mt-3 text-lg text-muted-foreground">{t("features.elevenModels", "11 models. One platform. Most completely free, all with tools.")}</p>
         </div>
 
         {/* FREE MODELS SECTION */}
@@ -59,12 +61,12 @@ export default function FeaturesPage() {
               <GiftIcon className="size-4 text-green-500" />
             </div>
             <h2 className="text-lg font-bold text-foreground">
-              6 Free Models
-              <span className="ml-2 rounded-full bg-green-500/10 px-2 py-0.5 text-[12px] font-semibold text-green-600 dark:text-green-400">Always free · No card needed</span>
+              {t("features.sixFreeModels", "6 Free Models")}
+              <span className="ml-2 rounded-full bg-green-500/10 px-2 py-0.5 text-[12px] font-semibold text-green-600 dark:text-green-400">{t("features.alwaysFreeNoCard", "Always free · No card needed")}</span>
             </h2>
           </div>
           <p className="mb-6 text-[14px] text-muted-foreground">
-            Every account — including the free tier — gets access to all 6 of these models with unlimited messages. No credits consumed.
+            {t("features.accessAll", "Every account — including the free tier — gets access to all 6 of these models with unlimited messages. No credits consumed.")}
           </p>
 
           {/* 6 model cards */}
@@ -173,20 +175,20 @@ export default function FeaturesPage() {
 
           {/* Free model capabilities grid */}
           <div className="rounded-xl border border-border/40 bg-card/30 p-6">
-            <h3 className="mb-4 text-[14px] font-semibold text-foreground">Capabilities included with the free Masidy model</h3>
+            <h3 className="mb-4 text-[14px] font-semibold text-foreground">{t("features.capabilitiesFree", "Capabilities included with the free Masidy model")}</h3>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
               {[
-                { icon: SearchIcon,        title: "Web Search",            desc: "Live results. Never outdated." },
-                { icon: CloudIcon,         title: "Live Weather",          desc: "Any city, real-time conditions." },
-                { icon: TrendingUpIcon,    title: "Stocks & Crypto",       desc: "Live prices for any ticker." },
-                { icon: GlobeIcon,         title: "Webpage Summarizer",    desc: "Paste a URL, get a summary." },
-                { icon: SparklesIcon,      title: "Latest News",           desc: "Real headlines from the web." },
-                { icon: QrCodeIcon,        title: "QR Code Generator",     desc: "Any URL or text, instant QR." },
-                { icon: MemoryStickIcon,   title: "Memory",                desc: "Remembers you across sessions." },
+                { icon: SearchIcon,        title: "Web Search",            desc: t("features.webSearch", "Live results. Never outdated.") },
+                { icon: CloudIcon,         title: "Live Weather",          desc: t("features.liveWeather", "Any city, real-time conditions.") },
+                { icon: TrendingUpIcon,    title: "Stocks & Crypto",       desc: t("features.stocks", "Live prices for any ticker.") },
+                { icon: GlobeIcon,         title: "Webpage Summarizer",    desc: t("features.webpageSummarizer", "Paste a URL, get a summary.") },
+                { icon: SparklesIcon,      title: "Latest News",           desc: t("features.news", "Real headlines from the web.") },
+                { icon: QrCodeIcon,        title: "QR Code Generator",     desc: t("features.qrCode", "Any URL or text, instant QR.") },
+                { icon: MemoryStickIcon,   title: "Memory",                desc: t("features.memory", "Remembers you across sessions.") },
                 { icon: FileTextIcon,      title: "Document Upload",       desc: "Upload files, ask questions." },
-                { icon: LanguagesIcon,     title: "Multilingual",          desc: "Responds in your language." },
+                { icon: LanguagesIcon,     title: "Multilingual",          desc: t("features.multilingual", "Responds in your language.") },
                 { icon: MicIcon,           title: "Voice Input",           desc: "Speak instead of typing." },
-                { icon: CodeIcon,          title: "Coding",                desc: "Write and debug any language." },
+                { icon: CodeIcon,          title: "Coding",                desc: t("features.coding", "Write and debug any language.") },
                 { icon: MessageSquareIcon, title: "Dictionary",            desc: "Definitions and phonetics." },
               ].map((f) => (
                 <div className="rounded-xl border border-border/40 bg-card/50 p-4" key={f.title}>
@@ -202,7 +204,7 @@ export default function FeaturesPage() {
 
           {/* All free models tools */}
           <div className="rounded-xl border border-border/40 bg-card/30 p-6 mt-6">
-            <h3 className="mb-4 text-[14px] font-semibold text-foreground">Tools available on all 6 free models</h3>
+            <h3 className="mb-4 text-[14px] font-semibold text-foreground">{t("features.toolsAvailable", "Tools available on all 6 free models")}</h3>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
               {[
                 { icon: SearchIcon,        title: "Web Search",           desc: "Search the web for current information." },

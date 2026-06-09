@@ -8,12 +8,14 @@ import { useState } from "react";
 import { MasidyAnimatedIcon } from "@/components/chat/masidy-animated-icon";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function PricingPage() {
   const { data: session } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   async function goToCheckout(
     type: "subscription" | "topup",
@@ -57,11 +59,11 @@ export default function PricingPage() {
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <Link className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors" href="/">
             <ArrowLeftIcon className="size-3.5" />
-            Back to chat
+            {t("common.backToChat", "Back to chat")}
           </Link>
           <div className="flex items-center gap-2">
             <MasidyAnimatedIcon animate={false} size={22} />
-            <span className="font-bold text-foreground">MASIDY</span>
+            <span className="font-bold text-foreground">{t("common.masidy", "MASIDY")}</span>
           </div>
           <div className="w-20" />
         </div>
@@ -70,10 +72,10 @@ export default function PricingPage() {
       <div className="mx-auto max-w-5xl px-6 py-16">
         <div className="mb-14 text-center">
           <h1 className="text-4xl font-bold tracking-tight text-foreground">
-            Simple, honest pricing
+            {t("pricing.simpleHonest", "Simple, honest pricing")}
           </h1>
           <p className="mt-3 text-lg text-muted-foreground">
-            Start free with 6 models. Upgrade for the most powerful ones.
+            {t("pricing.startFree", "Start free with 6 models. Upgrade for the most powerful ones.")}
           </p>
         </div>
 
@@ -87,10 +89,10 @@ export default function PricingPage() {
         <div className="mb-10 rounded-2xl border border-green-500/20 bg-green-500/5 p-6">
           <div className="flex items-center gap-2 mb-3">
             <GiftIcon className="size-5 text-green-500" />
-            <h2 className="text-[15px] font-bold text-foreground">6 Free Models — Available on Every Plan</h2>
+            <h2 className="text-[15px] font-bold text-foreground">{t("pricing.sixFreeModels", "6 Free Models — Available on Every Plan")}</h2>
           </div>
           <p className="text-[13px] text-muted-foreground mb-4">
-            No credits needed. No card required. Free forever, on every plan including Free.
+            {t("pricing.noCreditsNeeded", "No credits needed. No card required. Free forever, on every plan including Free.")}
           </p>
           <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-6">
             {[
@@ -108,7 +110,7 @@ export default function PricingPage() {
             ))}
           </div>
           <p className="mt-3 text-[12px] text-muted-foreground text-center">
-            All 6 free models include: web search, weather, stocks, news, QR codes, dictionary, webpage summarizer, and more.
+            {t("pricing.allInclude", "All 6 free models include: web search, weather, stocks, news, QR codes, dictionary, webpage summarizer, and more.")}
           </p>
         </div>
 
@@ -118,12 +120,12 @@ export default function PricingPage() {
           {/* FREE */}
           <div className="flex flex-col rounded-2xl border-2 border-border/40 bg-card/50 p-6">
             <div className="mb-6">
-              <div className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Free</div>
+              <div className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t("dashboard.free", "Free")}</div>
               <div className="flex items-end gap-1">
                 <span className="text-4xl font-bold text-foreground">$0</span>
-                <span className="mb-1 text-sm text-muted-foreground">/forever</span>
+                <span className="mb-1 text-sm text-muted-foreground">{t("pricing.forever", "/forever")}</span>
               </div>
-              <p className="mt-2 text-[13px] text-muted-foreground">Start instantly. No card needed.</p>
+              <p className="mt-2 text-[13px] text-muted-foreground">{t("pricing.startInstantly", "Start instantly. No card needed.")}</p>
             </div>
             <ul className="mb-8 flex-1 space-y-2.5">
               {[
@@ -147,25 +149,25 @@ export default function PricingPage() {
               ))}
             </ul>
             <Button asChild className="w-full" variant="outline">
-              <Link href="/">Start for free</Link>
+              <Link href="/">{t("pricing.startForFree", "Start for free")}</Link>
             </Button>
           </div>
 
           {/* PLUS */}
           <div className="relative flex flex-col rounded-2xl border-2 border-blue-500/40 bg-card/50 p-6 md:scale-[1.02]">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-blue-500 px-3 py-1 text-[11px] font-semibold text-white">
-              Most popular
+              {t("pricing.mostPopular", "Most popular")}
             </div>
             <div className="mb-6">
               <div className="mb-2 flex items-center gap-2">
                 <ZapIcon className="size-4 text-blue-500" />
-                <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Plus</span>
+                <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t("dashboard.plus", "Plus")}</span>
               </div>
               <div className="flex items-end gap-1">
                 <span className="text-4xl font-bold text-foreground">$5</span>
-                <span className="mb-1 text-sm text-muted-foreground">/month</span>
+                <span className="mb-1 text-sm text-muted-foreground">{t("pricing.perMonth", "/month")}</span>
               </div>
-              <p className="mt-2 text-[13px] text-muted-foreground">Unlock the most powerful coding and reasoning models.</p>
+              <p className="mt-2 text-[13px] text-muted-foreground">{t("pricing.unlockPowerful", "Unlock the most powerful coding and reasoning models.")}</p>
             </div>
             <ul className="mb-8 flex-1 space-y-2.5">
               {[
@@ -189,25 +191,25 @@ export default function PricingPage() {
               onClick={() => goToCheckout("subscription", { plan: "plus" }, "plus")}
               type="button"
             >
-              {loading === "plus" ? "Redirecting..." : "Upgrade to Plus"}
+              {loading === "plus" ? t("pricing.redirecting", "Redirecting...") : t("pricing.upgradePlus", "Upgrade to Plus")}
             </Button>
           </div>
 
           {/* PRO */}
           <div className="relative flex flex-col rounded-2xl border-2 border-orange-500/40 bg-card/50 p-6">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-orange-500 px-3 py-1 text-[11px] font-semibold text-white">
-              Most powerful
+              {t("pricing.mostPowerful", "Most powerful")}
             </div>
             <div className="mb-6">
               <div className="mb-2 flex items-center gap-2">
                 <SparklesIcon className="size-4 text-orange-500" />
-                <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Pro</span>
+                <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t("dashboard.pro", "Pro")}</span>
               </div>
               <div className="flex items-end gap-1">
                 <span className="text-4xl font-bold text-foreground">$10</span>
-                <span className="mb-1 text-sm text-muted-foreground">/month</span>
+                <span className="mb-1 text-sm text-muted-foreground">{t("pricing.perMonth", "/month")}</span>
               </div>
-              <p className="mt-2 text-[13px] text-muted-foreground">The full Masidy suite — every model unlocked.</p>
+              <p className="mt-2 text-[13px] text-muted-foreground">{t("pricing.fullMasidy", "The full Masidy suite — every model unlocked.")}</p>
             </div>
             <ul className="mb-8 flex-1 space-y-2.5">
               {[
@@ -230,7 +232,7 @@ export default function PricingPage() {
               onClick={() => goToCheckout("subscription", { plan: "pro" }, "pro")}
               type="button"
             >
-              {loading === "pro" ? "Redirecting..." : "Upgrade to Pro"}
+              {loading === "pro" ? t("pricing.redirecting", "Redirecting...") : t("pricing.upgradePro", "Upgrade to Pro")}
             </Button>
           </div>
         </div>
@@ -290,13 +292,13 @@ export default function PricingPage() {
 
         {/* Credits */}
         <div className="mt-10 rounded-2xl border border-border/40 bg-card/30 p-8">
-          <h2 className="mb-2 text-xl font-bold text-foreground">How credits work</h2>
+          <h2 className="mb-2 text-xl font-bold text-foreground">{t("pricing.howCreditsWork", "How credits work")}</h2>
           <p className="mb-6 text-[14px] text-muted-foreground">
-            Credits are only used for paid models. All 6 free models are always free — no credits, no limits. Credits never expire.
+            {t("pricing.creditsDescription", "Credits are only used for paid models. All 6 free models are always free — no credits, no limits. Credits never expire.")}
           </p>
           <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
             {[
-              { model: "6 free models",          cost: "0 credits", note: "Always free" },
+              { model: "6 free models",          cost: "0 credits", note: t("pricing.alwaysFree", "Always free") },
               { model: "Code / Mini / Max / Speed", cost: "1 credit", note: "per message" },
               { model: "Flash",                  cost: "3 credits", note: "per message" },
               { model: "1 credit",               cost: "= $0.01",   note: "" },
@@ -309,13 +311,13 @@ export default function PricingPage() {
             ))}
           </div>
 
-          <h3 className="mb-3 text-base font-semibold text-foreground">Top up any time</h3>
-          <p className="mb-4 text-[13px] text-muted-foreground">Run out mid-month? Buy more instantly.</p>
+          <h3 className="mb-3 text-base font-semibold text-foreground">{t("pricing.topupAnytime", "Top up any time")}</h3>
+          <p className="mb-4 text-[13px] text-muted-foreground">{t("pricing.runOutMidMonth", "Run out mid-month? Buy more instantly.")}</p>
           <div className="grid grid-cols-3 gap-3">
             {[
               { id: "topup_500",  label: "$5",  credits: 500,  note: "" },
-              { id: "topup_1200", label: "$10", credits: 1200, note: "Best value" },
-              { id: "topup_3500", label: "$25", credits: 3500, note: "+500 bonus" },
+              { id: "topup_1200", label: "$10", credits: 1200, note: t("dashboard.bestValue", "Best value") },
+              { id: "topup_3500", label: "$25", credits: 3500, note: t("dashboard.bonus", "bonus") + " +500" },
             ].map((pkg) => (
               <button
                 className={cn(
@@ -333,7 +335,7 @@ export default function PricingPage() {
                 )}
                 <span className="text-2xl font-bold text-foreground">{pkg.label}</span>
                 <span className="text-[13px] text-muted-foreground">{pkg.credits} credits</span>
-                <span className="mt-1 text-[11px] text-muted-foreground/60">one-time</span>
+                <span className="mt-1 text-[11px] text-muted-foreground/60">{t("pricing.oneTime", "one-time")}</span>
               </button>
             ))}
           </div>
@@ -341,7 +343,7 @@ export default function PricingPage() {
 
         {/* FAQ */}
         <div className="mt-16 space-y-4">
-          <h2 className="mb-6 text-xl font-bold text-foreground">Questions</h2>
+          <h2 className="mb-6 text-xl font-bold text-foreground">{t("pricing.questions", "Questions")}</h2>
           {[
             { q: "Are the free models really free?", a: "Yes. Masidy, Masidy Nano, Core, Build, Vision, and Think are completely free — no credits, no card, no limits. Forever." },
             { q: "Can I cancel any time?", a: "Yes. Cancel from your dashboard and keep access until the period ends. Your remaining credits never expire." },
