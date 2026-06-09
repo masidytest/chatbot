@@ -125,7 +125,7 @@ export function SidebarUserNav({ user }: { user: User }) {
               )}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            {isLoaded && (
+            {true && (
               <>
                 <div className="px-2 py-1.5 text-[13px] flex items-center gap-2">
                   <LanguagesIcon className="size-3.5" />
