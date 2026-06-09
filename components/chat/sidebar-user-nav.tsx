@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronUp, LayoutDashboardIcon, SparklesIcon, LanguagesIcon } from "lucide-react";
+import { ChevronUp, LayoutDashboardIcon, SparklesIcon, LanguagesIcon, MoonIcon, SunIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { User } from "next-auth";
@@ -22,6 +22,7 @@ import {
 import { guestRegex } from "@/lib/constants";
 import { LoaderIcon } from "./icons";
 import { toast } from "./toast";
+import { useState } from "react";
 
 const languageNames: Record<Language, string> = {
   en: "English",
@@ -44,7 +45,8 @@ export function SidebarUserNav({ user }: { user: User }) {
   const router = useRouter();
   const { data, status } = useSession();
   const { setTheme, resolvedTheme } = useTheme();
-  const { language, setLanguage, languages } = useTranslation();
+  const { language, setLanguage, languages, isLoaded } = useTranslation();
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
   const isGuest = guestRegex.test(data?.user?.email ?? "");
 
@@ -108,21 +110,30 @@ export function SidebarUserNav({ user }: { user: User }) {
               </>
             )}
             <DropdownMenuItem
-              className="cursor-pointer text-[13px]"
+              className="cursor-pointer text-[13px] flex items-center gap-2"
               data-testid="user-nav-item-theme"
               onSelect={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             >
-              {`Toggle ${resolvedTheme === "light" ? "dark" : "light"} mode`}
+              {resolvedTheme === "dark" ? (
+                <>
+                  <SunIcon className="size-3.5" />
+                  Light mode
+                </>
+              ) : (
+                <>
+                  <MoonIcon className="size-3.5" />
+                  Dark mode
+                </>
+              )}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-[13px] p-0" onSelect={(e) => e.preventDefault()}>
-              <div className="w-full px-2 py-1.5 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                <LanguagesIcon className="size-3.5" />
+            <div className="px-2 py-1.5 text-[13px] flex items-center gap-2">
+              <LanguagesIcon className="size-3.5" />
+              {isLoaded ? (
                 <select
                   className="flex-1 bg-transparent outline-none text-[13px] cursor-pointer text-foreground"
                   value={language}
                   onChange={(e) => setLanguage(e.target.value as Language)}
-                  onClick={(e) => e.stopPropagation()}
                 >
                   {languages.map((lang) => (
                     <option key={lang} value={lang} className="bg-card text-foreground">
@@ -130,8 +141,10 @@ export function SidebarUserNav({ user }: { user: User }) {
                     </option>
                   ))}
                 </select>
-              </div>
-            </DropdownMenuItem>
+              ) : (
+                <span>Loading...</span>
+              )}
+            </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild data-testid="user-nav-item-auth">
               <button
