@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { TranslationProvider } from "@/lib/i18n/translation-context";
 
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
@@ -146,7 +147,9 @@ export default function RootLayout({
           <SessionProvider
             basePath={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/auth`}
           >
-            <TooltipProvider>{children}</TooltipProvider>
+            <TranslationProvider>
+              <TooltipProvider>{children}</TooltipProvider>
+            </TranslationProvider>
           </SessionProvider>
         </ThemeProvider>
       </body>
