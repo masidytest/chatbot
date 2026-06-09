@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useState, useRef } from "react";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { MasidyAnimatedIcon } from "@/components/chat/masidy-animated-icon";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -49,6 +50,7 @@ type GeneratedImage = {
 };
 
 export default function ImageStudioPage() {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState<string | null>(null);
@@ -90,10 +92,10 @@ export default function ImageStudioPage() {
         setCurrent(img);
         setHistory((prev) => [img, ...prev.slice(0, 19)]);
       } else {
-        setError(data.error ?? "Generation failed. Please try again.");
+        setError(data.error ?? t("image.generationFailed", "Generation failed. Please try again."));
       }
     } catch {
-      setError("Network error. Please try again.");
+      setError(t("image.networkError", "Network error. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -122,15 +124,15 @@ export default function ImageStudioPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Link className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors" href="/">
             <ArrowLeftIcon className="size-4" />
-            <span>Back to chat</span>
+            <span>{t("common.backToChat", "Back to chat")}</span>
           </Link>
           <div className="flex items-center gap-2">
             <MasidyAnimatedIcon animate={false} size={20} />
             <span className="font-bold text-foreground text-sm">MASIDY</span>
-            <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-[11px] font-semibold text-orange-500">Image Studio</span>
+            <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-[11px] font-semibold text-orange-500">{t("chat.imageStudio", "Image Studio")}</span>
           </div>
           <Link href="/pricing" className="text-[12px] text-orange-500 hover:text-orange-400">
-            Upgrade →
+            {t("chat.upgrade", "Upgrade")} →
           </Link>
         </div>
       </div>
@@ -141,13 +143,13 @@ export default function ImageStudioPage() {
           {/* Left — Controls */}
           <div className="space-y-5">
             <div>
-              <h1 className="text-xl font-bold text-foreground">Image Studio</h1>
-              <p className="mt-1 text-[13px] text-muted-foreground">Describe anything. Generate in seconds.</p>
+              <h1 className="text-xl font-bold text-foreground">{t("chat.imageStudio", "Image Studio")}</h1>
+              <p className="mt-1 text-[13px] text-muted-foreground">{t("image.subtitle", "Describe anything. Generate in seconds.")}</p>
             </div>
 
             {/* Prompt */}
             <div className="space-y-2">
-              <label className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Prompt</label>
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">{t("image.prompt", "Prompt")}</label>
               <textarea
                 ref={textareaRef}
                 className="w-full resize-none rounded-xl border border-border/40 bg-card/50 px-4 py-3 text-[13px] text-foreground placeholder:text-muted-foreground/50 focus:border-orange-500/40 focus:outline-none focus:ring-0 transition-colors"
@@ -155,16 +157,16 @@ export default function ImageStudioPage() {
                   if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) generate();
                 }}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="A serene mountain lake at sunrise with mist rising from the water..."
+                placeholder={t("image.promptPlaceholder", "A serene mountain lake at sunrise with mist rising from the water...")}
                 rows={4}
                 value={prompt}
               />
-              <p className="text-[11px] text-muted-foreground/50">Ctrl+Enter to generate</p>
+              <p className="text-[11px] text-muted-foreground/50">{t("image.ctrlEnter", "Ctrl+Enter to generate")}</p>
             </div>
 
             {/* Style presets */}
             <div className="space-y-2">
-              <label className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Style</label>
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">{t("image.style", "Style")}</label>
               <div className="flex flex-wrap gap-1.5">
                 {STYLE_PRESETS.map((s) => (
                   <button
@@ -186,7 +188,7 @@ export default function ImageStudioPage() {
 
             {/* Aspect ratio */}
             <div className="space-y-2">
-              <label className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Aspect Ratio</label>
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">{t("image.aspectRatio", "Aspect Ratio")}</label>
               <div className="grid grid-cols-5 gap-1.5">
                 {ASPECT_RATIOS.map((r) => (
                   <button
@@ -221,12 +223,12 @@ export default function ImageStudioPage() {
 
             {/* Quality */}
             <div className="space-y-2">
-              <label className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Quality</label>
+              <label className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">{t("image.quality", "Quality")}</label>
               <div className="space-y-1.5">
                 {[
-                  { value: "standard" as Quality, label: "Standard",      desc: "Fast generation",        plan: "Free",  icon: null },
-                  { value: "high"     as Quality, label: "High Quality",  desc: "Better detail & quality", plan: "Plus",  icon: ZapIcon },
-                  { value: "pro"      as Quality, label: "Professional",  desc: "Maximum quality output",    plan: "Pro",   icon: SparklesIcon },
+                  { value: "standard" as Quality, label: t("image.standard", "Standard"),      desc: t("image.fastGeneration", "Fast generation"),        plan: "Free",  icon: null },
+                  { value: "high"     as Quality, label: t("image.highQuality", "High Quality"),  desc: t("image.betterDetail", "Better detail & quality"), plan: "Plus",  icon: ZapIcon },
+                  { value: "pro"      as Quality, label: t("image.professional", "Professional"),  desc: t("image.maximumQuality", "Maximum quality output"),    plan: "Pro",   icon: SparklesIcon },
                 ].map((q) => (
                   <button
                     className={cn(
@@ -279,12 +281,12 @@ export default function ImageStudioPage() {
               {loading ? (
                 <>
                   <Loader2Icon className="mr-2 size-4 animate-spin" />
-                  Generating...
+                  {t("image.generating", "Generating...")}
                 </>
               ) : (
                 <>
                   <ImageIcon className="mr-2 size-4" />
-                  Generate Image
+                  {t("image.generateButton", "Generate Image")}
                 </>
               )}
             </Button>
@@ -302,8 +304,8 @@ export default function ImageStudioPage() {
                   <div className="mb-3 flex size-12 items-center justify-center rounded-xl bg-orange-500/10">
                     <Loader2Icon className="size-6 animate-spin text-orange-500" />
                   </div>
-                  <p className="text-[13px] font-medium text-foreground">Generating your image...</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">Usually takes 3–10 seconds</p>
+                  <p className="text-[13px] font-medium text-foreground">{t("image.generatingImage", "Generating your image...")}</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">{t("image.usuallytakes", "Usually takes 3–10 seconds")}</p>
                 </div>
               )}
 
@@ -312,8 +314,8 @@ export default function ImageStudioPage() {
                   <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-orange-500/10">
                     <ImageIcon className="size-8 text-orange-500/60" />
                   </div>
-                  <p className="text-[14px] font-medium text-foreground">Your image will appear here</p>
-                  <p className="mt-1 text-[13px] text-muted-foreground">Enter a prompt and click Generate</p>
+                  <p className="text-[14px] font-medium text-foreground">{t("image.imageWillAppear", "Your image will appear here")}</p>
+                  <p className="mt-1 text-[13px] text-muted-foreground">{t("image.enterPrompt", "Enter a prompt and click Generate")}</p>
                 </div>
               )}
 
@@ -329,7 +331,7 @@ export default function ImageStudioPage() {
                       className="size-9 rounded-xl bg-background/90 border border-border/40 backdrop-blur-sm hover:bg-background"
                       onClick={() => downloadImage(current.url, current.prompt)}
                       size="icon"
-                      title="Download"
+                      title={t("image.download", "Download")}
                       variant="ghost"
                     >
                       <DownloadIcon className="size-4" />
@@ -338,7 +340,7 @@ export default function ImageStudioPage() {
                       className="size-9 rounded-xl bg-background/90 border border-border/40 backdrop-blur-sm hover:bg-background"
                       onClick={generate}
                       size="icon"
-                      title="Regenerate"
+                      title={t("image.regenerate", "Regenerate")}
                       variant="ghost"
                     >
                       <RefreshCwIcon className="size-4" />
@@ -351,7 +353,7 @@ export default function ImageStudioPage() {
             {/* History grid */}
             {history.length > 1 && (
               <div>
-                <p className="mb-3 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">Recent</p>
+                <p className="mb-3 text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">{t("image.recent", "Recent")}</p>
                 <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-4 xl:grid-cols-6">
                   {history.slice(1).map((img, i) => (
                     <button

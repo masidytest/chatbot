@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useActionState, useEffect, useState } from "react";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 import { AuthForm } from "@/components/chat/auth-form";
 import { SubmitButton } from "@/components/chat/submit-button";
@@ -43,21 +44,23 @@ export default function Page() {
     formAction(formData);
   };
 
+  const { t } = useTranslation();
+
   return (
     <>
-      <h1 className="text-2xl font-semibold tracking-tight">Welcome back to Masidy</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">{t("auth.welcomeBack")}</h1>
       <p className="text-sm text-muted-foreground">
-        Sign in to your account to continue
+        {t("auth.signInContinue")}
       </p>
       <AuthForm action={handleSubmit} defaultEmail={email}>
-        <SubmitButton isSuccessful={isSuccessful}>Sign in</SubmitButton>
+        <SubmitButton isSuccessful={isSuccessful}>{t("auth.signIn")}</SubmitButton>
         <p className="text-center text-[13px] text-muted-foreground">
-          {"No account? "}
+          {`${t("auth.noAccount")} `}
           <Link
             className="text-foreground underline-offset-4 hover:underline"
             href="/register"
           >
-            Sign up
+            {t("auth.signUp")}
           </Link>
         </p>
       </AuthForm>

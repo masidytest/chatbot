@@ -2,25 +2,27 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { MasidyAnimatedIcon } from "@/components/chat/masidy-animated-icon";
 
-function getTimeGreeting(): { greeting: string; sub: string } {
+function getTimeGreeting(t: ReturnType<typeof useTranslation>['t']): { greeting: string; sub: string } {
   const hour = new Date().getHours();
   if (hour >= 5 && hour < 12) {
-    return { greeting: "Good morning", sub: "How can I help you today?" };
+    return { greeting: t("greeting.goodMorning", "Good morning"), sub: t("greeting.helpToday", "How can I help you today?") };
   } else if (hour >= 12 && hour < 17) {
-    return { greeting: "Good afternoon", sub: "What can I help you with?" };
+    return { greeting: t("greeting.goodAfternoon", "Good afternoon"), sub: t("greeting.helpWith", "What can I help you with?") };
   } else if (hour >= 17 && hour < 21) {
-    return { greeting: "Good evening", sub: "Ready to help." };
+    return { greeting: t("greeting.goodEvening", "Good evening"), sub: t("greeting.readyToHelp", "Ready to help.") };
   } else {
-    return { greeting: "Working late?", sub: "I'm here whenever you need me." };
+    return { greeting: t("greeting.workingLate", "Working late?"), sub: t("greeting.hereWhenever", "I'm here whenever you need me.") };
   }
 }
 
 export const Greeting = () => {
+  const { t } = useTranslation();
   const [userName, setUserName] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const { greeting, sub } = getTimeGreeting();
+  const { greeting, sub } = getTimeGreeting(t);
 
   useEffect(() => {
     fetch("/api/me")
@@ -83,7 +85,7 @@ export const Greeting = () => {
         initial={{ opacity: 0, y: 10 }}
         transition={{ delay: 0.55, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
-        Search the web · Live weather & stocks · Write · Code · Remember
+        {t("greeting.capabilities", "Search the web · Live weather & stocks · Write · Code · Remember")}
       </motion.div>
     </div>
   );

@@ -1,15 +1,19 @@
+"use client";
+
 import { ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { MasidyAnimatedIcon } from "@/components/chat/masidy-animated-icon";
 
 export default function AboutPage() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-dvh bg-background">
       <div className="border-b border-border/40 bg-sidebar px-6 py-4">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <Link className="flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors" href="/">
             <ArrowLeftIcon className="size-3.5" />
-            Back to chat
+            {t("common.backToChat", "Back to chat")}
           </Link>
           <div className="flex items-center gap-2">
             <MasidyAnimatedIcon animate={false} size={22} />
@@ -24,61 +28,53 @@ export default function AboutPage() {
           <div className="mb-6 flex justify-center">
             <MasidyAnimatedIcon animate size={56} />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">About Masidy</h1>
-          <p className="mt-3 text-lg text-muted-foreground">The AI that works harder for less.</p>
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">{t("about.title", "About Masidy")}</h1>
+          <p className="mt-3 text-lg text-muted-foreground">{t("about.subtitle", "The AI that works harder for less.")}</p>
         </div>
 
         <div className="space-y-8">
           <section>
-            <h2 className="text-xl font-bold text-foreground mb-3">What is Masidy?</h2>
+            <h2 className="text-xl font-bold text-foreground mb-3">{t("about.whatIs", "What is Masidy?")}</h2>
             <p className="text-[15px] leading-relaxed text-muted-foreground">
-              Masidy is a personal AI assistant built to be genuinely useful. Search the web in real time,
-              check live weather and stock prices, summarize webpages, remember things about you
-              across conversations, write code, and more — all from one place.
+              {t("about.whatIsDesc1", "Masidy is a personal AI assistant built to be genuinely useful. Search the web in real time, check live weather and stock prices, summarize webpages, remember things about you across conversations, write code, and more — all from one place.")}
             </p>
             <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-              Masidy now has 11 models — 6 completely free (Masidy, Nano, Core, Build, Vision, Think) and 5 premium models for the most demanding tasks. Free models include image understanding (Vision), coding, reasoning, and the core Masidy model adds web search, weather, and tools. Paid plans unlock deeper context windows, stronger reasoning, tool support, and the most capable model on the platform.
+              {t("about.whatIsDesc2", "Masidy now has 11 models — 6 completely free (Masidy, Nano, Core, Build, Vision, Think) and 5 premium models for the most demanding tasks. Free models include image understanding (Vision), coding, reasoning, and the core Masidy model adds web search, weather, and tools. Paid plans unlock deeper context windows, stronger reasoning, tool support, and the most capable model on the platform.")}
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-foreground mb-3">Our approach</h2>
+            <h2 className="text-xl font-bold text-foreground mb-3">{t("about.approach", "Our approach")}</h2>
             <p className="text-[15px] leading-relaxed text-muted-foreground">
-              Most AI products give you a chatbot. Masidy gives you an engine. Every message goes through
-              a pipeline: detect what you need → retrieve the right information → generate a precise answer.
-              That's why it feels different — it's actually working for you, not just generating text.
+              {t("about.approachDesc", "Most AI products give you a chatbot. Masidy gives you an engine. Every message goes through a pipeline: detect what you need → retrieve the right information → generate a precise answer. That's why it feels different — it's actually working for you, not just generating text.")}
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-foreground mb-3">Who is it for?</h2>
+            <h2 className="text-xl font-bold text-foreground mb-3">{t("about.forWho", "Who is it for?")}</h2>
             <p className="text-[15px] leading-relaxed text-muted-foreground">
-              Anyone who wants a capable AI without paying premium prices. Students, developers,
-              writers, researchers, professionals — the free tier is genuinely free with no hidden limits.
+              {t("about.forWhoDesc", "Anyone who wants a capable AI without paying premium prices. Students, developers, writers, researchers, professionals — the free tier is genuinely free with no hidden limits.")}
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-foreground mb-3">Privacy</h2>
+            <h2 className="text-xl font-bold text-foreground mb-3">{t("about.privacy", "Privacy")}</h2>
             <p className="text-[15px] leading-relaxed text-muted-foreground">
-              Your conversations are stored securely in your account and are private by default.
-              You can delete all your data at any time from your dashboard. We do not sell your
-              data or use it to train AI models.
+              {t("about.privacyDesc", "Your conversations are stored securely in your account and are private by default. You can delete all your data at any time from your dashboard. We do not sell your data or use it to train AI models.")}
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-foreground mb-3">The team</h2>
+            <h2 className="text-xl font-bold text-foreground mb-3">{t("about.team", "The team")}</h2>
             <p className="text-[15px] leading-relaxed text-muted-foreground">
-              Masidy is built by a small, focused team that believes AI should be accessible to everyone.
-              Independent, not backed by big tech. We build in public and listen to our users.
+              {t("about.teamDesc", "Masidy is built by a small, focused team that believes AI should be accessible to everyone. Independent, not backed by big tech. We build in public and listen to our users.")}
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-foreground mb-3">Contact</h2>
+            <h2 className="text-xl font-bold text-foreground mb-3">{t("about.contact", "Contact")}</h2>
             <p className="text-[15px] leading-relaxed text-muted-foreground">
-              Questions, feedback, or partnership inquiries:{" "}
+              {t("about.contactDesc", "Questions, feedback, or partnership inquiries: ")}{" "}
               <a className="text-orange-500 hover:text-orange-400" href="mailto:hello@masidy.com">
                 hello@masidy.com
               </a>
