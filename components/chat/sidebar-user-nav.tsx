@@ -115,11 +115,11 @@ export function SidebarUserNav({ user }: { user: User }) {
               {`Toggle ${resolvedTheme === "light" ? "dark" : "light"} mode`}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-[13px] p-0">
-              <div className="w-full px-2 py-1.5 flex items-center gap-2">
+            <DropdownMenuItem className="text-[13px] p-0" onSelect={(e) => e.preventDefault()}>
+              <div className="w-full px-2 py-1.5 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                 <LanguagesIcon className="size-3.5" />
                 <select
-                  className="flex-1 bg-transparent outline-none text-[13px] cursor-pointer"
+                  className="flex-1 bg-transparent outline-none text-[13px] cursor-pointer text-foreground"
                   value={language}
                   onChange={(e) => setLanguage(e.target.value as Language)}
                   onClick={(e) => e.stopPropagation()}
