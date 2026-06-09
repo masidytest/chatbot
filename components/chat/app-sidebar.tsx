@@ -65,7 +65,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
       method: "DELETE",
     });
 
-    toast.success(t("common.error", "All chats deleted"));
+    toast.success(t("common.allChatsDeleted", "All chats deleted"));
   };
 
   return (
@@ -94,7 +94,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
                     </SidebarMenuButton>
                   </TooltipTrigger>
                   <TooltipContent className="hidden md:block" side="right">
-                    Open sidebar
+                    {t("common.open")}
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -179,12 +179,11 @@ export function AppSidebar({ user }: { user: User | undefined }) {
           <AlertDialogHeader>
             <AlertDialogTitle>{t("chat.deleteAll")}?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete all
-              your chats and remove them from our servers.
+              {t("chat.deleteConfirmation")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteAll}>
               {t("chat.deleteAll")}
             </AlertDialogAction>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +29,7 @@ import { Messages } from "./messages";
 import { MultimodalInput } from "./multimodal-input";
 
 export function ChatShell() {
+  const { t } = useTranslation();
   const {
     chatId,
     messages,
@@ -147,10 +149,10 @@ export function ChatShell() {
               {/* Footer links */}
               <div className="flex items-center justify-center gap-3 pb-0.5">
                 {[
-                  { href: "/features", label: "Features" },
-                  { href: "/pricing",  label: "Pricing"  },
-                  { href: "/about",    label: "About"    },
-                  { href: "/legal",    label: "Legal"    },
+                  { href: "/features", label: t("common.features", "Features") },
+                  { href: "/pricing",  label: t("common.pricing", "Pricing")  },
+                  { href: "/about",    label: t("common.about", "About")    },
+                  { href: "/legal",    label: t("common.legal", "Legal")    },
                 ].map((l) => (
                   <a
                     className="text-[11px] text-muted-foreground/50 transition-colors hover:text-muted-foreground"

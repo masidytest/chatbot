@@ -20,27 +20,6 @@ import { cn } from "@/lib/utils";
 type AspectRatio = "1:1" | "16:9" | "9:16" | "4:3" | "3:4";
 type Quality = "standard" | "high" | "pro";
 
-const ASPECT_RATIOS: { value: AspectRatio; label: string; w: number; h: number }[] = [
-  { value: "1:1",  label: "Square",    w: 1, h: 1 },
-  { value: "16:9", label: "Landscape", w: 16, h: 9 },
-  { value: "9:16", label: "Portrait",  w: 9, h: 16 },
-  { value: "4:3",  label: "Standard",  w: 4, h: 3 },
-  { value: "3:4",  label: "Tall",      w: 3, h: 4 },
-];
-
-const STYLE_PRESETS = [
-  "Photorealistic",
-  "Digital Art",
-  "Oil Painting",
-  "Watercolor",
-  "3D Render",
-  "Anime",
-  "Sketch",
-  "Cinematic",
-  "Minimalist",
-  "Abstract",
-];
-
 type GeneratedImage = {
   url: string;
   prompt: string;
@@ -61,6 +40,28 @@ export default function ImageStudioPage() {
   const [current, setCurrent] = useState<GeneratedImage | null>(null);
   const [history, setHistory] = useState<GeneratedImage[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Use translation keys for all UI strings
+  const ASPECT_RATIOS: { value: AspectRatio; label: string; w: number; h: number }[] = [
+    { value: "1:1",  label: t("image.squareOneToOne", "1:1 Square"),    w: 1, h: 1 },
+    { value: "16:9", label: t("image.landscapeThirtyTwoToNine", "32:9 Landscape"), w: 16, h: 9 },
+    { value: "9:16", label: t("image.portraitThreeToFour", "3:4 Portrait"),  w: 9, h: 16 },
+    { value: "4:3",  label: t("image.standard", "Standard"),  w: 4, h: 3 },
+    { value: "3:4",  label: t("image.portraitThreeToFour", "3:4 Portrait"),      w: 3, h: 4 },
+  ];
+
+  const STYLE_PRESETS = [
+    t("image.photography", "Photography"),
+    t("image.digitalArt", "Digital Art"),
+    t("image.oilPainting", "Oil Painting"),
+    t("image.watercolor", "Watercolor"),
+    "3D Render",
+    "Anime",
+    t("image.pencilSketch", "Pencil Sketch"),
+    "Cinematic",
+    "Minimalist",
+    "Abstract",
+  ];
 
   const userPlan = "free"; // Will fetch from /api/billing/status
 
