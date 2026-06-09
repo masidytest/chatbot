@@ -3,6 +3,7 @@ import { memo, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { useCopyToClipboard } from "usehooks-ts";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { Vote } from "@/lib/db/schema";
 import type { ChatMessage } from "@/lib/types";
 import {
@@ -46,6 +47,7 @@ export function PureMessageActions({
   isLoading: boolean;
   onEdit?: () => void;
 }) {
+  const { t } = useTranslation();
   const { mutate } = useSWRConfig();
   const [_, copyToClipboard] = useCopyToClipboard();
 
@@ -63,12 +65,12 @@ export function PureMessageActions({
 
   const handleCopy = async () => {
     if (!textFromParts) {
-      toast.error("There's no text to copy!");
+      toast.error(t("chat.noTextToCopy", "There's no text to copy!"));
       return;
     }
 
     await copyToClipboard(textFromParts);
-    toast.success("Copied to clipboard!");
+    toast.success(t("chat.copiedToClipboard", "Copied to clipboard!"));
   };
 
   if (message.role === "user") {
@@ -80,7 +82,7 @@ export function PureMessageActions({
               className="size-7 text-muted-foreground/50 hover:text-foreground"
               data-testid="message-edit-button"
               onClick={onEdit}
-              tooltip="Edit"
+              tooltip={t("chat.edit", "Edit")}
             >
               <PencilEditIcon />
             </Action>
@@ -88,7 +90,7 @@ export function PureMessageActions({
           <Action
             className="size-7 text-muted-foreground/50 hover:text-foreground"
             onClick={handleCopy}
-            tooltip="Copy"
+            tooltip={t("chat.copy", "Copy")}
           >
             <CopyIcon />
           </Action>
@@ -102,7 +104,7 @@ export function PureMessageActions({
       <Action
         className="text-muted-foreground/50 hover:text-foreground"
         onClick={handleCopy}
-        tooltip="Copy"
+        tooltip={t("chat.copy", "Copy")}
       >
         <CopyIcon />
       </Action>
@@ -112,7 +114,7 @@ export function PureMessageActions({
         <Action
           className={speaking ? "text-foreground" : "text-muted-foreground/50 hover:text-foreground"}
           onClick={() => speaking ? stop() : speak(textFromParts)}
-          tooltip={speaking ? "Stop speaking" : "Read aloud"}
+          tooltip={speaking ? t("chat.stopSpeaking", "Stop speaking") : t("chat.readAloud", "Read aloud")}
         >
           <svg className="size-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             {speaking ? (
@@ -146,7 +148,7 @@ export function PureMessageActions({
           );
 
           toast.promise(upvote, {
-            loading: "Upvoting Response...",
+            loading: t("chat.upvoting", "Upvoting Response..."),
             success: () => {
               mutate<Vote[]>(
                 `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/vote?chatId=${chatId}`,
@@ -171,12 +173,12 @@ export function PureMessageActions({
                 { revalidate: false }
               );
 
-              return "Upvoted Response!";
+              return t("chat.upvoted", "Upvoted Response!");
             },
-            error: "Failed to upvote response.",
+            error: t("chat.failedUpvote", "Failed to upvote response."),
           });
         }}
-        tooltip="Upvote Response"
+        tooltip={t("chat.upvoteResponse", "Upvote Response")}
       >
         <ThumbUpIcon />
       </Action>
@@ -199,7 +201,7 @@ export function PureMessageActions({
           );
 
           toast.promise(downvote, {
-            loading: "Downvoting Response...",
+            loading: t("chat.downvoting", "Downvoting Response..."),
             success: () => {
               mutate<Vote[]>(
                 `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/api/vote?chatId=${chatId}`,
@@ -224,12 +226,12 @@ export function PureMessageActions({
                 { revalidate: false }
               );
 
-              return "Downvoted Response!";
+              return t("chat.downvoted", "Downvoted Response!");
             },
-            error: "Failed to downvote response.",
+            error: t("chat.failedDownvote", "Failed to downvote response."),
           });
         }}
-        tooltip="Downvote Response"
+        tooltip={t("chat.downvoteResponse", "Downvote Response")}
       >
         <ThumbDownIcon />
       </Action>
