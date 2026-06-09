@@ -1,11 +1,12 @@
 "use client";
 
-import { ChevronUp, LayoutDashboardIcon, SparklesIcon } from "lucide-react";
+import { ChevronUp, LayoutDashboardIcon, SparklesIcon, LanguagesIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { User } from "next-auth";
 import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
+import { useTranslation, type Language } from "@/lib/i18n/useTranslation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +23,15 @@ import { guestRegex } from "@/lib/constants";
 import { LoaderIcon } from "./icons";
 import { toast } from "./toast";
 
+const languageNames: Record<Language, string> = {
+  en: "English",
+  es: "Español",
+  fr: "Français",
+  de: "Deutsch",
+  ar: "العربية",
+  it: "Italiano",
+};
+
 function emailToHue(email: string): number {
   let hash = 0;
   for (const char of email) {
@@ -34,6 +44,7 @@ export function SidebarUserNav({ user }: { user: User }) {
   const router = useRouter();
   const { data, status } = useSession();
   const { setTheme, resolvedTheme } = useTheme();
+  const { language, setLanguage, languages } = useTranslation();
 
   const isGuest = guestRegex.test(data?.user?.email ?? "");
 
@@ -102,6 +113,24 @@ export function SidebarUserNav({ user }: { user: User }) {
               onSelect={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             >
               {`Toggle ${resolvedTheme === "light" ? "dark" : "light"} mode`}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-[13px] p-0">
+              <div className="w-full px-2 py-1.5 flex items-center gap-2">
+                <LanguagesIcon className="size-3.5" />
+                <select
+                  className="flex-1 bg-transparent outline-none text-[13px] cursor-pointer"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value as Language)}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {languages.map((lang) => (
+                    <option key={lang} value={lang} className="bg-card text-foreground">
+                      {languageNames[lang]}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild data-testid="user-nav-item-auth">

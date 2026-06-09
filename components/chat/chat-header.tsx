@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { MasidyIcon } from "@/components/chat/masidy-logo";
 import { VisibilitySelector, type VisibilityType } from "./visibility-selector";
-import { LanguageSelector } from "@/components/language-selector";
 
 function PureChatHeader({
   chatId,
@@ -47,8 +46,6 @@ function PureChatHeader({
           />
         )}
       </div>
-
-      <LanguageSelector />
     </header>
   );
 }
