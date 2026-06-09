@@ -45,7 +45,6 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { LanguageSelector } from "@/components/language-selector";
 
 export function AppSidebar({ user }: { user: User | undefined }) {
   const router = useRouter();
@@ -163,9 +162,6 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         </SidebarContent>
         <SidebarFooter className="border-t border-sidebar-border pt-2 pb-3">
           {user && <SidebarUserNav user={user} />}
-          <div className="px-2 py-2">
-            <LanguageSelector />
-          </div>
           <div className="group-data-[collapsible=icon]:hidden px-2 pt-1">
             <p className="text-[10px] text-sidebar-foreground/30 text-center">Masidy AI</p>
           </div>
