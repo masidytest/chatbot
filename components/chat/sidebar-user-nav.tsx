@@ -22,7 +22,6 @@ import {
 import { guestRegex } from "@/lib/constants";
 import { LoaderIcon } from "./icons";
 import { toast } from "./toast";
-import { useState } from "react";
 
 const languageNames: Record<Language, string> = {
   en: "English",
@@ -46,7 +45,6 @@ export function SidebarUserNav({ user }: { user: User }) {
   const { data, status } = useSession();
   const { setTheme, resolvedTheme } = useTheme();
   const { language, setLanguage, languages, isLoaded } = useTranslation();
-  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
   const isGuest = guestRegex.test(data?.user?.email ?? "");
 
@@ -127,25 +125,26 @@ export function SidebarUserNav({ user }: { user: User }) {
               )}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <div className="px-2 py-1.5 text-[13px] flex items-center gap-2">
-              <LanguagesIcon className="size-3.5" />
-              {isLoaded ? (
-                <select
-                  className="flex-1 bg-transparent outline-none text-[13px] cursor-pointer text-foreground"
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value as Language)}
-                >
-                  {languages.map((lang) => (
-                    <option key={lang} value={lang} className="bg-card text-foreground">
-                      {languageNames[lang]}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <span>Loading...</span>
-              )}
-            </div>
-            <DropdownMenuSeparator />
+            {isLoaded && (
+              <>
+                <div className="px-2 py-1.5 text-[13px] flex items-center gap-2">
+                  <LanguagesIcon className="size-3.5" />
+                  <select
+                    className="flex-1 bg-transparent outline-none text-[13px] cursor-pointer text-foreground border-none"
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value as Language)}
+                    onMouseDown={(e) => e.stopPropagation()}
+                  >
+                    {languages.map((lang) => (
+                      <option key={lang} value={lang} className="bg-card text-foreground">
+                        {languageNames[lang]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <DropdownMenuSeparator />
+              </>
+            )}
             <DropdownMenuItem asChild data-testid="user-nav-item-auth">
               <button
                 className="w-full cursor-pointer text-[13px]"
