@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useMemo, useState } from "react";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,26 +20,6 @@ import {
 
 export type VisibilityType = "private" | "public";
 
-const visibilities: Array<{
-  id: VisibilityType;
-  label: string;
-  description: string;
-  icon: ReactNode;
-}> = [
-  {
-    id: "private",
-    label: "Private",
-    description: "Only you can access this chat",
-    icon: <LockIcon />,
-  },
-  {
-    id: "public",
-    label: "Public",
-    description: "Anyone with the link can access this chat",
-    icon: <GlobeIcon />,
-  },
-];
-
 export function VisibilitySelector({
   chatId,
   className,
@@ -47,7 +28,28 @@ export function VisibilitySelector({
   chatId: string;
   selectedVisibilityType: VisibilityType;
 } & React.ComponentProps<typeof Button>) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+
+  const visibilities: Array<{
+    id: VisibilityType;
+    label: string;
+    description: string;
+    icon: ReactNode;
+  }> = [
+    {
+      id: "private",
+      label: t("chat.private", "Private"),
+      description: t("chat.onlyYouAccess", "Only you can access this chat"),
+      icon: <LockIcon />,
+    },
+    {
+      id: "public",
+      label: t("chat.public", "Public"),
+      description: t("chat.anyoneWithLink", "Anyone with the link can access this chat"),
+      icon: <GlobeIcon />,
+    },
+  ];
 
   const { visibilityType, setVisibilityType } = useChatVisibility({
     chatId,
