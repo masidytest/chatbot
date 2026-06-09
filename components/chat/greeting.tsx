@@ -22,7 +22,11 @@ export const Greeting = () => {
   const { t } = useTranslation();
   const [userName, setUserName] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const { greeting, sub } = getTimeGreeting(t);
+  const [greeting, setGreeting] = useState<{ greeting: string; sub: string }>({ greeting: "", sub: "" });
+
+  useEffect(() => {
+    setGreeting(getTimeGreeting(t));
+  }, [t]);
 
   useEffect(() => {
     fetch("/api/me")
@@ -36,9 +40,9 @@ export const Greeting = () => {
 
   const headingText = loaded
     ? userName
-      ? `${greeting}, ${userName}!`
-      : `${greeting}!`
-    : `${greeting}!`;
+      ? `${greeting.greeting}, ${userName}!`
+      : `${greeting.greeting}!`
+    : `${greeting.greeting}!`;
 
   return (
     <div className="flex flex-col items-center px-4" key="overview">
@@ -76,7 +80,7 @@ export const Greeting = () => {
         initial={{ opacity: 0, y: 10 }}
         transition={{ delay: 0.5, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
-        {sub}
+        {greeting.sub}
       </motion.div>
 
       <motion.div
