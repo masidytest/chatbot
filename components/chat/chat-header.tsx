@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { MasidyIcon } from "@/components/chat/masidy-logo";
 import { VisibilitySelector, type VisibilityType } from "./visibility-selector";
-import { LanguageSelector } from "@/components/language-selector";
 
 function PureChatHeader({
   chatId,
@@ -24,33 +23,27 @@ function PureChatHeader({
   }
 
   return (
-    <header className="sticky top-0 flex h-14 items-center gap-2 bg-sidebar px-3 justify-between">
-      <div className="flex items-center gap-2">
-        <Button
-          className="md:hidden"
-          onClick={toggleSidebar}
-          size="icon-sm"
-          variant="ghost"
-        >
-          <PanelLeftIcon className="size-4" />
-        </Button>
+    <header className="sticky top-0 flex h-14 items-center gap-2 bg-sidebar px-3">
+      <Button
+        className="md:hidden"
+        onClick={toggleSidebar}
+        size="icon-sm"
+        variant="ghost"
+      >
+        <PanelLeftIcon className="size-4" />
+      </Button>
 
-        {/* Icon only on mobile when sidebar is closed */}
-        <span className="flex size-8 items-center justify-center rounded-lg md:hidden">
-          <MasidyIcon size={20} />
-        </span>
+      {/* Icon only on mobile when sidebar is closed */}
+      <span className="flex size-8 items-center justify-center rounded-lg md:hidden">
+        <MasidyIcon size={20} />
+      </span>
 
-        {!isReadonly && (
-          <VisibilitySelector
-            chatId={chatId}
-            selectedVisibilityType={selectedVisibilityType}
-          />
-        )}
-      </div>
-
-      <div className="flex items-center gap-2">
-        <LanguageSelector />
-      </div>
+      {!isReadonly && (
+        <VisibilitySelector
+          chatId={chatId}
+          selectedVisibilityType={selectedVisibilityType}
+        />
+      )}
     </header>
   );
 }
