@@ -4,10 +4,13 @@
   "description": "Your personal AI assistant. Search the web, get live data, write and code.",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#F97316",
   "theme_color": "#F97316",
   "orientation": "portrait-primary",
   "categories": ["productivity", "utilities"],
+  "prefer_related_applications": false,
+  "related_applications": [],
   "screenshots": [
     {
       "src": "/launchericon-512x512.png",
@@ -61,5 +64,6 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "iarc_rating_id": ""
 }
