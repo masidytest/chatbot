@@ -118,13 +118,35 @@ export default function RootLayout({
           }}
         />
         <script
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: unregister old SW + capture install prompt
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: register SW + capture install prompt
           dangerouslySetInnerHTML={{
             __html: `
 (function(){
   if('serviceWorker' in navigator){
     navigator.serviceWorker.getRegistrations().then(function(r){
-      r.forEach(function(reg){ reg.unregister(); });
+      r.forEach(function(reg){ 
+        if(reg.scope.includes('/sw')) {
+          reg.unregister(); 
+        }
+      });
+    });
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .then(function(reg){
+          console.log('[App] Service Worker registered:', reg);
+          reg.addEventListener('updatefound', function(){
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', function(){
+              if(newWorker.state === 'installed' && navigator.serviceWorker.controller){
+                console.log('[App] New Service Worker available');
+                window.dispatchEvent(new Event('sw-updated'));
+              }
+            });
+          });
+        })
+        .catch(function(err){
+          console.warn('[App] Service Worker registration failed:', err);
+        });
     });
   }
   window.addEventListener('beforeinstallprompt',function(e){
