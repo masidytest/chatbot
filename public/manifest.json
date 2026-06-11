@@ -26,12 +26,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow"
-    },
-    {
-      "src": "/preview.png",
-      "sizes": "1920x1080",
-      "type": "image/png",
-      "form_factor": "wide"
     }
   ],
   "scope_extensions": [
