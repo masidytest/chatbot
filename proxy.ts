@@ -9,7 +9,23 @@ export async function proxy(request: NextRequest) {
     return new Response("pong", { status: 200 });
   }
 
-  if (pathname.startsWith("/api/auth")) {
+  // Exclude static and PWA assets from authentication
+  if (
+    pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/_next/") ||
+    pathname.endsWith(".png") ||
+    pathname.endsWith(".svg") ||
+    pathname.endsWith(".ico") ||
+    pathname.endsWith(".json") ||
+    pathname.endsWith(".xml") ||
+    pathname.endsWith(".txt") ||
+    pathname.endsWith(".js") ||
+    pathname === "/manifest.json" ||
+    pathname === "/sw.js" ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/robots.txt" ||
+    pathname === "/favicon.ico"
+  ) {
     return NextResponse.next();
   }
 
@@ -59,6 +75,6 @@ export const config = {
     "/login",
     "/register",
 
-    "/((?!_next/static|_next/image|favicon.ico|manifest.json|sitemap.xml|robots.txt|sw.js|masidy-icon.svg|masidy-app-icon.svg).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.json|sitemap.xml|robots.txt|sw.js|launchericon|masidy-icon.svg|masidy-app-icon.svg|preview.png).*)",
   ],
 };
