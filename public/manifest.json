@@ -5,6 +5,8 @@
   "description": "Your personal AI assistant. Search the web, get live data, write and code.",
   "start_url": "/",
   "scope": "/",
+  "lang": "en-US",
+  "dir": "ltr",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#F97316",
@@ -26,10 +28,18 @@
       "form_factor": "narrow"
     },
     {
-      "src": "/launchericon-512x512.png",
-      "sizes": "1280x720",
+      "src": "/preview.png",
+      "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide"
+    }
+  ],
+  "scope_extensions": [
+    {
+      "origin": "https://www.masidy.com"
+    },
+    {
+      "origin": "https://masidy.com"
     }
   ],
   "icons": [
