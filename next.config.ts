@@ -21,6 +21,34 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
   },
+  headers: async () => [
+    {
+      source: "/manifest.json",
+      headers: [
+        {
+          key: "Content-Type",
+          value: "application/manifest+json",
+        },
+        {
+          key: "Cache-Control",
+          value: "public, max-age=3600",
+        },
+      ],
+    },
+    {
+      source: "/launchericon-:size(48|72|96|144|192|512)x:size.png",
+      headers: [
+        {
+          key: "Content-Type",
+          value: "image/png",
+        },
+        {
+          key: "Cache-Control",
+          value: "public, max-age=31536000, immutable",
+        },
+      ],
+    },
+  ],
   cacheComponents: true,
   devIndicators: false,
   poweredByHeader: false,
