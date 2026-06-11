@@ -7,6 +7,15 @@
   "background_color": "#F97316",
   "theme_color": "#F97316",
   "orientation": "portrait-primary",
+  "categories": ["productivity", "utilities"],
+  "screenshots": [
+    {
+      "src": "/launchericon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
   "icons": [
     {
       "src": "/launchericon-48x48.png",
